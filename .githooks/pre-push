@@ -1,0 +1,13 @@
+#!/bin/sh
+# dauntexlabs pre-push gate — no dependencies (not Husky).
+# Enable once per clone:  git config core.hooksPath .githooks
+#
+# Runs the fast gate (typecheck + unit tests + build). The browser e2e suite
+# (`npm run e2e`) is intentionally left to CI / manual runs so pushes stay quick.
+
+echo "▶ pre-push: running verify (typecheck + unit tests + build)…"
+if ! npm run verify --silent; then
+  echo "✗ verify failed — push aborted. Fix the above, or bypass with: git push --no-verify"
+  exit 1
+fi
+echo "✓ verify passed — pushing."

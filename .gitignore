@@ -1,0 +1,13 @@
+node_modules
+.next
+out
+*.local
+.DS_Store
+.playwright-mcp
+
+# test artifacts
+coverage
+test-results
+playwright-report
+blob-report
+playwright/.cache

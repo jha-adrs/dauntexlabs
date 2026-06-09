@@ -1,0 +1,13 @@
+import type { MetadataRoute } from 'next'
+
+const SITE = 'https://dauntexlabs.com'
+
+// Required for `output: export` — emit this route as a static file.
+export const dynamic = 'force-static'
+
+export default function robots(): MetadataRoute.Robots {
+  return {
+    rules: { userAgent: '*', allow: '/' },
+    sitemap: `${SITE}/sitemap.xml`,
+  }
+}

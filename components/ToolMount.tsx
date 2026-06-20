@@ -56,6 +56,29 @@ const REGISTRY: Record<string, ComponentType> = {
   'password-generator': dynamic(() => import('@/components/tools/PasswordGenerator'), { ssr: false, loading }),
   'qr-code-generator': dynamic(() => import('@/components/tools/QrCodeGenerator'), { ssr: false, loading }),
   'lorem-ipsum': dynamic(() => import('@/components/tools/LoremIpsum'), { ssr: false, loading }),
+  // Text Tools
+  'word-counter': dynamic(() => import('@/components/tools/WordCounter'), { ssr: false, loading }),
+  'slug-generator': dynamic(() => import('@/components/tools/SlugGenerator'), { ssr: false, loading }),
+  'text-diff': dynamic(() => import('@/components/tools/TextDiff'), { ssr: false, loading }),
+  'morse-code': dynamic(() => import('@/components/tools/MorseCode'), { ssr: false, loading }),
+  // Web & CSS
+  'color-converter': dynamic(() => import('@/components/tools/ColorConverter'), { ssr: false, loading }),
+  'contrast-checker': dynamic(() => import('@/components/tools/ContrastChecker'), { ssr: false, loading }),
+  'css-gradient': dynamic(() => import('@/components/tools/CssGradient'), { ssr: false, loading }),
+  'html-entities': dynamic(() => import('@/components/tools/HtmlEntities'), { ssr: false, loading }),
+  // Utilities (batch 3)
+  'regex-tester': dynamic(() => import('@/components/tools/RegexTester'), { ssr: false, loading }),
+  'cron-explainer': dynamic(() => import('@/components/tools/CronExplainer'), { ssr: false, loading }),
+  'cidr-calculator': dynamic(() => import('@/components/tools/CidrCalculator'), { ssr: false, loading }),
+  'chmod-calculator': dynamic(() => import('@/components/tools/ChmodCalculator'), { ssr: false, loading }),
+  // Converters (batch 3)
+  'json-to-typescript': dynamic(() => import('@/components/tools/JsonToTypescript'), { ssr: false, loading }),
+  'env-to-json': dynamic(() => import('@/components/tools/EnvToJson'), { ssr: false, loading }),
+  'roman-numerals': dynamic(() => import('@/components/tools/RomanNumerals'), { ssr: false, loading }),
+  'number-to-words': dynamic(() => import('@/components/tools/NumberToWords'), { ssr: false, loading }),
+  // Formatters / Generators (batch 3)
+  'sql-formatter': dynamic(() => import('@/components/tools/SqlFormatter'), { ssr: false, loading }),
+  'markdown-table': dynamic(() => import('@/components/tools/MarkdownTable'), { ssr: false, loading }),
 }
 
 export default function ToolMount({ slug }: { slug: string }) {

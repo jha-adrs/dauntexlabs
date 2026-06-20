@@ -10,6 +10,8 @@ export type Category =
   | 'Data Tools'
   | 'Image Tools'
   | 'PDF Tools'
+  | 'Text Tools'
+  | 'Web & CSS'
 
 export interface Tool {
   /** url segment: /tools/<slug> */
@@ -32,6 +34,8 @@ export const CATEGORY_ORDER: Category[] = [
   'Data Tools',
   'Image Tools',
   'PDF Tools',
+  'Text Tools',
+  'Web & CSS',
 ]
 
 /** short instrument-style code per category, used in labels */
@@ -43,6 +47,8 @@ export const CATEGORY_CODE: Record<Category, string> = {
   'Data Tools': 'DAT',
   'Image Tools': 'IMG',
   'PDF Tools': 'PDF',
+  'Text Tools': 'TXT',
+  'Web & CSS': 'WEB',
 }
 
 export const tools: Tool[] = [
@@ -329,6 +335,144 @@ export const tools: Tool[] = [
     category: 'Generators',
     blurb: 'Generate placeholder lorem ipsum paragraphs, sentences and words.',
     keywords: ['lorem', 'ipsum', 'placeholder', 'dummy', 'text', 'filler'],
+  },
+
+  // ── Text Tools (pure JS) ───────────────────────────────────
+  {
+    slug: 'word-counter',
+    name: 'Word & Character Counter',
+    category: 'Text Tools',
+    blurb: 'Count words, characters, sentences, paragraphs and reading time as you type.',
+    keywords: ['word count', 'character count', 'letter count', 'reading time', 'text counter'],
+  },
+  {
+    slug: 'slug-generator',
+    name: 'Slug Generator',
+    category: 'Text Tools',
+    blurb: 'Turn any text or title into a clean, URL-safe slug.',
+    keywords: ['slug', 'slugify', 'url', 'permalink', 'seo'],
+  },
+  {
+    slug: 'text-diff',
+    name: 'Text Diff Checker',
+    category: 'Text Tools',
+    blurb: 'Compare two blocks of text and highlight added and removed lines.',
+    keywords: ['diff', 'compare', 'text difference', 'changes'],
+  },
+  {
+    slug: 'morse-code',
+    name: 'Morse Code Translator',
+    category: 'Text Tools',
+    blurb: 'Translate text to and from Morse code, with optional audio dots and dashes.',
+    keywords: ['morse', 'code', 'translator', 'encode', 'decode'],
+  },
+
+  // ── Web & CSS (pure JS) ────────────────────────────────────
+  {
+    slug: 'color-converter',
+    name: 'HEX, RGB & HSL Converter',
+    category: 'Web & CSS',
+    blurb: 'Convert colors between HEX, RGB and HSL with a live swatch.',
+    keywords: ['hex', 'rgb', 'hsl', 'color', 'convert', 'css'],
+  },
+  {
+    slug: 'contrast-checker',
+    name: 'Color Contrast Checker',
+    category: 'Web & CSS',
+    blurb: 'Check the WCAG contrast ratio between text and background colors.',
+    keywords: ['contrast', 'wcag', 'accessibility', 'a11y', 'color ratio'],
+  },
+  {
+    slug: 'css-gradient',
+    name: 'CSS Gradient Generator',
+    category: 'Web & CSS',
+    blurb: 'Design linear and radial CSS gradients with a live preview and copyable code.',
+    keywords: ['css', 'gradient', 'linear', 'radial', 'background'],
+  },
+  {
+    slug: 'html-entities',
+    name: 'HTML Entity Encoder / Decoder',
+    category: 'Web & CSS',
+    blurb: 'Encode and decode HTML entities and numeric character references.',
+    keywords: ['html', 'entity', 'entities', 'encode', 'escape', 'decode'],
+  },
+
+  // ── Utilities (pure JS) ────────────────────────────────────
+  {
+    slug: 'regex-tester',
+    name: 'Regex Tester',
+    category: 'Utilities',
+    blurb: 'Test regular expressions with live match highlighting and capture groups.',
+    keywords: ['regex', 'regular expression', 'test', 'match', 'pattern'],
+  },
+  {
+    slug: 'cron-explainer',
+    name: 'Cron Expression Explainer',
+    category: 'Utilities',
+    blurb: 'Translate a cron expression into plain English and preview upcoming run times.',
+    keywords: ['cron', 'crontab', 'schedule', 'expression', 'job'],
+  },
+  {
+    slug: 'cidr-calculator',
+    name: 'CIDR / Subnet Calculator',
+    category: 'Utilities',
+    blurb: 'Compute network, broadcast, netmask and host range from an IPv4 CIDR block.',
+    keywords: ['cidr', 'subnet', 'ip', 'netmask', 'network', 'ipv4'],
+  },
+  {
+    slug: 'chmod-calculator',
+    name: 'Chmod Calculator',
+    category: 'Utilities',
+    blurb: 'Convert Unix file permissions between symbolic (rwx) and octal notation.',
+    keywords: ['chmod', 'permissions', 'octal', 'unix', 'file mode'],
+  },
+
+  // ── Converters (pure JS) ───────────────────────────────────
+  {
+    slug: 'json-to-typescript',
+    name: 'JSON to TypeScript',
+    category: 'Converters',
+    blurb: 'Generate TypeScript interfaces from a sample JSON object.',
+    keywords: ['json', 'typescript', 'interface', 'types', 'codegen'],
+  },
+  {
+    slug: 'env-to-json',
+    name: '.env to JSON',
+    category: 'Converters',
+    blurb: 'Convert between .env files and JSON in both directions.',
+    keywords: ['env', 'dotenv', 'json', 'environment', 'variables'],
+  },
+  {
+    slug: 'roman-numerals',
+    name: 'Roman Numeral Converter',
+    category: 'Converters',
+    blurb: 'Convert between numbers and Roman numerals.',
+    keywords: ['roman', 'numeral', 'number', 'convert'],
+  },
+  {
+    slug: 'number-to-words',
+    name: 'Number to Words',
+    category: 'Converters',
+    blurb: 'Spell out numbers as English words, including currency style.',
+    keywords: ['number', 'words', 'spell', 'cardinal', 'amount'],
+  },
+
+  // ── Formatters (pure JS) ───────────────────────────────────
+  {
+    slug: 'sql-formatter',
+    name: 'SQL Formatter',
+    category: 'Formatters',
+    blurb: 'Format and beautify SQL queries with consistent keyword casing and indentation.',
+    keywords: ['sql', 'format', 'beautify', 'query', 'prettify'],
+  },
+
+  // ── Generators (pure JS) ───────────────────────────────────
+  {
+    slug: 'markdown-table',
+    name: 'Markdown Table Generator',
+    category: 'Generators',
+    blurb: 'Build Markdown tables from rows, or convert CSV into a Markdown table.',
+    keywords: ['markdown', 'table', 'generator', 'csv', 'md'],
   },
 ]
 

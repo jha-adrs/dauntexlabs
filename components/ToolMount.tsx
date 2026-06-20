@@ -79,6 +79,26 @@ const REGISTRY: Record<string, ComponentType> = {
   // Formatters / Generators (batch 3)
   'sql-formatter': dynamic(() => import('@/components/tools/SqlFormatter'), { ssr: false, loading }),
   'markdown-table': dynamic(() => import('@/components/tools/MarkdownTable'), { ssr: false, loading }),
+  // Developer (batch 4)
+  'ulid-generator': dynamic(() => import('@/components/tools/UlidGenerator'), { ssr: false, loading }),
+  'base58-base32': dynamic(() => import('@/components/tools/Base58Base32'), { ssr: false, loading }),
+  'json-diff': dynamic(() => import('@/components/tools/JsonDiff'), { ssr: false, loading }),
+  'query-string-to-json': dynamic(() => import('@/components/tools/QueryStringToJson'), { ssr: false, loading }),
+  'url-parser': dynamic(() => import('@/components/tools/UrlParser'), { ssr: false, loading }),
+  'json-to-go': dynamic(() => import('@/components/tools/JsonToGo'), { ssr: false, loading }),
+  'box-shadow-generator': dynamic(() => import('@/components/tools/BoxShadowGenerator'), { ssr: false, loading }),
+  'border-radius-generator': dynamic(() => import('@/components/tools/BorderRadiusGenerator'), { ssr: false, loading }),
+  'gitignore-generator': dynamic(() => import('@/components/tools/GitignoreGenerator'), { ssr: false, loading }),
+  // Business & Finance (batch 4)
+  'loan-calculator': dynamic(() => import('@/components/tools/LoanCalculator'), { ssr: false, loading }),
+  'compound-interest': dynamic(() => import('@/components/tools/CompoundInterest'), { ssr: false, loading }),
+  'percentage-calculator': dynamic(() => import('@/components/tools/PercentageCalculator'), { ssr: false, loading }),
+  'margin-calculator': dynamic(() => import('@/components/tools/MarginCalculator'), { ssr: false, loading }),
+  'sales-tax-calculator': dynamic(() => import('@/components/tools/SalesTaxCalculator'), { ssr: false, loading }),
+  'discount-calculator': dynamic(() => import('@/components/tools/DiscountCalculator'), { ssr: false, loading }),
+  'break-even-calculator': dynamic(() => import('@/components/tools/BreakEvenCalculator'), { ssr: false, loading }),
+  'roi-calculator': dynamic(() => import('@/components/tools/RoiCalculator'), { ssr: false, loading }),
+  'tip-calculator': dynamic(() => import('@/components/tools/TipCalculator'), { ssr: false, loading }),
 }
 
 export default function ToolMount({ slug }: { slug: string }) {

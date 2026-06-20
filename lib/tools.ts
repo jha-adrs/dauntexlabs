@@ -12,6 +12,7 @@ export type Category =
   | 'PDF Tools'
   | 'Text Tools'
   | 'Web & CSS'
+  | 'Business & Finance'
 
 export interface Tool {
   /** url segment: /tools/<slug> */
@@ -36,6 +37,7 @@ export const CATEGORY_ORDER: Category[] = [
   'PDF Tools',
   'Text Tools',
   'Web & CSS',
+  'Business & Finance',
 ]
 
 /** short instrument-style code per category, used in labels */
@@ -49,6 +51,7 @@ export const CATEGORY_CODE: Record<Category, string> = {
   'PDF Tools': 'PDF',
   'Text Tools': 'TXT',
   'Web & CSS': 'WEB',
+  'Business & Finance': 'FIN',
 }
 
 export const tools: Tool[] = [
@@ -473,6 +476,136 @@ export const tools: Tool[] = [
     category: 'Generators',
     blurb: 'Build Markdown tables from rows, or convert CSV into a Markdown table.',
     keywords: ['markdown', 'table', 'generator', 'csv', 'md'],
+  },
+
+  // ── Developer (batch 4, pure JS) ───────────────────────────
+  {
+    slug: 'ulid-generator',
+    name: 'ULID & UUIDv7 Generator',
+    category: 'Generators',
+    blurb: 'Generate time-sortable ULID and UUID v7 identifiers in bulk.',
+    keywords: ['ulid', 'uuid v7', 'uuidv7', 'sortable id', 'identifier'],
+  },
+  {
+    slug: 'base58-base32',
+    name: 'Base58 & Base32 Encoder',
+    category: 'Data Tools',
+    blurb: 'Encode and decode text with Base58 and Base32.',
+    keywords: ['base58', 'base32', 'encode', 'decode'],
+  },
+  {
+    slug: 'json-diff',
+    name: 'JSON Diff',
+    category: 'Data Tools',
+    blurb: 'Compare two JSON documents and see what was added, removed or changed.',
+    keywords: ['json', 'diff', 'compare', 'difference'],
+  },
+  {
+    slug: 'query-string-to-json',
+    name: 'Query String to JSON',
+    category: 'Converters',
+    blurb: 'Convert URL query strings to JSON and back.',
+    keywords: ['query string', 'querystring', 'json', 'url params'],
+  },
+  {
+    slug: 'url-parser',
+    name: 'URL Parser',
+    category: 'Data Tools',
+    blurb: 'Break a URL into protocol, host, path, query parameters and hash.',
+    keywords: ['url', 'parse', 'parser', 'query params'],
+  },
+  {
+    slug: 'json-to-go',
+    name: 'JSON to Go Struct',
+    category: 'Converters',
+    blurb: 'Generate Go structs with json tags from a JSON sample.',
+    keywords: ['json', 'go', 'golang', 'struct', 'codegen'],
+  },
+  {
+    slug: 'box-shadow-generator',
+    name: 'CSS Box Shadow Generator',
+    category: 'Web & CSS',
+    blurb: 'Design CSS box-shadows with a live preview and copyable code.',
+    keywords: ['box shadow', 'css', 'shadow', 'generator'],
+  },
+  {
+    slug: 'border-radius-generator',
+    name: 'CSS Border Radius Generator',
+    category: 'Web & CSS',
+    blurb: 'Craft CSS border-radius with per-corner control and a live preview.',
+    keywords: ['border radius', 'css', 'rounded corners', 'generator'],
+  },
+  {
+    slug: 'gitignore-generator',
+    name: '.gitignore Generator',
+    category: 'Generators',
+    blurb: 'Build a .gitignore from common language and tool templates.',
+    keywords: ['gitignore', 'git', 'ignore', 'template'],
+  },
+
+  // ── Business & Finance (batch 4, pure-math calculators) ────
+  {
+    slug: 'loan-calculator',
+    name: 'Loan & EMI Calculator',
+    category: 'Business & Finance',
+    blurb: 'Calculate monthly payments, total interest and a full amortization schedule.',
+    keywords: ['loan', 'emi', 'mortgage', 'repayment', 'amortization'],
+  },
+  {
+    slug: 'compound-interest',
+    name: 'Compound Interest Calculator',
+    category: 'Business & Finance',
+    blurb: 'Project savings growth with compounding and regular contributions.',
+    keywords: ['compound interest', 'savings', 'investment', 'growth'],
+  },
+  {
+    slug: 'percentage-calculator',
+    name: 'Percentage Calculator',
+    category: 'Business & Finance',
+    blurb: 'Work out percentages, percentage change and ratios.',
+    keywords: ['percentage', 'percent', 'change', 'calculator'],
+  },
+  {
+    slug: 'margin-calculator',
+    name: 'Profit Margin & Markup Calculator',
+    category: 'Business & Finance',
+    blurb: 'Compute profit margin, markup, profit and selling price.',
+    keywords: ['margin', 'markup', 'profit', 'pricing'],
+  },
+  {
+    slug: 'sales-tax-calculator',
+    name: 'Sales Tax & VAT Calculator',
+    category: 'Business & Finance',
+    blurb: 'Add or extract sales tax / VAT from any amount.',
+    keywords: ['sales tax', 'vat', 'gst', 'tax'],
+  },
+  {
+    slug: 'discount-calculator',
+    name: 'Discount Calculator',
+    category: 'Business & Finance',
+    blurb: 'Find the sale price and amount saved for any discount.',
+    keywords: ['discount', 'sale', 'percent off', 'savings'],
+  },
+  {
+    slug: 'break-even-calculator',
+    name: 'Break-even Calculator',
+    category: 'Business & Finance',
+    blurb: 'Find the units and revenue needed to cover your costs.',
+    keywords: ['break even', 'fixed cost', 'variable cost', 'units'],
+  },
+  {
+    slug: 'roi-calculator',
+    name: 'ROI & CAGR Calculator',
+    category: 'Business & Finance',
+    blurb: 'Measure return on investment and compound annual growth rate.',
+    keywords: ['roi', 'cagr', 'return', 'investment', 'growth'],
+  },
+  {
+    slug: 'tip-calculator',
+    name: 'Tip & Bill Split Calculator',
+    category: 'Business & Finance',
+    blurb: 'Split a bill and calculate the tip per person.',
+    keywords: ['tip', 'gratuity', 'bill split', 'restaurant'],
   },
 ]
 

@@ -99,6 +99,25 @@ const REGISTRY: Record<string, ComponentType> = {
   'break-even-calculator': dynamic(() => import('@/components/tools/BreakEvenCalculator'), { ssr: false, loading }),
   'roi-calculator': dynamic(() => import('@/components/tools/RoiCalculator'), { ssr: false, loading }),
   'tip-calculator': dynamic(() => import('@/components/tools/TipCalculator'), { ssr: false, loading }),
+  // Education (batch 5)
+  'gpa-calculator': dynamic(() => import('@/components/tools/GpaCalculator'), { ssr: false, loading }),
+  'grade-calculator': dynamic(() => import('@/components/tools/GradeCalculator'), { ssr: false, loading }),
+  'statistics-calculator': dynamic(() => import('@/components/tools/StatisticsCalculator'), { ssr: false, loading }),
+  'fraction-calculator': dynamic(() => import('@/components/tools/FractionCalculator'), { ssr: false, loading }),
+  'quadratic-solver': dynamic(() => import('@/components/tools/QuadraticSolver'), { ssr: false, loading }),
+  'citation-generator': dynamic(() => import('@/components/tools/CitationGenerator'), { ssr: false, loading }),
+  'readability-score': dynamic(() => import('@/components/tools/ReadabilityScore'), { ssr: false, loading }),
+  'random-name-picker': dynamic(() => import('@/components/tools/RandomNamePicker'), { ssr: false, loading }),
+  // Health & Fitness (batch 5)
+  'bmi-calculator': dynamic(() => import('@/components/tools/BmiCalculator'), { ssr: false, loading }),
+  'calorie-calculator': dynamic(() => import('@/components/tools/CalorieCalculator'), { ssr: false, loading }),
+  'pace-calculator': dynamic(() => import('@/components/tools/PaceCalculator'), { ssr: false, loading }),
+  'water-intake': dynamic(() => import('@/components/tools/WaterIntake'), { ssr: false, loading }),
+  // Everyday (batch 5)
+  'age-calculator': dynamic(() => import('@/components/tools/AgeCalculator'), { ssr: false, loading }),
+  'date-difference': dynamic(() => import('@/components/tools/DateDifference'), { ssr: false, loading }),
+  'date-calculator': dynamic(() => import('@/components/tools/DateCalculator'), { ssr: false, loading }),
+  'random-number-generator': dynamic(() => import('@/components/tools/RandomNumberGenerator'), { ssr: false, loading }),
 }
 
 export default function ToolMount({ slug }: { slug: string }) {

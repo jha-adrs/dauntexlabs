@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **dauntexlabs** — a library of **client-side** developer & media tools and converters, free for personal and public use. One homepage lists every tool; **every tool has its own statically-generated, SEO-indexed page** (`/tools/<slug>/`). There is no application backend: computation (parsing, hashing, encryption, image/PDF processing) is *designed* to run in the browser. NOTE: the privacy framing was deliberately softened from an absolute guarantee to "designed to run on your device" + legal hedges (see Privacy below) — keep new copy consistent with that.
 
-73 live tools + 1 under-maintenance page across 10 categories (Utilities, Converters, Formatters, Generators, Data Tools, Image Tools, PDF Tools, Text Tools, Web & CSS, Business & Finance).
+89 live tools + 1 under-maintenance page across 13 categories (Utilities, Converters, Formatters, Generators, Data Tools, Image Tools, PDF Tools, Text Tools, Web & CSS, Business & Finance, Education, Health & Fitness, Everyday).
 
 ## Stack
 
@@ -22,7 +22,7 @@ npm run dev        # next dev (http://localhost:3000)
 npm run build      # static export -> ./out  (runs SSG + typechecks; THE gate)
 npm run preview    # serve ./out (npx serve)
 npm run typecheck  # tsc --noEmit (production only — test/ is excluded)
-npm test           # vitest run — 625 behavior tests, one suite per tool
+npm test           # vitest run — 770 behavior tests, one suite per tool
 npm run test:watch # vitest watch
 npm run e2e        # playwright — real-browser image-tool tests (auto-boots next dev)
 npm run e2e:install# one-time: download the Chromium used by e2e

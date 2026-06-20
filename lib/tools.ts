@@ -13,6 +13,9 @@ export type Category =
   | 'Text Tools'
   | 'Web & CSS'
   | 'Business & Finance'
+  | 'Education'
+  | 'Health & Fitness'
+  | 'Everyday'
 
 export interface Tool {
   /** url segment: /tools/<slug> */
@@ -38,6 +41,9 @@ export const CATEGORY_ORDER: Category[] = [
   'Text Tools',
   'Web & CSS',
   'Business & Finance',
+  'Education',
+  'Health & Fitness',
+  'Everyday',
 ]
 
 /** short instrument-style code per category, used in labels */
@@ -52,6 +58,9 @@ export const CATEGORY_CODE: Record<Category, string> = {
   'Text Tools': 'TXT',
   'Web & CSS': 'WEB',
   'Business & Finance': 'FIN',
+  Education: 'EDU',
+  'Health & Fitness': 'FIT',
+  Everyday: 'DAY',
 }
 
 export const tools: Tool[] = [
@@ -606,6 +615,124 @@ export const tools: Tool[] = [
     category: 'Business & Finance',
     blurb: 'Split a bill and calculate the tip per person.',
     keywords: ['tip', 'gratuity', 'bill split', 'restaurant'],
+  },
+
+  // ── Education (batch 5, pure JS) ───────────────────────────
+  {
+    slug: 'gpa-calculator',
+    name: 'GPA Calculator',
+    category: 'Education',
+    blurb: 'Calculate your weighted GPA from course grades and credit hours.',
+    keywords: ['gpa', 'grade point average', 'college', 'credits', 'semester'],
+  },
+  {
+    slug: 'grade-calculator',
+    name: 'Grade Calculator',
+    category: 'Education',
+    blurb: 'Work out your weighted course grade and the score you need on the final.',
+    keywords: ['grade', 'weighted grade', 'final grade', 'exam', 'class'],
+  },
+  {
+    slug: 'statistics-calculator',
+    name: 'Statistics Calculator',
+    category: 'Education',
+    blurb: 'Find mean, median, mode, range, variance and standard deviation of a data set.',
+    keywords: ['statistics', 'mean', 'median', 'mode', 'standard deviation', 'variance'],
+  },
+  {
+    slug: 'fraction-calculator',
+    name: 'Fraction Calculator',
+    category: 'Education',
+    blurb: 'Add, subtract, multiply and divide fractions, with simplified results.',
+    keywords: ['fraction', 'fractions', 'simplify', 'math'],
+  },
+  {
+    slug: 'quadratic-solver',
+    name: 'Quadratic Equation Solver',
+    category: 'Education',
+    blurb: 'Solve ax² + bx + c = 0 with real or complex roots and the discriminant.',
+    keywords: ['quadratic', 'equation', 'roots', 'discriminant', 'solver'],
+  },
+  {
+    slug: 'citation-generator',
+    name: 'Citation Generator',
+    category: 'Education',
+    blurb: 'Build APA, MLA and Chicago citations for books and websites.',
+    keywords: ['citation', 'apa', 'mla', 'chicago', 'bibliography', 'reference'],
+  },
+  {
+    slug: 'readability-score',
+    name: 'Readability Score',
+    category: 'Education',
+    blurb: 'Measure Flesch reading ease and grade level for your text.',
+    keywords: ['readability', 'flesch', 'reading level', 'grade level'],
+  },
+  {
+    slug: 'random-name-picker',
+    name: 'Random Name Picker',
+    category: 'Education',
+    blurb: 'Shuffle a list and pick random names or winners.',
+    keywords: ['random name picker', 'raffle', 'winner', 'draw', 'shuffle'],
+  },
+
+  // ── Health & Fitness (batch 5, pure JS) ────────────────────
+  {
+    slug: 'bmi-calculator',
+    name: 'BMI Calculator',
+    category: 'Health & Fitness',
+    blurb: 'Calculate Body Mass Index in metric or imperial units, with category.',
+    keywords: ['bmi', 'body mass index', 'weight', 'height'],
+  },
+  {
+    slug: 'calorie-calculator',
+    name: 'Calorie & TDEE Calculator',
+    category: 'Health & Fitness',
+    blurb: 'Estimate BMR and daily calorie needs with the Mifflin-St Jeor formula.',
+    keywords: ['calorie', 'tdee', 'bmr', 'maintenance calories', 'mifflin'],
+  },
+  {
+    slug: 'pace-calculator',
+    name: 'Running Pace Calculator',
+    category: 'Health & Fitness',
+    blurb: 'Convert between pace, distance and time for your runs.',
+    keywords: ['pace', 'running', 'marathon', 'split', 'speed'],
+  },
+  {
+    slug: 'water-intake',
+    name: 'Water Intake Calculator',
+    category: 'Health & Fitness',
+    blurb: 'Estimate how much water to drink per day from your body weight.',
+    keywords: ['water intake', 'hydration', 'daily water', 'drink'],
+  },
+
+  // ── Everyday (batch 5, pure JS) ────────────────────────────
+  {
+    slug: 'age-calculator',
+    name: 'Age Calculator',
+    category: 'Everyday',
+    blurb: 'Find your exact age in years, months and days from a date of birth.',
+    keywords: ['age', 'age calculator', 'birthday', 'how old'],
+  },
+  {
+    slug: 'date-difference',
+    name: 'Date Difference Calculator',
+    category: 'Everyday',
+    blurb: 'Count the days, weeks, months and years between two dates.',
+    keywords: ['date difference', 'days between', 'duration', 'date calculator'],
+  },
+  {
+    slug: 'date-calculator',
+    name: 'Date Add / Subtract',
+    category: 'Everyday',
+    blurb: 'Add or subtract days, weeks or months from a date.',
+    keywords: ['date', 'add days', 'subtract days', 'future date'],
+  },
+  {
+    slug: 'random-number-generator',
+    name: 'Random Number Generator',
+    category: 'Everyday',
+    blurb: 'Generate random numbers in a range, with optional uniqueness.',
+    keywords: ['random number', 'rng', 'generator', 'lottery', 'dice'],
   },
 ]
 

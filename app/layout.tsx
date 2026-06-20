@@ -30,38 +30,38 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
   title: {
-    default: 'dauntexlabs — on-device developer tools',
+    default: 'dauntexlabs — 100+ free, on-device tools',
     template: '%s — dauntexlabs',
   },
   description:
-    'A growing rack of client-side developer tools, converters and generators. Everything runs in your browser — no uploads, no accounts, no telemetry.',
+    '100+ free online tools that run entirely in your browser — developer utilities, converters, generators, formatters and calculators for marketing, finance, education and everyday tasks. No uploads, no accounts, no telemetry.',
   applicationName: 'dauntexlabs',
   keywords: [
+    'free online tools',
     'developer tools',
-    'online tools',
-    'client-side',
+    'client-side tools',
+    'converters',
+    'generators',
+    'calculators',
+    'seo tools',
+    'marketing tools',
     'json',
-    'csv',
     'base64',
-    'jwt',
-    'hash',
-    'encryption',
-    'converter',
   ],
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
     siteName: 'dauntexlabs',
-    title: 'dauntexlabs — on-device developer tools',
+    title: 'dauntexlabs — 100+ free, on-device tools',
     description:
-      'Developer tools, converters and generators that run entirely in your browser. No uploads, no telemetry.',
+      '100+ free tools that run entirely in your browser — for developers, marketers, students and everyday tasks. No uploads, no telemetry.',
     url: SITE,
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'dauntexlabs — on-device developer tools',
+    title: 'dauntexlabs — 100+ free, on-device tools',
     description:
-      'Developer tools, converters and generators that run entirely in your browser.',
+      '100+ free tools that run entirely in your browser. No uploads, no accounts, no telemetry.',
   },
   robots: { index: true, follow: true },
 }

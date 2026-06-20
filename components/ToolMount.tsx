@@ -118,6 +118,23 @@ const REGISTRY: Record<string, ComponentType> = {
   'date-difference': dynamic(() => import('@/components/tools/DateDifference'), { ssr: false, loading }),
   'date-calculator': dynamic(() => import('@/components/tools/DateCalculator'), { ssr: false, loading }),
   'random-number-generator': dynamic(() => import('@/components/tools/RandomNumberGenerator'), { ssr: false, loading }),
+  // Marketing & SEO (batch 6)
+  'meta-tag-generator': dynamic(() => import('@/components/tools/MetaTagGenerator'), { ssr: false, loading }),
+  'open-graph-generator': dynamic(() => import('@/components/tools/OpenGraphGenerator'), { ssr: false, loading }),
+  'utm-builder': dynamic(() => import('@/components/tools/UtmBuilder'), { ssr: false, loading }),
+  'serp-preview': dynamic(() => import('@/components/tools/SerpPreview'), { ssr: false, loading }),
+  'keyword-density': dynamic(() => import('@/components/tools/KeywordDensity'), { ssr: false, loading }),
+  'robots-txt-generator': dynamic(() => import('@/components/tools/RobotsTxtGenerator'), { ssr: false, loading }),
+  'sitemap-generator': dynamic(() => import('@/components/tools/SitemapGenerator'), { ssr: false, loading }),
+  'hashtag-generator': dynamic(() => import('@/components/tools/HashtagGenerator'), { ssr: false, loading }),
+  'social-character-counter': dynamic(() => import('@/components/tools/SocialCharacterCounter'), { ssr: false, loading }),
+  'ctr-calculator': dynamic(() => import('@/components/tools/CtrCalculator'), { ssr: false, loading }),
+  'conversion-rate-calculator': dynamic(() => import('@/components/tools/ConversionRateCalculator'), { ssr: false, loading }),
+  'cpm-calculator': dynamic(() => import('@/components/tools/CpmCalculator'), { ssr: false, loading }),
+  'roas-calculator': dynamic(() => import('@/components/tools/RoasCalculator'), { ssr: false, loading }),
+  'engagement-rate-calculator': dynamic(() => import('@/components/tools/EngagementRateCalculator'), { ssr: false, loading }),
+  'ab-test-calculator': dynamic(() => import('@/components/tools/AbTestCalculator'), { ssr: false, loading }),
+  'email-signature-generator': dynamic(() => import('@/components/tools/EmailSignatureGenerator'), { ssr: false, loading }),
 }
 
 export default function ToolMount({ slug }: { slug: string }) {

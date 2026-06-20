@@ -16,6 +16,7 @@ export type Category =
   | 'Education'
   | 'Health & Fitness'
   | 'Everyday'
+  | 'Marketing & SEO'
 
 export interface Tool {
   /** url segment: /tools/<slug> */
@@ -44,6 +45,7 @@ export const CATEGORY_ORDER: Category[] = [
   'Education',
   'Health & Fitness',
   'Everyday',
+  'Marketing & SEO',
 ]
 
 /** short instrument-style code per category, used in labels */
@@ -61,6 +63,7 @@ export const CATEGORY_CODE: Record<Category, string> = {
   Education: 'EDU',
   'Health & Fitness': 'FIT',
   Everyday: 'DAY',
+  'Marketing & SEO': 'SEO',
 }
 
 export const tools: Tool[] = [
@@ -733,6 +736,120 @@ export const tools: Tool[] = [
     category: 'Everyday',
     blurb: 'Generate random numbers in a range, with optional uniqueness.',
     keywords: ['random number', 'rng', 'generator', 'lottery', 'dice'],
+  },
+
+  // ── Marketing & SEO (batch 6, pure JS) ─────────────────────
+  {
+    slug: 'meta-tag-generator',
+    name: 'Meta Tag Generator',
+    category: 'Marketing & SEO',
+    blurb: 'Generate SEO meta tags — title, description, robots, canonical and social cards.',
+    keywords: ['meta tags', 'seo', 'html head', 'meta description'],
+  },
+  {
+    slug: 'open-graph-generator',
+    name: 'Open Graph Generator',
+    category: 'Marketing & SEO',
+    blurb: 'Build Open Graph and card tags for rich link previews on social platforms.',
+    keywords: ['open graph', 'og tags', 'social', 'link preview'],
+  },
+  {
+    slug: 'utm-builder',
+    name: 'UTM Campaign Builder',
+    category: 'Marketing & SEO',
+    blurb: 'Build trackable campaign URLs with UTM parameters.',
+    keywords: ['utm', 'campaign url', 'tracking', 'marketing'],
+  },
+  {
+    slug: 'serp-preview',
+    name: 'SERP Snippet Preview',
+    category: 'Marketing & SEO',
+    blurb: 'Preview how your title and description appear in search results, with length limits.',
+    keywords: ['serp', 'snippet', 'search preview', 'title length', 'meta description'],
+  },
+  {
+    slug: 'keyword-density',
+    name: 'Keyword Density Analyzer',
+    category: 'Marketing & SEO',
+    blurb: 'Analyze keyword frequency and density in your content.',
+    keywords: ['keyword density', 'seo', 'word frequency', 'content'],
+  },
+  {
+    slug: 'robots-txt-generator',
+    name: 'Robots.txt Generator',
+    category: 'Marketing & SEO',
+    blurb: 'Create a robots.txt with allow / disallow rules and a sitemap reference.',
+    keywords: ['robots.txt', 'crawler', 'seo', 'disallow'],
+  },
+  {
+    slug: 'sitemap-generator',
+    name: 'XML Sitemap Generator',
+    category: 'Marketing & SEO',
+    blurb: 'Turn a list of URLs into a valid XML sitemap.',
+    keywords: ['sitemap', 'xml sitemap', 'seo', 'urls'],
+  },
+  {
+    slug: 'hashtag-generator',
+    name: 'Hashtag Generator',
+    category: 'Marketing & SEO',
+    blurb: 'Turn keywords into clean, deduplicated hashtags.',
+    keywords: ['hashtag', 'social media', 'tags'],
+  },
+  {
+    slug: 'social-character-counter',
+    name: 'Social Character Counter',
+    category: 'Marketing & SEO',
+    blurb: 'Count characters against common post, caption and bio length limits.',
+    keywords: ['character counter', 'social media', 'post length', 'caption'],
+  },
+  {
+    slug: 'ctr-calculator',
+    name: 'CTR Calculator',
+    category: 'Marketing & SEO',
+    blurb: 'Calculate click-through rate from clicks and impressions.',
+    keywords: ['ctr', 'click through rate', 'ads', 'marketing'],
+  },
+  {
+    slug: 'conversion-rate-calculator',
+    name: 'Conversion Rate Calculator',
+    category: 'Marketing & SEO',
+    blurb: 'Work out conversion rate from conversions and visits.',
+    keywords: ['conversion rate', 'cvr', 'funnel', 'marketing'],
+  },
+  {
+    slug: 'cpm-calculator',
+    name: 'CPM, CPC & CPA Calculator',
+    category: 'Marketing & SEO',
+    blurb: 'Calculate CPM, CPC and CPA from spend, impressions, clicks and conversions.',
+    keywords: ['cpm', 'cpc', 'cpa', 'ad cost', 'advertising'],
+  },
+  {
+    slug: 'roas-calculator',
+    name: 'ROAS Calculator',
+    category: 'Marketing & SEO',
+    blurb: 'Measure return on ad spend from revenue and cost.',
+    keywords: ['roas', 'return on ad spend', 'advertising', 'roi'],
+  },
+  {
+    slug: 'engagement-rate-calculator',
+    name: 'Engagement Rate Calculator',
+    category: 'Marketing & SEO',
+    blurb: 'Compute engagement rate from interactions and audience size.',
+    keywords: ['engagement rate', 'social media', 'reach', 'followers'],
+  },
+  {
+    slug: 'ab-test-calculator',
+    name: 'A/B Test Significance Calculator',
+    category: 'Marketing & SEO',
+    blurb: 'Check whether an A/B test conversion result is statistically significant.',
+    keywords: ['ab test', 'significance', 'conversion', 'statistics'],
+  },
+  {
+    slug: 'email-signature-generator',
+    name: 'Email Signature Generator',
+    category: 'Marketing & SEO',
+    blurb: 'Create a clean HTML email signature you can copy into your mail client.',
+    keywords: ['email signature', 'html signature', 'branding'],
   },
 ]
 

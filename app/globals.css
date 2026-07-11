@@ -282,7 +282,7 @@ a {
   align-items: center;
   gap: 12px;
   margin-top: 22px;
-  max-width: 720px;
+  width: 100%;
   border: 1px solid var(--line-strong);
   background: var(--ink-800);
   padding: 15px 18px;

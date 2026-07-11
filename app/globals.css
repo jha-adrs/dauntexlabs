@@ -20,8 +20,8 @@
   --acid: #c6f24e;
   --acid-dim: #97bd3a;
   --bone: #e9ebe1;
-  --mute: #8d9281;
-  --mute-2: #565b4d;
+  --mute: #b0b5a4;
+  --mute-2: #7e8473;
 
   /* --ff-* are provided by next/font (self-hosted); literal names are fallbacks. */
   --font-display: var(--ff-display, 'Chakra Petch'), system-ui, sans-serif;
@@ -224,7 +224,7 @@ a {
 /* ---- hero ---------------------------------------------------------- */
 .hero {
   position: relative;
-  padding: 116px 0 64px;
+  padding: 52px 0 32px;
   overflow: hidden;
 }
 .hero .beam {
@@ -263,86 +263,127 @@ a {
 .hero h1 {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(42px, 8.5vw, 108px);
-  line-height: 0.9;
-  letter-spacing: -0.02em;
+  font-size: clamp(32px, 5vw, 58px);
+  line-height: 0.98;
+  letter-spacing: -0.015em;
   text-transform: uppercase;
-  margin: 22px 0 0;
+  margin: 16px 0 0;
 }
 .hero h1 .em {
   text-shadow: 0 0 48px rgba(198, 242, 78, 0.28);
 }
 .hero .lede {
-  margin: 28px 0 0;
+  margin: 16px 0 0;
+  max-width: 62ch;
 }
 
 .prompt {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 34px;
-  max-width: 580px;
+  margin-top: 22px;
+  max-width: 720px;
   border: 1px solid var(--line-strong);
   background: var(--ink-800);
   padding: 15px 18px;
-  transition: border-color 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.prompt:hover {
+  border-color: var(--acid-dim);
 }
 .prompt:focus-within {
   border-color: var(--acid);
   box-shadow:
     0 0 0 1px var(--acid),
-    0 0 30px rgba(198, 242, 78, 0.12);
+    0 0 34px rgba(198, 242, 78, 0.14);
 }
-.prompt .caret {
-  font-size: 18px;
+.prompt .search-icon {
+  width: 19px;
+  height: 19px;
+  color: var(--acid);
+  flex-shrink: 0;
 }
 .prompt input {
   flex: 1;
+  min-width: 0;
   background: transparent;
   border: none;
   outline: none;
   color: var(--bone);
   font-family: var(--font-mono);
-  font-size: 15px;
+  font-size: 16px;
 }
 .prompt input::placeholder {
-  color: var(--mute-2);
+  color: var(--mute);
+}
+.prompt .kbd {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--mute);
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  padding: 2px 8px;
+  letter-spacing: 0.04em;
 }
 .prompt .clear {
   background: none;
   border: none;
   color: var(--mute);
   cursor: pointer;
-  font-size: 13px;
+  font-size: 14px;
   padding: 4px;
+  flex-shrink: 0;
 }
 .prompt .clear:hover {
   color: var(--acid);
 }
 
-.stats {
+.hero-trust {
   display: flex;
-  gap: 56px;
-  margin: 40px 0 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin: 20px 0 0;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--mute);
 }
-.stats dt {
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+.hero-trust b {
+  color: var(--bone);
+  font-weight: 600;
+}
+.hero-trust .sep {
   color: var(--mute-2);
 }
-.stats dd {
-  margin: 6px 0 0;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 34px;
-  line-height: 1;
-  color: var(--bone);
+.hero-trust .dot {
+  color: var(--acid);
 }
 
 /* ---- deck ---------------------------------------------------------- */
 .deck {
   padding-bottom: 40px;
+}
+.deck-results {
+  margin: 6px 0 16px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--mute);
+}
+.deck-results b {
+  color: var(--bone);
+  font-weight: 600;
+}
+
+/* keyboard focus visibility (a11y) */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+.chip:focus-visible,
+.card:focus-visible {
+  outline: 2px solid var(--acid);
+  outline-offset: 2px;
 }
 .chips {
   display: flex;

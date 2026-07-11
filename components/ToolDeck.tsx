@@ -57,9 +57,16 @@ export default function ToolDeck({ query, active, setActive }: Props) {
         ))}
       </nav>
 
+      {!grouped && filtered.length > 0 && (
+        <p className="deck-results">
+          <b>{filtered.length}</b> {filtered.length === 1 ? 'tool' : 'tools'}
+          {query.trim() ? <> matching “{query}”</> : <> in {active}</>}
+        </p>
+      )}
+
       {filtered.length === 0 && (
         <p className="empty">
-          <span className="caret">›</span> no modules match “{query}”
+          <span className="caret">›</span> no tools match “{query}”
         </p>
       )}
 

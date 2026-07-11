@@ -1,0 +1,12 @@
+# Cloudflare Pages headers. Next.js copies public/ into ./out at build,
+# so this lands at the deploy root where Pages reads it.
+
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+
+# Hashed build assets (JS/CSS/fonts) are immutable — cache them hard.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable

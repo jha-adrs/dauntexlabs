@@ -4,7 +4,28 @@ import Link from 'next/link'
 import StatusBar from '@/components/StatusBar'
 import Footer from '@/components/Footer'
 import ToolMount from '@/components/ToolMount'
-import { tools, CATEGORY_CODE, toolIndex } from '@/lib/tools'
+import JsonLd from '@/components/JsonLd'
+import { tools, CATEGORY_CODE, toolIndex, type Category } from '@/lib/tools'
+
+const SITE = 'https://dauntexlabs.com'
+
+// Map our categories to schema.org applicationCategory values.
+const SCHEMA_CATEGORY: Record<Category, string> = {
+  Utilities: 'UtilitiesApplication',
+  Converters: 'UtilitiesApplication',
+  Formatters: 'DeveloperApplication',
+  Generators: 'DeveloperApplication',
+  'Data Tools': 'DeveloperApplication',
+  'Image Tools': 'MultimediaApplication',
+  'PDF Tools': 'BusinessApplication',
+  'Text Tools': 'UtilitiesApplication',
+  'Web & CSS': 'DeveloperApplication',
+  'Business & Finance': 'FinanceApplication',
+  Education: 'EducationalApplication',
+  'Health & Fitness': 'HealthApplication',
+  Everyday: 'UtilitiesApplication',
+  'Marketing & SEO': 'BusinessApplication',
+}
 
 type Params = { params: Promise<{ slug: string }> }
 
@@ -28,6 +49,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     description: tool.blurb,
     keywords: tool.keywords,
     alternates: { canonical: path },
+    // Keep unfinished tools out of the index; still crawlable/followable.
+    robots: tool.status === 'maintenance' ? { index: false, follow: true } : undefined,
     openGraph: {
       type: 'website',
       title: `${tool.name} — dauntexlabs`,
@@ -77,8 +100,33 @@ export default async function ToolPage({ params }: Params) {
     )
   }
 
+  const path = `${SITE}/tools/${tool.slug}/`
+  const appSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: tool.name,
+    url: path,
+    description: tool.blurb,
+    applicationCategory: SCHEMA_CATEGORY[tool.category],
+    operatingSystem: 'Any (web browser)',
+    browserRequirements: 'Requires JavaScript',
+    isAccessibleForFree: true,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher: { '@type': 'Organization', name: 'dauntexlabs', url: `${SITE}/` },
+  }
+  const breadcrumbs = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` },
+      { '@type': 'ListItem', position: 2, name: tool.name, item: path },
+    ],
+  }
+
   return (
     <>
+      <JsonLd data={appSchema} />
+      <JsonLd data={breadcrumbs} />
       <StatusBar />
       <main className="shell tool-page">
         <Link href="/" className="back">

@@ -10,10 +10,14 @@ export const dynamic = 'force-static'
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: `${SITE}/`, changeFrequency: 'weekly', priority: 1 },
-    ...tools.map((t) => ({
-      url: `${SITE}/tools/${t.slug}/`,
-      changeFrequency: 'monthly' as const,
-      priority: 0.8,
-    })),
+    { url: `${SITE}/privacy/`, changeFrequency: 'yearly', priority: 0.3 },
+    // Only index live tools — the under-maintenance page is noindex + excluded.
+    ...tools
+      .filter((t) => t.status !== 'maintenance')
+      .map((t) => ({
+        url: `${SITE}/tools/${t.slug}/`,
+        changeFrequency: 'monthly' as const,
+        priority: 0.8,
+      })),
   ]
 }

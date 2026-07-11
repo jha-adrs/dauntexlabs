@@ -22,7 +22,7 @@ npm run dev        # next dev (http://localhost:3000)
 npm run build      # static export -> ./out  (runs SSG + typechecks; THE gate)
 npm run preview    # serve ./out (npx serve)
 npm run typecheck  # tsc --noEmit (production only — test/ is excluded)
-npm test           # vitest run — 892 behavior tests, one suite per tool
+npm test           # vitest run — 909 behavior tests (tools + conversions)
 npm run test:watch # vitest watch
 npm run e2e        # playwright — real-browser image-tool tests (auto-boots next dev)
 npm run e2e:install# one-time: download the Chromium used by e2e
@@ -67,6 +67,9 @@ Three layers, all deriving from one registry:
 **The shared UI kit — `components/ui/kit.tsx`** — is the contract every tool uses for consistency: `Button, CopyButton, DownloadButton, Field, TextArea, TextInput, Select, Toggle, Segmented, Toolbar, IO, Panel, Notice`, plus file primitives for image/PDF tools: `FileDrop`, `FilePreview`, and `downloadBlob(data, filename, mime?)` (binary download). Their styles live in the "tool kit" / "file drop" sections of `app/globals.css`. **Build new tools by composing the kit** — text tools: `Base64.tsx`/`HashGenerator.tsx`; file tools: `ImageCompressor.tsx` (native Canvas) / `MergePdf.tsx` (lazy pdf-lib) are the canonical references — rather than hand-rolling controls or inventing CSS class names.
 
 A registry entry with **`status: 'maintenance'`** renders an "under maintenance" page (still SEO-indexed via `generateMetadata`) instead of the tool body, and needs **no** `ToolMount` entry (e.g. `pdf-to-images`, deferred to avoid the heavy pdf.js bundle). The homepage card shows a "soon" badge for these.
+
+### Programmatic long-tail pages (`/convert/`)
+Separate from the 106 tools: **~260 statically-generated conversion pages** at `/convert/<from>-to-<to>/` (units, number bases, image formats) — a long-tail SEO play. All derive from **`lib/conversions.ts`** (a `PAIRS` registry + pure `convertUnit`/`convertBase`/`formula`/`tableRows` helpers, isolated from the tool components). `app/convert/[slug]/page.tsx` does `generateStaticParams`/`generateMetadata`; `app/convert/page.tsx` is the hub. Unit/base pages use `components/convert/ConvertWidget.tsx`; image pages lazy-load `ImageConverter` (via `ConvertImage.tsx`, using its optional `presetFormat` prop). Each page = pre-set widget + example + reference table + formula + FAQ (FAQPage schema) + cross-links. All are in `sitemap.xml`. Design spec: `docs/superpowers/specs/2026-07-11-programmatic-conversion-pages-design.md`. Next growth levers (per that spec): **A** deepen the 106 tool pages (About/FAQ + category hubs), **C** embeds + shareable result links.
 
 ### Adding a tool
 1. Add a registry entry in `lib/tools.ts` (page, sitemap, search, card appear automatically).

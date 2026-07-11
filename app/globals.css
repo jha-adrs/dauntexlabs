@@ -782,6 +782,211 @@ input:focus-visible,
 .related {
   margin-top: 52px;
 }
+
+/* ---- convert pages ------------------------------------------------- */
+.block {
+  margin-top: 48px;
+}
+.sec-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.sec-head .code {
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--acid);
+}
+.sec-head h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 19px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.sec-head .rule {
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+.sec-head .count {
+  font-size: 12px;
+  color: var(--mute-2);
+  letter-spacing: 0.1em;
+}
+.conv-formula {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--acid);
+  background: var(--ink-850);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--acid);
+  padding: 14px 16px;
+  margin: 0;
+}
+.conv-table {
+  border: 1px solid var(--line);
+  background: var(--ink-850);
+  max-width: 460px;
+}
+.conv-table-h {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mute-2);
+}
+.conv-table-r {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 9px 16px;
+  font-size: 13.5px;
+  font-family: var(--font-mono);
+  color: var(--bone);
+}
+.conv-table-r + .conv-table-r {
+  border-top: 1px solid var(--line-soft);
+}
+.conv-table-r span:last-child {
+  color: var(--acid-dim);
+}
+
+details.faq {
+  border: 1px solid var(--line);
+  background: var(--ink-850);
+  margin-bottom: 8px;
+}
+details.faq summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 15px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14.5px;
+  color: var(--bone);
+}
+details.faq summary::-webkit-details-marker {
+  display: none;
+}
+details.faq summary .plus {
+  color: var(--acid);
+  font-family: var(--font-mono);
+  transition: transform 0.2s;
+}
+details.faq[open] summary .plus {
+  transform: rotate(45deg);
+}
+details.faq .ans {
+  padding: 0 18px 16px;
+  color: var(--mute);
+  font-size: 14px;
+  line-height: 1.7;
+  max-width: 74ch;
+}
+
+.cw-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.cw-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 200px;
+}
+.cw-cap {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.cw-input {
+  background: var(--ink-800);
+  border: 1px solid var(--line);
+  color: var(--bone);
+  font-family: var(--font-mono);
+  font-size: 20px;
+  padding: 14px 16px;
+  outline: none;
+  transition:
+    border-color 0.16s,
+    box-shadow 0.16s;
+}
+.cw-input:focus {
+  border-color: var(--acid);
+  box-shadow: 0 0 0 1px var(--acid);
+}
+.cw-eq {
+  font-family: var(--font-display);
+  font-size: 24px;
+  color: var(--mute-2);
+  padding-bottom: 12px;
+}
+.cw-out {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  color: var(--acid);
+  background: var(--ink-800);
+  border: 1px solid var(--line-strong);
+  padding: 14px 16px;
+  min-height: 52px;
+  word-break: break-all;
+}
+.cw-out.err {
+  color: #ff6a4d;
+  font-size: 14px;
+}
+.cw-actions {
+  margin-top: 14px;
+}
+
+.conv-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.conv-chip {
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  color: var(--mute);
+  border: 1px solid var(--line);
+  background: var(--ink-850);
+  padding: 8px 13px;
+  transition:
+    color 0.16s,
+    border-color 0.16s,
+    background 0.16s;
+}
+.conv-chip:hover {
+  color: var(--acid);
+  border-color: var(--line-strong);
+  background: var(--ink-800);
+}
+.conv-chip.rev {
+  color: var(--acid-dim);
+  border-color: var(--line-strong);
+}
+.conv-chip.parent {
+  color: var(--bone);
+}
+@media (max-width: 560px) {
+  .cw-eq {
+    display: none;
+  }
+  .cw-field {
+    min-width: 100%;
+  }
+}
 .tool-loading {
   margin-top: 36px;
   padding: 40px;

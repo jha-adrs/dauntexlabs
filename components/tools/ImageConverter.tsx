@@ -38,9 +38,9 @@ function detectAvif(): Promise<boolean> {
   })
 }
 
-export default function ImageConverter() {
+export default function ImageConverter({ presetFormat }: { presetFormat?: string }) {
   const [img, setImg] = useState<Loaded | null>(null)
-  const [format, setFormat] = useState('image/png')
+  const [format, setFormat] = useState(presetFormat ?? 'image/png')
   const [quality, setQuality] = useState(80)
   const [out, setOut] = useState<Out | null>(null)
   const [error, setError] = useState('')

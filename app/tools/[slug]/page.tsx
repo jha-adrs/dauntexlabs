@@ -4,6 +4,7 @@ import Link from 'next/link'
 import StatusBar from '@/components/StatusBar'
 import Footer from '@/components/Footer'
 import ToolMount from '@/components/ToolMount'
+import ToolCard from '@/components/ToolCard'
 import JsonLd from '@/components/JsonLd'
 import { tools, CATEGORY_CODE, toolIndex, type Category } from '@/lib/tools'
 
@@ -123,15 +124,23 @@ export default async function ToolPage({ params }: Params) {
     ],
   }
 
+  const related = tools
+    .filter((t) => t.category === tool.category && t.slug !== tool.slug && t.status !== 'maintenance')
+    .slice(0, 6)
+
   return (
     <>
       <JsonLd data={appSchema} />
       <JsonLd data={breadcrumbs} />
       <StatusBar />
       <main className="shell tool-page">
-        <Link href="/" className="back">
-          ← deck
-        </Link>
+        <nav className="crumbs" aria-label="Breadcrumb">
+          <Link href="/">◇ dauntexlabs</Link>
+          <span className="sep">›</span>
+          <span>{tool.category}</span>
+          <span className="sep">›</span>
+          <span className="crumb-here">{tool.name}</span>
+        </nav>
 
         <div className="tool-head">
           <span className="idx">
@@ -143,7 +152,23 @@ export default async function ToolPage({ params }: Params) {
         <h1>{tool.name}</h1>
         <p className="lede">{tool.blurb}</p>
 
-        <ToolMount slug={tool.slug} />
+        <div className="tool-meta">
+          <span className="pill acid">◇ on-device</span>
+          <span className="pill">free</span>
+          <span className="pill">no sign-up</span>
+        </div>
+
+        <div className="tool-console">
+          <div className="tool-console-head">
+            <span className="lbl">
+              {CATEGORY_CODE[tool.category]}·{idx} · {tool.name}
+            </span>
+            <span className="hint">◇ runs in your browser</span>
+          </div>
+          <div className="tool-console-body">
+            <ToolMount slug={tool.slug} />
+          </div>
+        </div>
 
         <p className="tool-foot-note">
           <span className="ready">
@@ -153,6 +178,21 @@ export default async function ToolPage({ params }: Params) {
             </Link>
           </span>
         </p>
+
+        {related.length > 0 && (
+          <section className="related">
+            <header className="cat-head">
+              <span className="code">{CATEGORY_CODE[tool.category]}</span>
+              <h2>Related in {tool.category}</h2>
+              <span className="rule" />
+            </header>
+            <div className="deck-grid">
+              {related.map((t, i) => (
+                <ToolCard key={t.slug} tool={t} delay={i * 30} />
+              ))}
+            </div>
+          </section>
+        )}
       </main>
       <Footer />
     </>

@@ -705,7 +705,82 @@ input:focus-visible,
   margin-top: 36px;
 }
 .tool-foot-note {
-  margin-top: 30px;
+  margin-top: 26px;
+}
+
+/* ---- tool page redesign -------------------------------------------- */
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 40px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.crumbs a:hover {
+  color: var(--acid);
+}
+.crumbs .sep {
+  color: var(--mute-2);
+}
+.crumbs .crumb-here {
+  color: var(--bone);
+}
+.tool-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.tool-meta .pill {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mute);
+  border: 1px solid var(--line);
+  background: var(--ink-850);
+  padding: 5px 11px;
+}
+.tool-meta .pill.acid {
+  color: var(--acid);
+  border-color: var(--line-strong);
+}
+.tool-console {
+  margin-top: 28px;
+  border: 1px solid var(--line-strong);
+  background: var(--ink-850);
+}
+.tool-console-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.tool-console-head .lbl {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--acid-dim);
+}
+.tool-console-head .hint {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mute-2);
+}
+.tool-console-body {
+  padding: 22px;
+}
+.tool-console-body > .tool {
+  margin-top: 0;
+}
+.related {
+  margin-top: 52px;
 }
 .tool-loading {
   margin-top: 36px;

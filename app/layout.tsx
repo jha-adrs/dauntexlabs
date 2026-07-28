@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Chakra_Petch, IBM_Plex_Mono } from 'next/font/google'
 import Backdrop from '@/components/Backdrop'
 import ConsentBanner from '@/components/ConsentBanner'
+import Analytics from '@/components/Analytics'
 import './globals.css'
 
 const SITE = 'https://dauntexlabs.com'
@@ -73,6 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Backdrop />
         {children}
         <ConsentBanner />
+        <Analytics />
       </body>
     </html>
   )

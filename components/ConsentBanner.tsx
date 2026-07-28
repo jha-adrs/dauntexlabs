@@ -3,11 +3,17 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
-const KEY = 'dxl-consent-v1'
+const KEY = 'dxl-consent-v1' // seen the banner
+const ANALYTICS = 'dxl-analytics' // 'granted' | 'denied'
 
-// First-visit acknowledgement. Stored only in this browser's localStorage —
-// there is no server to send acceptance to. Renders nothing until mounted to
-// avoid a flash for visitors who have already accepted (and SSR mismatch).
+function setAnalyticsConsent(state: 'granted' | 'denied') {
+  const w = window as unknown as { gtag?: (...args: unknown[]) => void }
+  w.gtag?.('consent', 'update', { analytics_storage: state })
+}
+
+// First-visit consent for privacy-conscious analytics (Google Analytics runs in
+// Consent Mode, default-denied, until the visitor chooses here). Tool inputs are
+// never part of this — they stay in the browser regardless of the choice.
 export default function ConsentBanner() {
   const [show, setShow] = useState(false)
 
@@ -19,32 +25,39 @@ export default function ConsentBanner() {
     }
   }, [])
 
-  function accept() {
+  function choose(analytics: 'granted' | 'denied') {
     try {
       localStorage.setItem(KEY, 'accepted')
+      localStorage.setItem(ANALYTICS, analytics)
     } catch {
-      /* storage blocked — close anyway */
+      /* storage blocked — proceed anyway */
     }
+    setAnalyticsConsent(analytics)
     setShow(false)
   }
 
   if (!show) return null
 
   return (
-    <div className="consent" role="dialog" aria-label="Privacy notice">
+    <div className="consent" role="dialog" aria-label="Privacy & cookies">
       <div className="shell consent-row">
         <p className="consent-text">
-          <span className="consent-mark">◇</span> These tools are{' '}
-          <b>designed to run on your device</b> — no accounts, no analytics, no trackers. No site
-          can fully guarantee how data moves across the web, so please review the{' '}
+          <span className="consent-mark">◇</span> Your <b>tool data stays on your device</b> — what
+          you type into a tool is never uploaded. We use cookies for privacy-conscious usage
+          analytics (which pages are popular) to improve the site. See the{' '}
           <Link href="/privacy/" className="consent-link">
             privacy policy
-          </Link>{' '}
-          (including the disclaimer) before using the tools.
+          </Link>
+          .
         </p>
-        <button className="btn btn-primary" onClick={accept}>
-          accept &amp; continue
-        </button>
+        <div className="consent-actions">
+          <button className="btn" onClick={() => choose('denied')}>
+            decline
+          </button>
+          <button className="btn btn-primary" onClick={() => choose('granted')}>
+            accept analytics
+          </button>
+        </div>
       </div>
     </div>
   )

@@ -24,22 +24,24 @@ export default function PrivacyPage() {
           <span className="cat">Legal</span>
         </div>
         <h1>Privacy Policy</h1>
-        <p className="lede">Last updated 6 June 2026.</p>
+        <p className="lede">Last updated 13 July 2026.</p>
 
         <div className="notice success" style={{ marginTop: 28 }}>
-          The short version: every tool is <b>designed to run entirely in your browser</b>. We
-          operate no application backend to receive your data, and use no accounts, cookies,
-          analytics or trackers. Because no website can absolutely guarantee how data moves
-          across the open web, the clauses below set out the limits in plain terms.
+          The short version: every tool is <b>designed to run in your browser</b> — what you type,
+          paste or upload into a tool is never sent to us. We have no accounts and no application
+          backend. We <b>do</b> use privacy-conscious, consent-gated analytics (Google Analytics)
+          to see which pages are popular; you can decline it, and it never receives your tool
+          inputs. The clauses below set out the details and limits.
         </div>
 
         <div className="prose">
           <h2>1. What we collect</h2>
           <p>
-            We do not operate an application server, database, or account system that collects
-            your data. dauntexlabs is a set of static files (HTML, CSS, JavaScript) your browser
-            downloads and then runs locally. We do not use analytics, advertising, cookies, or
-            cross-site trackers, and we do not ask you to sign in.
+            We operate no application server, database, or account system, so we do not collect the
+            data you enter into tools. dauntexlabs is a set of static files (HTML, CSS, JavaScript)
+            your browser downloads and runs locally, and we never ask you to sign in. The one thing
+            we do measure is <b>aggregate page usage</b> via Google Analytics — only with your
+            consent, and never including your tool inputs (see section 5).
           </p>
 
           <h2>2. Your data is processed on your device</h2>
@@ -61,18 +63,31 @@ export default function PrivacyPage() {
 
           <h2>4. Local storage</h2>
           <p>
-            We use your browser&apos;s <code>localStorage</code> for small, functional things
-            only — for example, remembering that you accepted this notice, and any tool
-            preferences you set. This data lives on your device. You can clear it any time via
-            your browser&apos;s &ldquo;clear site data&rdquo; controls. We do not use cookies.
+            We use your browser&apos;s <code>localStorage</code> for small, functional things —
+            remembering your analytics choice and any tool preferences you set. This lives on your
+            device. Aside from the analytics cookies you opt into (section 5), we set no other
+            cookies. You can clear all of it any time via your browser&apos;s &ldquo;clear site
+            data&rdquo; controls.
           </p>
 
-          <h2>5. No tracking; bundled open-source libraries</h2>
+          <h2>5. Analytics &amp; third-party code</h2>
           <p>
-            There are no analytics scripts, advertising networks, social embeds, or third-party
-            trackers. The libraries the tools rely on are bundled and served from this site
-            itself rather than loaded from a third-party CDN — including the fonts and the
-            open-source{' '}
+            We use <b>Google Analytics</b> (a Google service) to understand which pages are visited
+            so we can improve the site. It runs in <b>Consent Mode</b> — set to <b>denied by
+            default</b>, so <b>no analytics cookies are set until you accept</b> in the banner; you
+            can decline, and returning visitors keep their choice. Analytics measures page-level
+            activity (which page, approximate region, device/browser, referrer). It <b>never</b>{' '}
+            receives what you type, paste or upload into a tool. Google processes this data under
+            its own{' '}
+            <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+              privacy policy
+            </a>
+            ; you can opt out at any time by declining, clearing site data, or using a browser
+            extension that blocks it.
+          </p>
+          <p>
+            Apart from analytics, there are no advertising networks, social embeds, or cross-site
+            trackers. The libraries the tools rely on — the fonts and the open-source{' '}
             <a href="https://openpgpjs.org" target="_blank" rel="noopener noreferrer">
               OpenPGP.js
             </a>
@@ -80,9 +95,8 @@ export default function PrivacyPage() {
             <a href="https://pdf-lib.js.org" target="_blank" rel="noopener noreferrer">
               pdf-lib
             </a>{' '}
-            and QR-code libraries that power the PGP, PDF and QR tools. These libraries are
-            intended to run locally and, to our knowledge, do not make network requests of their
-            own.
+            and QR-code libraries — are bundled and served from this site (not a third-party CDN)
+            and run locally.
           </p>
 
           <h2>6. Cryptography &amp; keys</h2>

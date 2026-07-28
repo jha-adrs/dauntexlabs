@@ -102,7 +102,7 @@ export default function Hero({ query, setQuery }: Props) {
           <span className="sep">·</span>
           <span>no uploads</span>
           <span className="sep">·</span>
-          <span>no accounts or telemetry</span>
+          <span>tool data stays on-device</span>
           <span className="sep">·</span>
           <span>
             <b>{tools.length}</b> tools

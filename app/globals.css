@@ -1469,6 +1469,11 @@ details.faq .ans {
 .consent .btn {
   flex-shrink: 0;
 }
+.consent-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
 @media (max-width: 640px) {
   .consent-row {
     flex-direction: column;

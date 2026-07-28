@@ -8,13 +8,21 @@ export default function Footer() {
           <span className="mark">◇</span> dauntex<b>labs</b>
         </span>
         <p className="foot-note">
-          all computation performed locally · no telemetry · open for public use
+          your tool data stays on your device · open for personal and public use
         </p>
         <span className="foot-meta">
+          <Link href="/" className="foot-link">
+            tools
+          </Link>
+          <span className="foot-sep">·</span>
+          <Link href="/convert/" className="foot-link">
+            conversions
+          </Link>
+          <span className="foot-sep">·</span>
           <Link href="/privacy/" className="foot-link">
             privacy
           </Link>
-          <span className="foot-sep">·</span>© 2026 · build proto-0.1
+          <span className="foot-sep">·</span>© 2026
         </span>
       </div>
     </footer>

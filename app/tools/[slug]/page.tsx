@@ -7,6 +7,14 @@ import ToolMount from '@/components/ToolMount'
 import ToolCard from '@/components/ToolCard'
 import JsonLd from '@/components/JsonLd'
 import { tools, CATEGORY_CODE, toolIndex, type Category } from '@/lib/tools'
+import { PAIRS } from '@/lib/conversions'
+
+// Tools that have a companion family of /convert long-tail pages.
+const CONVERT_PARENT: Record<string, 'unit' | 'base' | 'image'> = {
+  'unit-converter': 'unit',
+  'number-base-converter': 'base',
+  'image-converter': 'image',
+}
 
 const SITE = 'https://dauntexlabs.com'
 
@@ -127,6 +135,10 @@ export default async function ToolPage({ params }: Params) {
   const related = tools
     .filter((t) => t.category === tool.category && t.slug !== tool.slug && t.status !== 'maintenance')
     .slice(0, 6)
+  const convFamily = CONVERT_PARENT[tool.slug]
+  const popularConversions = convFamily
+    ? PAIRS.filter((p) => p.family === convFamily).slice(0, 10)
+    : []
 
   return (
     <>
@@ -178,6 +190,26 @@ export default async function ToolPage({ params }: Params) {
             </Link>
           </span>
         </p>
+
+        {popularConversions.length > 0 && (
+          <section className="related">
+            <header className="cat-head">
+              <span className="code">CONVERT</span>
+              <h2>Popular conversions</h2>
+              <span className="rule" />
+            </header>
+            <div className="conv-links">
+              {popularConversions.map((p) => (
+                <Link className="conv-chip" key={p.slug} href={`/convert/${p.slug}/`}>
+                  {p.fromLabel} to {p.toLabel}
+                </Link>
+              ))}
+              <Link className="conv-chip parent" href="/convert/">
+                → all conversions
+              </Link>
+            </div>
+          </section>
+        )}
 
         {related.length > 0 && (
           <section className="related">

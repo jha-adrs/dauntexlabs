@@ -6,7 +6,7 @@ import Script from 'next/script'
 // (Cloudflare Pages → Settings → Environment variables). Consent defaults to
 // DENIED — no analytics cookies are set until the visitor accepts in the banner.
 // GA measures page visits only; it never receives what users type into a tool.
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? 'G-XXW3FWR6BY'
 
 export default function Analytics() {
   if (!GA_ID) return null

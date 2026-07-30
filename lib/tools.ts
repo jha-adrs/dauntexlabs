@@ -381,6 +381,13 @@ export const tools: Tool[] = [
     blurb: 'Translate text to and from Morse code, with optional audio dots and dashes.',
     keywords: ['morse', 'code', 'translator', 'encode', 'decode'],
   },
+  {
+    slug: 'markdown-to-pdf',
+    name: 'Markdown to PDF',
+    category: 'Text Tools',
+    blurb: 'Write or paste Markdown, preview it live, and export to PDF or HTML — all in your browser.',
+    keywords: ['markdown', 'pdf', 'md to pdf', 'html', 'export', 'preview'],
+  },
 
   // ── Web & CSS (pure JS) ────────────────────────────────────
   {

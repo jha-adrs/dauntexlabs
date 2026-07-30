@@ -61,6 +61,7 @@ const REGISTRY: Record<string, ComponentType> = {
   'slug-generator': dynamic(() => import('@/components/tools/SlugGenerator'), { ssr: false, loading }),
   'text-diff': dynamic(() => import('@/components/tools/TextDiff'), { ssr: false, loading }),
   'morse-code': dynamic(() => import('@/components/tools/MorseCode'), { ssr: false, loading }),
+  'markdown-to-pdf': dynamic(() => import('@/components/tools/MarkdownToPdf'), { ssr: false, loading }),
   // Web & CSS
   'color-converter': dynamic(() => import('@/components/tools/ColorConverter'), { ssr: false, loading }),
   'contrast-checker': dynamic(() => import('@/components/tools/ContrastChecker'), { ssr: false, loading }),

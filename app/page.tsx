@@ -1,4 +1,3 @@
-import StatusBar from '@/components/StatusBar'
 import Footer from '@/components/Footer'
 import HomeClient from '@/components/HomeClient'
 import JsonLd from '@/components/JsonLd'
@@ -37,7 +36,6 @@ export default function Page() {
     <>
       <JsonLd data={website} />
       <JsonLd data={itemList} />
-      <StatusBar />
       <main>
         <HomeClient />
       </main>

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import StatusBar from '@/components/StatusBar'
+import SiteHeader from '@/components/SiteHeader'
 import Footer from '@/components/Footer'
 import ToolMount from '@/components/ToolMount'
 import ToolCard from '@/components/ToolCard'
@@ -79,7 +79,7 @@ export default async function ToolPage({ params }: Params) {
   if (tool.status === 'maintenance') {
     return (
       <>
-        <StatusBar />
+        <SiteHeader />
         <main className="shell tool-page">
           <Link href="/" className="back">
             ← deck
@@ -144,7 +144,7 @@ export default async function ToolPage({ params }: Params) {
     <>
       <JsonLd data={appSchema} />
       <JsonLd data={breadcrumbs} />
-      <StatusBar />
+      <SiteHeader />
       <main className="shell tool-page">
         <nav className="crumbs" aria-label="Breadcrumb">
           <Link href="/">◇ dauntexlabs</Link>

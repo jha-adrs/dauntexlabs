@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import StatusBar from '@/components/StatusBar'
+import SiteHeader from '@/components/SiteHeader'
 import Footer from '@/components/Footer'
 
 export const metadata: Metadata = {
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <>
-      <StatusBar />
+      <SiteHeader />
       <main className="shell tool-page">
         <Link href="/" className="back">
           ← deck

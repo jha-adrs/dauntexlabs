@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import StatusBar from '@/components/StatusBar'
+import SiteHeader from '@/components/SiteHeader'
 import Footer from '@/components/Footer'
 import JsonLd from '@/components/JsonLd'
 import { PAIRS } from '@/lib/conversions'
@@ -34,7 +34,7 @@ export default function ConvertHub() {
   return (
     <>
       <JsonLd data={itemList} />
-      <StatusBar />
+      <SiteHeader />
       <main className="shell tool-page">
         <nav className="crumbs" aria-label="Breadcrumb">
           <Link href="/">◇ dauntexlabs</Link>

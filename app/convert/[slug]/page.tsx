@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import StatusBar from '@/components/StatusBar'
+import SiteHeader from '@/components/SiteHeader'
 import Footer from '@/components/Footer'
 import JsonLd from '@/components/JsonLd'
 import ConvertWidget from '@/components/convert/ConvertWidget'
@@ -112,7 +112,7 @@ export default async function ConvertPage({ params }: Params) {
     <>
       <JsonLd data={breadcrumbs} />
       <JsonLd data={faqSchema} />
-      <StatusBar />
+      <SiteHeader />
       <main className="shell tool-page">
         <nav className="crumbs" aria-label="Breadcrumb">
           <Link href="/">◇ dauntexlabs</Link>

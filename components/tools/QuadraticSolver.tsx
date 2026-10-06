@@ -127,8 +127,8 @@ export default function QuadraticSolver() {
       ? result.discriminant > 0
         ? 'var(--acid)'
         : result.discriminant === 0
-          ? '#f0c040'
-          : '#f05070'
+          ? 'var(--warn)'
+          : 'var(--danger)'
       : 'var(--bone)'
 
   return (

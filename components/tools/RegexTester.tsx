@@ -79,7 +79,7 @@ function runRegex(pattern: string, flags: string, test: string): Result {
 }
 
 const HL_STYLE: React.CSSProperties = {
-  background: 'rgba(198,242,78,.25)',
+  background: 'var(--accent-tint)',
   color: 'var(--acid)',
   borderRadius: 3,
   padding: '0 1px',

@@ -36,15 +36,14 @@ describe('TextDiff', () => {
     expect(screen.getByText('x')).toBeInTheDocument()
   })
 
-  it('colors added line acid and removed line red', () => {
+  it('colors added line accent and removed line danger', () => {
     render(<TextDiff />)
     setInputs('a\nb\nc', 'a\nx\nc')
 
     const added = screen.getByText('x').closest('div') as HTMLElement
     const removed = screen.getByText('b').closest('div') as HTMLElement
     expect(added.style.color).toContain('--acid')
-    // jsdom normalizes #ff6a4d to its rgb() form
-    expect(removed.style.color).toBe('rgb(255, 106, 77)')
+    expect(removed.style.color).toContain('--danger')
   })
 
   it('counts purely-added lines', () => {

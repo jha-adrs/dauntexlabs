@@ -52,10 +52,10 @@ const PREFIX: Record<DiffLine['type'], string> = { add: '+', del: '-', eq: ' ' }
 
 function lineStyle(type: DiffLine['type']): React.CSSProperties {
   if (type === 'add') {
-    return { color: 'var(--acid)', background: 'rgba(198,242,78,.12)' }
+    return { color: 'var(--acid)', background: 'var(--accent-tint)' }
   }
   if (type === 'del') {
-    return { color: '#ff6a4d', background: 'rgba(255,106,77,.10)' }
+    return { color: 'var(--danger)', background: 'var(--danger-tint)' }
   }
   return { color: 'var(--mute)' }
 }
@@ -118,7 +118,7 @@ export default function TextDiff() {
               }}
             >
               <span style={{ color: 'var(--acid)' }}>+{added}</span>{' '}
-              <span style={{ color: '#ff6a4d' }}>−{removed}</span>
+              <span style={{ color: 'var(--danger)' }}>−{removed}</span>
             </div>
             <pre
               className="mono"

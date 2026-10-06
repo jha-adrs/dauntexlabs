@@ -179,7 +179,7 @@ export default function JsonPivot() {
           Detected {fields.length} field{fields.length !== 1 ? 's' : ''}:{' '}
           {fields.map((f, i) => (
             <span key={f}>
-              <code style={{ fontFamily: 'var(--font-mono)', color: 'var(--ink-800)' }}>{f}</code>
+              <code style={{ fontFamily: 'var(--font-mono)', color: 'var(--fg)' }}>{f}</code>
               {i < fields.length - 1 ? ', ' : ''}
             </span>
           ))}

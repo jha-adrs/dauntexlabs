@@ -29,10 +29,10 @@ function calcBmi(units: Units, weightStr: string, heightStr: string, heightInStr
 }
 
 function getCategory(bmi: number): { category: string; categoryColor: string } {
-  if (bmi < 18.5) return { category: 'Underweight', categoryColor: '#60a5fa' }
+  if (bmi < 18.5) return { category: 'Underweight', categoryColor: '#1d4ed8' }
   if (bmi < 25) return { category: 'Normal', categoryColor: 'var(--acid)' }
-  if (bmi < 30) return { category: 'Overweight', categoryColor: '#fb923c' }
-  return { category: 'Obese', categoryColor: '#f87171' }
+  if (bmi < 30) return { category: 'Overweight', categoryColor: 'var(--warn)' }
+  return { category: 'Obese', categoryColor: 'var(--danger)' }
 }
 
 export default function BmiCalculator() {
@@ -201,10 +201,10 @@ export default function BmiCalculator() {
                 }}
               >
                 {[
-                  { label: 'Under­weight', range: '< 18.5', color: '#60a5fa' },
+                  { label: 'Under­weight', range: '< 18.5', color: '#1d4ed8' },
                   { label: 'Normal', range: '18.5–24.9', color: 'var(--acid)' },
-                  { label: 'Over­weight', range: '25–29.9', color: '#fb923c' },
-                  { label: 'Obese', range: '≥ 30', color: '#f87171' },
+                  { label: 'Over­weight', range: '25–29.9', color: 'var(--warn)' },
+                  { label: 'Obese', range: '≥ 30', color: 'var(--danger)' },
                 ].map((cat) => (
                   <div
                     key={cat.label}

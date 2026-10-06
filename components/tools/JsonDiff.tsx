@@ -60,8 +60,8 @@ function fmt(v: unknown): string {
 
 const kindColor: Record<DiffKind, string> = {
   added: 'var(--acid)',
-  removed: '#f87171',
-  changed: '#d8b24a',
+  removed: 'var(--danger)',
+  changed: 'var(--warn)',
 }
 
 const kindLabel: Record<DiffKind, string> = {
@@ -197,7 +197,7 @@ export default function JsonDiff() {
                     {entry.kind === 'changed' && (
                       <>
                         <span style={{ color: 'var(--mute)' }}>left</span>
-                        <span style={{ color: '#f87171' }}>{fmt(entry.left)}</span>
+                        <span style={{ color: 'var(--danger)' }}>{fmt(entry.left)}</span>
                         <span style={{ color: 'var(--mute)' }}>right</span>
                         <span style={{ color: 'var(--acid)' }}>{fmt(entry.right)}</span>
                       </>
@@ -211,7 +211,7 @@ export default function JsonDiff() {
                     {entry.kind === 'removed' && (
                       <>
                         <span style={{ color: 'var(--mute)' }}>value</span>
-                        <span style={{ color: '#f87171' }}>{fmt(entry.left)}</span>
+                        <span style={{ color: 'var(--danger)' }}>{fmt(entry.left)}</span>
                       </>
                     )}
                   </div>

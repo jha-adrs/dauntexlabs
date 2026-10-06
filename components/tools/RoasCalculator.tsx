@@ -128,7 +128,7 @@ export default function RoasCalculator() {
                 <div
                   style={{
                     ...VALUE_STYLE,
-                    color: result.netProfit >= 0 ? 'var(--acid)' : '#f87171',
+                    color: result.netProfit >= 0 ? 'var(--acid)' : 'var(--danger)',
                   }}
                 >
                   {fmt(result.netProfit)}

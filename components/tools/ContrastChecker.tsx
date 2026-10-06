@@ -52,19 +52,19 @@ function Badge({ pass, label }: { pass: boolean; label: string }) {
         gap: '0.4rem',
         padding: '0.25rem 0.6rem',
         borderRadius: 4,
-        background: pass ? 'rgba(198,242,78,0.12)' : 'rgba(220,60,60,0.12)',
-        border: `1px solid ${pass ? 'var(--acid)' : '#e05555'}`,
+        background: pass ? 'var(--accent-tint)' : 'var(--danger-tint)',
+        border: `1px solid ${pass ? 'var(--acid)' : 'var(--danger)'}`,
         fontFamily: 'var(--font-mono)',
         fontSize: '0.78rem',
       }}
     >
-      <span style={{ color: pass ? 'var(--acid)' : '#e07070' }}>
+      <span style={{ color: pass ? 'var(--acid)' : 'var(--danger)' }}>
         {pass ? '✓' : '✗'}
       </span>
       <span style={{ color: 'var(--bone)' }}>{label}</span>
       <span
         style={{
-          color: pass ? 'var(--acid)' : '#e07070',
+          color: pass ? 'var(--acid)' : 'var(--danger)',
           fontWeight: 700,
           fontSize: '0.72rem',
           letterSpacing: '0.05em',

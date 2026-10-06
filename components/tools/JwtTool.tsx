@@ -286,7 +286,7 @@ export default function JwtTool() {
                         style={{
                           fontFamily: 'var(--font-mono)',
                           fontSize: 13,
-                          color: c.includes('EXPIRED') ? '#ff6b6b' : 'var(--bone)',
+                          color: c.includes('EXPIRED') ? 'var(--danger)' : 'var(--bone)',
                         }}
                       >
                         {c}

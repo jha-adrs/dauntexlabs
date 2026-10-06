@@ -135,7 +135,7 @@ export default function RoiCalculator() {
                       Net Profit / Loss
                     </div>
                     <div style={{
-                      color: roiResult.netProfit >= 0 ? 'var(--acid)' : '#f87171',
+                      color: roiResult.netProfit >= 0 ? 'var(--acid)' : 'var(--danger)',
                       fontSize: '1.75rem',
                       fontFamily: 'var(--ff-mono)',
                       fontWeight: 700,

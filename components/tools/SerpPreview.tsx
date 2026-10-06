@@ -33,7 +33,7 @@ function CharCount({ count, limit, label }: { count: number; limit: number; labe
       style={{
         fontFamily: 'var(--font-mono)',
         fontSize: '0.72rem',
-        color: over ? '#f7768e' : 'var(--mute)',
+        color: over ? 'var(--danger)' : 'var(--mute)',
       }}
     >
       {label}: {count} / {limit}
@@ -132,7 +132,7 @@ export default function SerpPreview() {
             </div>
             <div
               style={{
-                color: '#8ab4f8',
+                color: '#1a0dab',
                 fontSize: '1.15rem',
                 lineHeight: 1.3,
                 marginBottom: '0.4rem',

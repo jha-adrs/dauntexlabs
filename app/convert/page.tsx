@@ -16,7 +16,6 @@ export const metadata: Metadata = {
 
 export default function ConvertHub() {
   const cats = Array.from(new Set(PAIRS.map((p) => p.category)))
-  const code = (fam: string) => (fam === 'unit' ? 'UNIT' : fam === 'base' ? 'BASE' : 'IMG')
 
   const itemList = {
     '@context': 'https://schema.org',
@@ -37,7 +36,7 @@ export default function ConvertHub() {
       <SiteHeader />
       <main className="shell tool-page">
         <nav className="crumbs" aria-label="Breadcrumb">
-          <Link href="/">◇ dauntexlabs</Link>
+          <Link href="/">All tools</Link>
           <span className="sep">›</span>
           <span className="crumb-here">Convert</span>
         </nav>
@@ -53,9 +52,7 @@ export default function ConvertHub() {
           return (
             <section className="block" key={cat}>
               <div className="sec-head">
-                <span className="code">{code(items[0].family)}</span>
                 <h2>{cat}</h2>
-                <span className="rule" />
                 <span className="count">{items.length}</span>
               </div>
               <div className="conv-links">

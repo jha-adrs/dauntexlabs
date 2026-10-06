@@ -115,7 +115,7 @@ export default async function ConvertPage({ params }: Params) {
       <SiteHeader />
       <main className="shell tool-page">
         <nav className="crumbs" aria-label="Breadcrumb">
-          <Link href="/">◇ dauntexlabs</Link>
+          <Link href="/">All tools</Link>
           <span className="sep">›</span>
           <Link href="/convert/">Convert</Link>
           <span className="sep">›</span>
@@ -125,7 +125,6 @@ export default async function ConvertPage({ params }: Params) {
         </nav>
 
         <div className="tool-head">
-          <span className="idx">CONVERT</span>
           <span className="cat">{pair.category}</span>
         </div>
         <h1>
@@ -137,9 +136,9 @@ export default async function ConvertPage({ params }: Params) {
             : `${exampleText(pair)} — convert any value instantly, on your device.`}
         </p>
         <div className="tool-meta">
-          <span className="pill acid">◇ on-device</span>
-          <span className="pill">free</span>
-          <span className="pill">no sign-up</span>
+          <span className="pill accent">Runs on your device</span>
+          <span className="pill">Free</span>
+          <span className="pill">No sign-up</span>
         </div>
 
         <div className="tool-console">
@@ -147,7 +146,7 @@ export default async function ConvertPage({ params }: Params) {
             <span className="lbl">
               {pair.fromLabel} → {pair.toLabel}
             </span>
-            <span className="hint">◇ runs in your browser</span>
+            <span className="hint">Runs in your browser</span>
           </div>
           <div className="tool-console-body">
             {pair.family === 'image' ? (
@@ -162,20 +161,16 @@ export default async function ConvertPage({ params }: Params) {
           <>
             <section className="block">
               <div className="sec-head">
-                <span className="code">01</span>
                 <h2>How it works</h2>
-                <span className="rule" />
               </div>
               <p className="conv-formula">{formula(pair)}</p>
             </section>
 
             <section className="block">
               <div className="sec-head">
-                <span className="code">02</span>
                 <h2>
                   {pair.fromLabel} to {pair.toLabel} table
                 </h2>
-                <span className="rule" />
               </div>
               <div className="conv-table" role="table">
                 <div className="conv-table-h" role="row">
@@ -202,11 +197,9 @@ export default async function ConvertPage({ params }: Params) {
         {pair.family === 'image' && (
           <section className="block">
             <div className="sec-head">
-              <span className="code">01</span>
               <h2>
                 {pair.fromLabel} vs {pair.toLabel}
               </h2>
-              <span className="rule" />
             </div>
             <div className="prose">
               <p>
@@ -220,9 +213,7 @@ export default async function ConvertPage({ params }: Params) {
 
         <section className="block">
           <div className="sec-head">
-            <span className="code">{pair.family === 'image' ? '02' : '03'}</span>
             <h2>FAQ</h2>
-            <span className="rule" />
           </div>
           {faq.map((f, i) => (
             <details className="faq" key={i} open={i === 0}>
@@ -237,9 +228,7 @@ export default async function ConvertPage({ params }: Params) {
 
         <section className="block">
           <div className="sec-head">
-            <span className="code">{pair.family === 'image' ? '03' : '04'}</span>
             <h2>Related conversions</h2>
-            <span className="rule" />
           </div>
           <div className="conv-links">
             <Link className="conv-chip rev" href={`/convert/${rev}/`}>
@@ -251,7 +240,7 @@ export default async function ConvertPage({ params }: Params) {
               </Link>
             ))}
             <Link className="conv-chip parent" href={`/tools/${parent.slug}/`}>
-              → {parent.name}
+              {parent.name} →
             </Link>
           </div>
         </section>

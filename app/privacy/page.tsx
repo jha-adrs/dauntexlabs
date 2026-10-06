@@ -16,11 +16,10 @@ export default function PrivacyPage() {
       <SiteHeader />
       <main className="shell tool-page">
         <Link href="/" className="back">
-          ← deck
+          ← All tools
         </Link>
 
         <div className="tool-head">
-          <span className="idx">DOC·001</span>
           <span className="cat">Legal</span>
         </div>
         <h1>Privacy Policy</h1>

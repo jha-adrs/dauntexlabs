@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Chakra_Petch, IBM_Plex_Mono } from 'next/font/google'
-import Backdrop from '@/components/Backdrop'
+import { Bricolage_Grotesque, Instrument_Sans, IBM_Plex_Mono } from 'next/font/google'
 import ConsentBanner from '@/components/ConsentBanner'
 import Analytics from '@/components/Analytics'
 import './globals.css'
@@ -8,11 +7,18 @@ import './globals.css'
 const SITE = 'https://dauntexlabs.com'
 
 // Self-hosted at build time — no runtime request to Google. Exposed as CSS vars
-// consumed by --font-display / --font-mono in globals.css.
-const display = Chakra_Petch({
+// consumed by --font-display / --font-sans / --font-mono in globals.css.
+const display = Bricolage_Grotesque({
+  subsets: ['latin'],
+  weight: ['500', '600', '700', '800'],
+  variable: '--ff-display',
+  display: 'swap',
+  fallback: ['system-ui', 'sans-serif'],
+})
+const sans = Instrument_Sans({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
-  variable: '--ff-display',
+  variable: '--ff-sans',
   display: 'swap',
   fallback: ['system-ui', 'sans-serif'],
 })
@@ -25,7 +31,7 @@ const mono = IBM_Plex_Mono({
 })
 
 export const viewport: Viewport = {
-  themeColor: '#0a0b09',
+  themeColor: '#ffffff',
 }
 
 export const metadata: Metadata = {
@@ -69,9 +75,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${mono.variable}`}>
+    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`}>
       <body>
-        <Backdrop />
         {children}
         <ConsentBanner />
         <Analytics />

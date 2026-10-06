@@ -1,22 +1,14 @@
 'use client'
 
 import { useMemo } from 'react'
-import {
-  tools,
-  CATEGORY_ORDER,
-  CATEGORY_CODE,
-  toolsByCategory,
-  type Category,
-  type Tool,
-} from '@/lib/tools'
+import { tools, CATEGORY_ORDER, toolsByCategory, type Tool } from '@/lib/tools'
 import ToolCard from './ToolCard'
-
-type Filter = 'All' | Category
+import type { CategoryFilter } from './CategoryNav'
 
 interface Props {
   query: string
-  active: Filter
-  setActive: (f: Filter) => void
+  setQuery: (q: string) => void
+  active: CategoryFilter
 }
 
 function matches(tool: Tool, q: string): boolean {
@@ -29,7 +21,7 @@ function matches(tool: Tool, q: string): boolean {
     .every((term) => hay.includes(term))
 }
 
-export default function ToolDeck({ query, active, setActive }: Props) {
+export default function ToolDeck({ query, setQuery, active }: Props) {
   const filtered = useMemo(
     () => tools.filter((t) => (active === 'All' || t.category === active) && matches(t, query)),
     [query, active],
@@ -38,25 +30,7 @@ export default function ToolDeck({ query, active, setActive }: Props) {
   const grouped = query.trim() === '' && active === 'All'
 
   return (
-    <section className="deck shell">
-      <nav className="chips" aria-label="Filter by category">
-        <button
-          className={`chip ${active === 'All' ? 'active' : ''}`}
-          onClick={() => setActive('All')}
-        >
-          All <em>{tools.length}</em>
-        </button>
-        {CATEGORY_ORDER.map((c) => (
-          <button
-            key={c}
-            className={`chip ${active === c ? 'active' : ''}`}
-            onClick={() => setActive(c)}
-          >
-            {c} <em>{toolsByCategory(c).length}</em>
-          </button>
-        ))}
-      </nav>
-
+    <section className="deck">
       {!grouped && filtered.length > 0 && (
         <p className="deck-results">
           <b>{filtered.length}</b> {filtered.length === 1 ? 'tool' : 'tools'}
@@ -65,34 +39,35 @@ export default function ToolDeck({ query, active, setActive }: Props) {
       )}
 
       {filtered.length === 0 && (
-        <p className="empty">
-          <span className="caret">›</span> no tools match “{query}”
-        </p>
+        <div className="empty">
+          <p>No tools match “{query}”.</p>
+          <button type="button" className="btn" onClick={() => setQuery('')}>
+            Clear search
+          </button>
+        </div>
       )}
 
       {grouped ? (
         CATEGORY_ORDER.map((category) => {
           const items = toolsByCategory(category)
           return (
-            <div key={category}>
+            <section className="cat-group" key={category}>
               <header className="cat-head">
-                <span className="code">{CATEGORY_CODE[category]}</span>
                 <h2>{category}</h2>
-                <span className="rule" />
-                <span className="count">{String(items.length).padStart(2, '0')}</span>
+                <span className="count">{items.length}</span>
               </header>
               <div className="deck-grid">
-                {items.map((tool, i) => (
-                  <ToolCard key={tool.slug} tool={tool} delay={i * 35} />
+                {items.map((tool) => (
+                  <ToolCard key={tool.slug} tool={tool} />
                 ))}
               </div>
-            </div>
+            </section>
           )
         })
       ) : (
-        <div className="deck-grid solo">
-          {filtered.map((tool, i) => (
-            <ToolCard key={tool.slug} tool={tool} delay={i * 30} />
+        <div className="deck-grid">
+          {filtered.map((tool) => (
+            <ToolCard key={tool.slug} tool={tool} />
           ))}
         </div>
       )}

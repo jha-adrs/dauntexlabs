@@ -219,8 +219,8 @@ export default async function ToolPage({ params }: Params) {
               <span className="rule" />
             </header>
             <div className="deck-grid">
-              {related.map((t, i) => (
-                <ToolCard key={t.slug} tool={t} delay={i * 30} />
+              {related.map((t) => (
+                <ToolCard key={t.slug} tool={t} />
               ))}
             </div>
           </section>

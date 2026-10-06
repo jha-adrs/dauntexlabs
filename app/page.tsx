@@ -6,7 +6,7 @@ import { tools } from '@/lib/tools'
 const SITE = 'https://dauntexlabs.com'
 
 // Server component: owns the page (metadata inherited from layout), emits
-// structured data, and renders the interactive deck via the HomeClient island.
+// structured data, and renders header + workbench via the HomeClient island.
 export default function Page() {
   const live = tools.filter((t) => t.status !== 'maintenance')
 
@@ -36,9 +36,7 @@ export default function Page() {
     <>
       <JsonLd data={website} />
       <JsonLd data={itemList} />
-      <main>
-        <HomeClient />
-      </main>
+      <HomeClient />
       <Footer />
     </>
   )

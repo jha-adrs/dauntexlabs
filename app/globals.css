@@ -371,6 +371,10 @@ summary:focus-visible,
   font-size: 13px;
   color: var(--mute-2);
 }
+/* inside a category group the label repeats the heading */
+.cat-group .card-cat {
+  display: none;
+}
 .card h3 {
   font-size: 17px;
   font-weight: 700;
@@ -488,6 +492,8 @@ summary:focus-visible,
 }
 .tool-console-body {
   padding: 22px;
+  /* a few tools use fixed-column grids; scroll inside the panel, never the page */
+  overflow-x: auto;
 }
 .tool-console-body > .tool {
   margin-top: 0;
@@ -1383,6 +1389,16 @@ details.faq .ans {
   color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+/* ---- tool inline-style overrides ----------------------------------- */
+/* 38 tools still carry the old terminal look in inline styles (uppercase,
+   letter-spaced labels). Neutralise it here so tool files stay untouched. */
+.tool-console-body [style*='text-transform: uppercase'] {
+  text-transform: none !important;
+}
+.tool-console-body [style*='letter-spacing'] {
+  letter-spacing: normal !important;
 }
 
 /* ---- motion -------------------------------------------------------- */

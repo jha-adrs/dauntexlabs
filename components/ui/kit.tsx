@@ -1,7 +1,7 @@
 'use client'
 
 // Shared UI kit for tools. Every tool composes these primitives so the whole
-// library stays visually consistent with the "Instrument Deck" design system.
+// library stays visually consistent with the "Workbench" design system.
 // All styling lives in app/globals.css (the `tool kit` section).
 
 import { useRef, useState, type ReactNode } from 'react'

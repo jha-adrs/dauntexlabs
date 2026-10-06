@@ -196,7 +196,7 @@ export default async function ToolPage({ params }: Params) {
 
           {related.length > 0 && (
             <section className="related">
-              <h2 className="related-title">More {tool.category} tools</h2>
+              <h2 className="related-title">More in {tool.category}</h2>
               <div className="deck-grid">
                 {related.map((t) => (
                   <ToolCard key={t.slug} tool={t} />

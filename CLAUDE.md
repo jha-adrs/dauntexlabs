@@ -13,7 +13,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Next.js 15 (App Router) with `output: 'export'`** — fully static; one HTML file per route in `./out`. SEO is why Next is used over a plain SPA.
 - **React 18 + TypeScript**, path alias `@/*` → repo root.
 - **Tailwind CSS v4** via `@tailwindcss/postcss` (no `tailwind.config`; `@import "tailwindcss"` tops `app/globals.css`). Most styling is bespoke CSS in `globals.css`, not utilities.
-- **Fonts self-hosted via `next/font`** (Chakra Petch + IBM Plex Mono) in `app/layout.tsx` — exposed as `--ff-display`/`--ff-mono`, consumed by `--font-display`/`--font-mono`. Self-hosting is deliberate: it removes the only third-party runtime request so the privacy policy holds.
+- **Fonts self-hosted via `next/font`** (Bricolage Grotesque + Instrument Sans + IBM Plex Mono) in `app/layout.tsx` — exposed as `--ff-display`/`--ff-sans`/`--ff-mono`, consumed by `--font-display`/`--font-sans`/`--font-mono`. Self-hosting is deliberate: it removes the only third-party runtime request so the privacy policy holds.
 
 ## Commands
 
@@ -54,13 +54,13 @@ npm run verify     # typecheck + unit tests + build — the CI / pre-push gate
 - The `SITE` base URL (`https://dauntexlabs.com`) is hardcoded in layout/sitemap/robots/privacy — change all of them if the domain differs.
 - Verify after changes: `grep '<title>' out/tools/jwt-tool/index.html`.
 
-**Server vs client split:** components that export metadata must stay server components; interactivity lives in `'use client'` islands. The homepage uses `components/HomeClient.tsx` for its search/filter state so `app/page.tsx` keeps its metadata.
+**Server vs client split:** components that export metadata must stay server components; interactivity lives in `'use client'` islands. The homepage uses `components/HomeClient.tsx` for its search/filter state (and renders `SiteHeader` + `CategoryNav`) so `app/page.tsx` keeps its metadata. Other pages link to `/?q=` and `/?cat=`, which HomeClient reads on mount.
 
 ## Tool architecture (how the 22 tools fit together)
 
 Three layers, all deriving from one registry:
 
-1. **`lib/tools.ts`** — the single source of truth: `tools: Tool[]` (`slug`, `name`, `category`, `blurb`, `keywords`) plus `CATEGORY_ORDER`, `CATEGORY_CODE`, `toolIndex`, `toolsByCategory`. The homepage, search, filters, tool pages, sitemap and robots all derive from it.
+1. **`lib/tools.ts`** — the single source of truth: `tools: Tool[]` (`slug`, `name`, `category`, `blurb`, `keywords`) plus `CATEGORY_ORDER`, `toolsByCategory`. The homepage, search, filters, tool pages, sitemap and robots all derive from it.
 2. **`components/ToolMount.tsx`** (`'use client'`) — a `slug → component` registry. Each tool is `dynamic(() => import('@/components/tools/<Name>'), { ssr: false })`, so a tool's code never bloats other pages and is client-only. The server tool page renders the SEO header + `<ToolMount slug=… />`.
 3. **`components/tools/<Name>.tsx`** — one tool per file: starts with `'use client'`, default-exports a no-prop component that renders only the interactive body (the page already renders the `<h1>` + blurb).
 
@@ -87,10 +87,11 @@ Separate from the 106 tools: **~260 statically-generated conversion pages** at `
 - **`app/privacy/page.tsx`** — accurate but deliberately **hedged for legal safety**: it states tools are *designed* to run on-device (not an absolute guarantee), discloses bundled libs (OpenPGP.js, pdf-lib, QR), and includes a "circumstances in which data may leave your device" clause, a disclaimer of warranties, and a limitation-of-liability section. Keep it truthful: don't re-add absolute "nothing ever leaves" language, and if you add anything that genuinely makes a network request, disclose it at the point of use too.
 - **`components/ConsentBanner.tsx`** (in the root layout) — a first-visit acknowledgement stored in `localStorage['dxl-consent-v1']`; renders nothing until mounted (avoids SSR mismatch/flash). Footer links to `/privacy/`.
 
-## Design system ("Instrument Deck")
+## Design system ("Workbench", light)
 
 Defined in `app/globals.css` via CSS variables — reuse these tokens, don't add ad-hoc colors:
 
-- Dark warm-charcoal surfaces (`--ink-900…700`), single accent **acid-lime `--acid` (#c6f24e)**, bone text, muted greys, hairline borders (`--line`/`--line-strong`).
-- Motifs: fixed blueprint-grid + grain `Backdrop`, module cards with ghost index + acid hover accent, monospace instrument labels, staggered `.reveal` load (respects `prefers-reduced-motion`).
-- New UI: squared display type (Chakra Petch) for headings, mono (IBM Plex Mono) for data/labels, acid used sparingly as *the* signal color.
+- White surfaces (`--bg`, `--surface`, `--surface-soft #f4f7f5`), text `--fg #10261b` / `--mute` / `--mute-2`, borders `--line` / `--line-strong`, form-control borders `--field-border` (meets 3:1), single accent **deep green `--accent` (#0f7a4a)** with `--accent-hover` / `--accent-tint`, status `--danger(-tint)` / `--warn(-tint)`. Light only — no dark mode.
+- Legacy names (`--acid`, `--bone`, `--ink-*`, `--muted`, …) are **aliases** kept so tool components recolour without edits. Don't use them in new code. Old inline uppercase/letter-spaced labels inside tools are neutralised by a scoped override in `globals.css`.
+- Type: **Bricolage Grotesque** headings (`--font-display`), **Instrument Sans** UI/body (`--font-sans`), **IBM Plex Mono** for code/data only (`--font-mono`). Sentence case everywhere; no uppercase/letter-spaced labels.
+- Layout: sticky `components/SiteHeader.tsx` (search; `/` focuses it) + `components/CategoryNav.tsx` sidebar (a swipeable chip row under 900px) + card grid. 12px radius cards/panels, 8px inputs/buttons, almost no shadows, no decorative motion.

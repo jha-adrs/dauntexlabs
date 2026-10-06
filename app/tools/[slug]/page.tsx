@@ -2,11 +2,12 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import SiteHeader from '@/components/SiteHeader'
+import CategoryNav from '@/components/CategoryNav'
 import Footer from '@/components/Footer'
 import ToolMount from '@/components/ToolMount'
 import ToolCard from '@/components/ToolCard'
 import JsonLd from '@/components/JsonLd'
-import { tools, CATEGORY_CODE, toolIndex, type Category } from '@/lib/tools'
+import { tools, type Category } from '@/lib/tools'
 import { PAIRS } from '@/lib/conversions'
 
 // Tools that have a companion family of /convert long-tail pages.
@@ -74,34 +75,33 @@ export default async function ToolPage({ params }: Params) {
   const tool = tools.find((t) => t.slug === slug)
   if (!tool) notFound()
 
-  const idx = toolIndex(tool.slug)
-
   if (tool.status === 'maintenance') {
     return (
       <>
         <SiteHeader />
-        <main className="shell tool-page">
-          <Link href="/" className="back">
-            ← deck
-          </Link>
-          <div className="tool-head">
-            <span className="idx">
-              {CATEGORY_CODE[tool.category]}·{idx}
-            </span>
-            <span className="cat">{tool.category}</span>
-          </div>
-          <h1>{tool.name}</h1>
-          <p className="lede">{tool.blurb}</p>
+        <main className="shell workbench tool-page">
+          <CategoryNav active={tool.category} />
+          <div className="workbench-main">
+            <nav className="crumbs" aria-label="Breadcrumb">
+              <Link href="/">All tools</Link>
+              <span className="sep">›</span>
+              <Link href={`/?cat=${encodeURIComponent(tool.category)}`}>{tool.category}</Link>
+              <span className="sep">›</span>
+              <span className="crumb-here">{tool.name}</span>
+            </nav>
+            <h1>{tool.name}</h1>
+            <p className="lede">{tool.blurb}</p>
 
-          <div className="maintenance">
-            <span className="maintenance-tag">◐ under maintenance</span>
-            <p>
-              This module is being finished and will be available shortly. Like every dauntexlabs
-              tool, it is designed to run in your browser.
-            </p>
-            <Link href="/" className="back">
-              ← browse the other tools
-            </Link>
+            <div className="maintenance">
+              <span className="maintenance-tag">Under maintenance</span>
+              <p>
+                This tool is being finished and will be available shortly. Like every dauntexlabs
+                tool, it is designed to run in your browser.
+              </p>
+              <Link href="/" className="back">
+                ← Browse the other tools
+              </Link>
+            </div>
           </div>
         </main>
         <Footer />
@@ -145,86 +145,66 @@ export default async function ToolPage({ params }: Params) {
       <JsonLd data={appSchema} />
       <JsonLd data={breadcrumbs} />
       <SiteHeader />
-      <main className="shell tool-page">
-        <nav className="crumbs" aria-label="Breadcrumb">
-          <Link href="/">◇ dauntexlabs</Link>
-          <span className="sep">›</span>
-          <span>{tool.category}</span>
-          <span className="sep">›</span>
-          <span className="crumb-here">{tool.name}</span>
-        </nav>
+      <main className="shell workbench tool-page">
+        <CategoryNav active={tool.category} />
+        <div className="workbench-main">
+          <nav className="crumbs" aria-label="Breadcrumb">
+            <Link href="/">All tools</Link>
+            <span className="sep">›</span>
+            <Link href={`/?cat=${encodeURIComponent(tool.category)}`}>{tool.category}</Link>
+            <span className="sep">›</span>
+            <span className="crumb-here">{tool.name}</span>
+          </nav>
 
-        <div className="tool-head">
-          <span className="idx">
-            {CATEGORY_CODE[tool.category]}·{idx}
-          </span>
-          <span className="cat">{tool.category}</span>
-        </div>
+          <h1>{tool.name}</h1>
+          <p className="lede">{tool.blurb}</p>
 
-        <h1>{tool.name}</h1>
-        <p className="lede">{tool.blurb}</p>
-
-        <div className="tool-meta">
-          <span className="pill acid">◇ on-device</span>
-          <span className="pill">free</span>
-          <span className="pill">no sign-up</span>
-        </div>
-
-        <div className="tool-console">
-          <div className="tool-console-head">
-            <span className="lbl">
-              {CATEGORY_CODE[tool.category]}·{idx} · {tool.name}
-            </span>
-            <span className="hint">◇ runs in your browser</span>
+          <div className="tool-meta">
+            <span className="pill accent">Runs on your device</span>
+            <span className="pill">Free</span>
+            <span className="pill">No sign-up</span>
           </div>
-          <div className="tool-console-body">
-            <ToolMount slug={tool.slug} />
+
+          <div className="tool-console">
+            <div className="tool-console-head">
+              <span className="hint">Runs in your browser</span>
+            </div>
+            <div className="tool-console-body">
+              <ToolMount slug={tool.slug} />
+            </div>
           </div>
-        </div>
 
-        <p className="tool-foot-note">
-          <span className="ready">
-            <span className="d" /> designed to run in your browser · see the{' '}
-            <Link href="/privacy/" className="foot-link">
-              privacy policy
-            </Link>
-          </span>
-        </p>
+          <p className="tool-foot-note">
+            Designed to run in your browser. See the <Link href="/privacy/">privacy policy</Link>.
+          </p>
 
-        {popularConversions.length > 0 && (
-          <section className="related">
-            <header className="cat-head">
-              <span className="code">CONVERT</span>
-              <h2>Popular conversions</h2>
-              <span className="rule" />
-            </header>
-            <div className="conv-links">
-              {popularConversions.map((p) => (
-                <Link className="conv-chip" key={p.slug} href={`/convert/${p.slug}/`}>
-                  {p.fromLabel} to {p.toLabel}
+          {popularConversions.length > 0 && (
+            <section className="related">
+              <h2 className="related-title">Popular conversions</h2>
+              <div className="conv-links">
+                {popularConversions.map((p) => (
+                  <Link className="conv-chip" key={p.slug} href={`/convert/${p.slug}/`}>
+                    {p.fromLabel} to {p.toLabel}
+                  </Link>
+                ))}
+                <Link className="conv-chip parent" href="/convert/">
+                  All conversions →
                 </Link>
-              ))}
-              <Link className="conv-chip parent" href="/convert/">
-                → all conversions
-              </Link>
-            </div>
-          </section>
-        )}
+              </div>
+            </section>
+          )}
 
-        {related.length > 0 && (
-          <section className="related">
-            <header className="cat-head">
-              <span className="code">{CATEGORY_CODE[tool.category]}</span>
-              <h2>Related in {tool.category}</h2>
-              <span className="rule" />
-            </header>
-            <div className="deck-grid">
-              {related.map((t) => (
-                <ToolCard key={t.slug} tool={t} />
-              ))}
-            </div>
-          </section>
-        )}
+          {related.length > 0 && (
+            <section className="related">
+              <h2 className="related-title">More {tool.category} tools</h2>
+              <div className="deck-grid">
+                {related.map((t) => (
+                  <ToolCard key={t.slug} tool={t} />
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
       </main>
       <Footer />
     </>

@@ -48,24 +48,6 @@ export const CATEGORY_ORDER: Category[] = [
   'Marketing & SEO',
 ]
 
-/** short instrument-style code per category, used in labels */
-export const CATEGORY_CODE: Record<Category, string> = {
-  Utilities: 'UTL',
-  Converters: 'CNV',
-  Formatters: 'FMT',
-  Generators: 'GEN',
-  'Data Tools': 'DAT',
-  'Image Tools': 'IMG',
-  'PDF Tools': 'PDF',
-  'Text Tools': 'TXT',
-  'Web & CSS': 'WEB',
-  'Business & Finance': 'FIN',
-  Education: 'EDU',
-  'Health & Fitness': 'FIT',
-  Everyday: 'DAY',
-  'Marketing & SEO': 'SEO',
-}
-
 export const tools: Tool[] = [
   // ── Utilities ──────────────────────────────────────────────
   {
@@ -859,12 +841,6 @@ export const tools: Tool[] = [
     keywords: ['email signature', 'html signature', 'branding'],
   },
 ]
-
-/** stable display index, e.g. 001, 002 … in registry order */
-export const toolIndex = (slug: string): string => {
-  const i = tools.findIndex((t) => t.slug === slug)
-  return String(i + 1).padStart(3, '0')
-}
 
 export const toolsByCategory = (category: Category): Tool[] =>
   tools.filter((t) => t.category === category)

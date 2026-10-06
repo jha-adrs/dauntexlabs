@@ -52,10 +52,10 @@ export default function ConsentBanner() {
         </p>
         <div className="consent-actions">
           <button className="btn" onClick={() => choose('denied')}>
-            decline
+            Decline
           </button>
           <button className="btn btn-primary" onClick={() => choose('granted')}>
-            accept analytics
+            Accept analytics
           </button>
         </div>
       </div>

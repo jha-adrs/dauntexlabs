@@ -6,7 +6,7 @@ import type { ComponentType } from 'react'
 // Each tool is a client-only island, lazy-loaded so one tool's code never
 // bloats another page. The server page (app/tools/[slug]/page.tsx) still
 // renders the SEO content (title, description, headline) statically.
-const loading = () => <div className="tool-loading">initialising module…</div>
+const loading = () => <div className="tool-loading">Loading tool…</div>
 
 const REGISTRY: Record<string, ComponentType> = {
   // Utilities

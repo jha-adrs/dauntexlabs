@@ -5,25 +5,23 @@ export default function Footer() {
     <footer className="footer">
       <div className="shell foot-row">
         <span className="brand sm">
-          <span className="mark">◇</span> dauntex<b>labs</b>
+          dauntex<b>labs</b>
         </span>
         <p className="foot-note">
-          your tool data stays on your device · open for personal and public use
+          Your tool data is designed to stay on your device. Free for personal and public use.
         </p>
-        <span className="foot-meta">
+        <nav className="foot-meta" aria-label="Footer">
           <Link href="/" className="foot-link">
-            tools
+            All tools
           </Link>
-          <span className="foot-sep">·</span>
           <Link href="/convert/" className="foot-link">
-            conversions
+            Conversions
           </Link>
-          <span className="foot-sep">·</span>
           <Link href="/privacy/" className="foot-link">
-            privacy
+            Privacy
           </Link>
-          <span className="foot-sep">·</span>© 2026
-        </span>
+          <span>© 2026</span>
+        </nav>
       </div>
     </footer>
   )

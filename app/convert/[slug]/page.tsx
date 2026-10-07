@@ -234,9 +234,11 @@ export default async function ConvertPage({ params }: Params) {
             <h2>Related conversions</h2>
           </div>
           <div className="conv-links">
-            <Link className="conv-chip rev" href={`/convert/${rev}/`}>
-              ⇄ {pair.toLabel} to {pair.fromLabel}
-            </Link>
+            {getPair(rev) && (
+              <Link className="conv-chip rev" href={`/convert/${rev}/`}>
+                ⇄ {pair.toLabel} to {pair.fromLabel}
+              </Link>
+            )}
             {siblings.map((s) => (
               <Link className="conv-chip" key={s.slug} href={`/convert/${s.slug}/`}>
                 {s.fromLabel} to {s.toLabel}

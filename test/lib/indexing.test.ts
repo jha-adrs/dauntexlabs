@@ -41,3 +41,26 @@ describe('sitemap', () => {
     expect(convert).toHaveLength(PAIRS.filter(isIndexedPair).length)
   })
 })
+
+describe('Number scale (lakh / crore) pages', () => {
+  it('converts crore and lakh to millions', async () => {
+    const { convertUnit } = await import('@/lib/conversions')
+    expect(convertUnit(p('crores-to-millions'), 1)).toBeCloseTo(10)
+    expect(convertUnit(p('lakhs-to-millions'), 10)).toBeCloseTo(1)
+    expect(convertUnit(p('billions-to-crores'), 1)).toBeCloseTo(100)
+  })
+  it('are indexed', () => {
+    expect(isIndexedPair(p('crores-to-millions'))).toBe(true)
+  })
+})
+
+describe('JFIF pages', () => {
+  it('exist for JFIF → JPG / PNG / WebP', () => {
+    expect(getPair('jfif-to-jpg')).toBeDefined()
+    expect(getPair('jfif-to-png')).toBeDefined()
+    expect(getPair('jfif-to-webp')).toBeDefined()
+  })
+  it('never offer JFIF as an output', () => {
+    expect(PAIRS.filter((x) => x.toLabel === 'JFIF')).toEqual([])
+  })
+})

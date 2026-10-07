@@ -21,8 +21,9 @@ describe('conversions registry', () => {
     expect(new Set(PAIRS.map((x) => x.slug)).size).toBe(PAIRS.length)
   })
 
-  it('every pair has a valid reverse in the registry', () => {
-    for (const pair of PAIRS) expect(getPair(reverseSlug(pair))).toBeTruthy()
+  it('every pair has a valid reverse in the registry (except input-only JFIF)', () => {
+    for (const pair of PAIRS)
+      if (pair.fromLabel !== 'JFIF') expect(getPair(reverseSlug(pair))).toBeTruthy()
   })
 })
 

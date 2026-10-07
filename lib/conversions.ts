@@ -104,6 +104,17 @@ const CATEGORIES: Record<string, UnitCategory> = {
       week: { key: 'week', label: 'Weeks', symbol: 'wk', factor: 604_800 },
     },
   },
+  // Indian number scale ↔ international: 1 lakh = 100,000; 1 crore = 10 million.
+  'Number scale': {
+    name: 'Number scale',
+    units: {
+      thousand: { key: 'thousand', label: 'Thousands', symbol: 'K', factor: 1e3 },
+      lakh: { key: 'lakh', label: 'Lakhs', symbol: 'L', factor: 1e5 },
+      million: { key: 'million', label: 'Millions', symbol: 'M', factor: 1e6 },
+      crore: { key: 'crore', label: 'Crores', symbol: 'Cr', factor: 1e7 },
+      billion: { key: 'billion', label: 'Billions', symbol: 'B', factor: 1e9 },
+    },
+  },
 }
 
 /* ---- number base + image formats ----------------------------------- */
@@ -113,10 +124,15 @@ const BASES: Record<string, { key: string; radix: number; label: string }> = {
   decimal: { key: 'decimal', radix: 10, label: 'Decimal' },
   hexadecimal: { key: 'hexadecimal', radix: 16, label: 'Hexadecimal' },
 }
-const IMAGE_FORMATS: Record<string, { key: string; label: string; mime: string; note: string }> = {
+const IMAGE_FORMATS: Record<
+  string,
+  { key: string; label: string; mime: string; note: string; inputOnly?: boolean }
+> = {
   png: { key: 'png', label: 'PNG', mime: 'image/png', note: 'lossless, supports transparency' },
   jpg: { key: 'jpg', label: 'JPG', mime: 'image/jpeg', note: 'lossy, small photos, no transparency' },
   webp: { key: 'webp', label: 'WebP', mime: 'image/webp', note: 'modern, small, supports transparency' },
+  // JFIF is a JPEG by another name: worth "JFIF to …" pages, never offered as an output.
+  jfif: { key: 'jfif', label: 'JFIF', mime: 'image/jpeg', note: 'a JPEG saved with the .jfif extension', inputOnly: true },
 }
 
 /* ---- pair model ---------------------------------------------------- */
@@ -172,11 +188,11 @@ function buildPairs(): Pair[] {
           fromLabel: BASES[a].label,
           toLabel: BASES[b].label,
         })
-  // image: png/jpg/webp ordered pairs
+  // image: ordered pairs; input-only formats (JFIF) never appear as the target
   const imgKeys = Object.keys(IMAGE_FORMATS)
   for (const a of imgKeys)
     for (const b of imgKeys)
-      if (a !== b)
+      if (a !== b && !IMAGE_FORMATS[b].inputOnly)
         pairs.push({
           slug: `${a}-to-${b}`,
           family: 'image',

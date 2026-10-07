@@ -1,3 +1,5 @@
+import { csvField } from './csv-write'
+
 /**
  * GPX / KML / GeoJSON parsing, conversion and track statistics — pure, in-memory, no network.
  *
@@ -460,10 +462,9 @@ export function toKML(data: GeoData): string {
   return out.join('\n')
 }
 
+// Shared writer: RFC 4180 quoting + spreadsheet-formula neutralising (names come from third-party files).
 function csvCell(v: string | number | undefined): string {
-  if (v === undefined) return ''
-  const s = String(v)
-  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+  return v === undefined ? '' : csvField(String(v))
 }
 
 /** Track points only, one row each; segment and index are 1-based. Waypoints are not included. */

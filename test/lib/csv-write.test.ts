@@ -19,4 +19,21 @@ describe('toCsv (RFC 4180)', () => {
   it('returns an empty string for no rows', () => {
     expect(toCsv([])).toBe('')
   })
+
+  // OWASP "CSV Injection": a cell starting with = + - @ (or tab/CR) runs as a
+  // formula in Excel/Sheets, e.g. =HYPERLINK/WEBSERVICE can send data off-device.
+  it('neutralises spreadsheet formulas from untrusted files', () => {
+    expect(csvField('=1+1')).toBe("'=1+1")
+    expect(csvField('@SUM(A1)')).toBe("'@SUM(A1)")
+    expect(csvField('=HYPERLINK("http://x")')).toBe(`"'=HYPERLINK(""http://x"")"`)
+    expect(csvField('\t=cmd')).toBe("'\t=cmd")
+    expect(csvField('+cmd|calc')).toBe("'+cmd|calc")
+    expect(csvField('-2+3')).toBe("'-2+3")
+  })
+
+  it('keeps phone numbers and plain numbers as they are', () => {
+    expect(csvField('+91 98765 43210')).toBe('+91 98765 43210')
+    expect(csvField('+1 (555) 010-9999')).toBe('+1 (555) 010-9999')
+    expect(csvField('-12.5')).toBe('-12.5')
+  })
 })

@@ -212,3 +212,13 @@ describe('stats', () => {
     expect(stats({ name: '', segments: [] }).bounds).toBeNull()
   })
 })
+
+describe('toCSV formula safety', () => {
+  it('neutralises a track name that a spreadsheet would run as a formula', async () => {
+    const { parseGeo, toCSV } = await import('@/lib/geo')
+    const gpx = `<?xml version="1.0"?><gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"><trk><name>=HYPERLINK("http://x")</name><trkseg><trkpt lat="1" lon="2"/><trkpt lat="1.1" lon="2.1"/></trkseg></trk></gpx>`
+    const r = parseGeo(gpx, 'gpx')
+    if (!r.ok) throw new Error(r.error)
+    expect(toCSV(r)).toContain(`"'=HYPERLINK(""http://x"")"`)
+  })
+})

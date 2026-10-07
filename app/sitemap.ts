@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { tools } from '@/lib/tools'
-import { PAIRS } from '@/lib/conversions'
+import { PAIRS, isIndexedPair } from '@/lib/conversions'
 
 const SITE = 'https://dauntexlabs.com'
 
@@ -21,8 +21,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
         changeFrequency: 'monthly' as const,
         priority: 0.8,
       })),
-    // Programmatic conversion long-tail pages.
-    ...PAIRS.map((p) => ({
+    // Programmatic conversion pages — commodity unit pairs are noindexed (see isIndexedPair).
+    ...PAIRS.filter(isIndexedPair).map((p) => ({
       url: `${SITE}/convert/${p.slug}/`,
       changeFrequency: 'monthly' as const,
       priority: 0.6,

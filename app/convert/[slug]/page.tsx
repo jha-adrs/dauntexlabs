@@ -16,6 +16,7 @@ import {
   unitSymbols,
   imageMime,
   type Pair,
+  isIndexedPair,
 } from '@/lib/conversions'
 
 const SITE = 'https://dauntexlabs.com'
@@ -57,6 +58,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       pair.category.toLowerCase(),
     ],
     alternates: { canonical: path },
+    // Commodity unit pairs stay reachable but out of the index (see isIndexedPair).
+    robots: isIndexedPair(pair) ? undefined : { index: false, follow: true },
     openGraph: { type: 'website', title: `${title} — dauntexlabs`, description: desc, url: path },
   }
 }

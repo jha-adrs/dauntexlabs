@@ -311,3 +311,15 @@ export function tableRows(pair: Pair): { in: string; out: string }[] {
   }
   return []
 }
+
+/* ---- indexing ------------------------------------------------------ */
+// Commodity unit pairs ("km to miles") are answered in-SERP by Google and
+// earned ~0 clicks, so they are noindexed and left out of the sitemap.
+// Niche pairs (nautical miles, knots, Indian number scale) stay indexed.
+const INDEXED_UNIT_KEYS = new Set(['Length:nmi', 'Speed:knot'])
+
+export function isIndexedPair(p: Pair): boolean {
+  if (p.family !== 'unit') return true
+  if (p.category === 'Number scale') return true
+  return INDEXED_UNIT_KEYS.has(p.fromKey) || INDEXED_UNIT_KEYS.has(p.toKey)
+}

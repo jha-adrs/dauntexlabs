@@ -16,7 +16,7 @@ export default function Page() {
     name: 'dauntexlabs',
     url: `${SITE}/`,
     description:
-      '100+ free online tools that run entirely in your browser — no uploads, no accounts, no telemetry.',
+      '100+ free online tools designed to run in your browser — no sign-up.',
   }
 
   const itemList = {

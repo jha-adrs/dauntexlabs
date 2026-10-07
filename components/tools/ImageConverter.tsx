@@ -124,7 +124,7 @@ export default function ImageConverter({ presetFormat }: { presetFormat?: string
         onFiles={onFiles}
         accept="image/*"
         label="Drop an image, or click to choose"
-        hint="converted on your device — nothing is uploaded"
+        hint="converted on your device"
       />
       {error && <Notice kind="error">{error}</Notice>}
 

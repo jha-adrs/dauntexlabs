@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     template: '%s — dauntexlabs',
   },
   description:
-    '100+ free online tools that run entirely in your browser — developer utilities, converters, generators, formatters and calculators for marketing, finance, education and everyday tasks. No uploads, no accounts, no telemetry.',
+    '100+ free online tools designed to run in your browser — developer utilities, converters, generators, formatters and calculators for marketing, finance, education and everyday tasks. No sign-up.',
   applicationName: 'dauntexlabs',
   keywords: [
     'free online tools',
@@ -61,14 +61,14 @@ export const metadata: Metadata = {
     siteName: 'dauntexlabs',
     title: 'dauntexlabs — 100+ free, on-device tools',
     description:
-      '100+ free tools that run entirely in your browser — for developers, marketers, students and everyday tasks. No uploads, no telemetry.',
+      '100+ free tools designed to run in your browser — for developers, marketers, students and everyday tasks. No sign-up.',
     url: SITE,
   },
   twitter: {
     card: 'summary_large_image',
     title: 'dauntexlabs — 100+ free, on-device tools',
     description:
-      '100+ free tools that run entirely in your browser. No uploads, no accounts, no telemetry.',
+      '100+ free tools designed to run in your browser. No sign-up.',
   },
   robots: { index: true, follow: true },
 }

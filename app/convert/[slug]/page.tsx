@@ -47,8 +47,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const title = `${pair.fromLabel} to ${pair.toLabel}`
   const desc =
     pair.family === 'image'
-      ? `Convert ${pair.fromLabel} images to ${pair.toLabel} free, right in your browser — no upload, no sign-up.`
-      : `Convert ${pair.fromLabel.toLowerCase()} to ${pair.toLabel.toLowerCase()} instantly and free. ${exampleText(pair)} Works on your device — nothing uploaded.`
+      ? `Convert ${pair.fromLabel} images to ${pair.toLabel} free, right in your browser — no sign-up.`
+      : `Convert ${pair.fromLabel.toLowerCase()} to ${pair.toLabel.toLowerCase()} instantly and free. ${exampleText(pair)} Designed to run in your browser.`
   return {
     title,
     description: desc,
@@ -83,7 +83,7 @@ export default async function ConvertPage({ params }: Params) {
       q: `How do you convert ${pair.fromLabel.toLowerCase()} to ${pair.toLabel.toLowerCase()}?`,
       a:
         pair.family === 'image'
-          ? `Upload your ${pair.fromLabel} image above and download it as ${pair.toLabel}. The image is decoded and re-encoded in your browser with the Canvas API — it is never sent to a server.`
+          ? `Upload your ${pair.fromLabel} image above and download it as ${pair.toLabel}. The image is decoded and re-encoded in your browser with the Canvas API, on your device.`
           : `${formula(pair)}. Or just type a value above and the answer updates instantly. For example, ${exampleText(pair)}`,
     },
     {
@@ -135,7 +135,7 @@ export default async function ConvertPage({ params }: Params) {
         </h1>
         <p className="lede">
           {pair.family === 'image'
-            ? `Convert ${pair.fromLabel} images to ${pair.toLabel} in your browser — free, instant, and nothing is uploaded.`
+            ? `Convert ${pair.fromLabel} images to ${pair.toLabel} in your browser — free, instant, and processed on your device.`
             : `${exampleText(pair)} — convert any value instantly, on your device.`}
         </p>
         <div className="tool-meta">

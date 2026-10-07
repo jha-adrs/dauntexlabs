@@ -115,7 +115,7 @@ export default function SplitPdf() {
         onFiles={onFiles}
         accept="application/pdf"
         label="Drop a PDF file, or click to choose"
-        hint="Split on your device · nothing is uploaded"
+        hint="Split on your device"
       />
       {error && <Notice kind="error">{error}</Notice>}
 

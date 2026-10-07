@@ -1,7 +1,7 @@
 'use client'
 
 // Markdown → PDF / HTML, fully client-side. Live preview via our own safe
-// renderer; PDF via the browser's print-to-PDF (best fidelity, nothing uploaded);
+// renderer; PDF via the browser's print-to-PDF (best fidelity, processed on-device);
 // HTML + .md via direct download.
 import { useMemo, useState } from 'react'
 import {
@@ -26,7 +26,7 @@ export.
 ## Features
 - Live preview as you type
 - Export to **PDF** (via your browser) or **HTML**
-- Runs entirely on your device — nothing is uploaded
+- Designed to run in your browser
 
 ## Example table
 | Metric | Value |

@@ -1,7 +1,7 @@
 'use client'
 
 // FileReader.readAsDataURL produces a base64 data-URI entirely in the browser —
-// no upload. Useful for embedding small images inline in HTML/CSS.
+// processed on-device. Useful for embedding small images inline in HTML/CSS.
 
 import { useState } from 'react'
 import { FileDrop, FilePreview, Field, TextArea, CopyButton, Notice } from '@/components/ui/kit'
@@ -55,7 +55,7 @@ export default function ImageToBase64() {
         onFiles={onFiles}
         accept="image/*"
         label="Drop an image, or click to choose"
-        hint="encoded on your device — nothing is uploaded"
+        hint="encoded on your device"
       />
       {error && <Notice kind="error">{error}</Notice>}
       {busy && (

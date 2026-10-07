@@ -27,7 +27,7 @@ export default function PrivacyPage() {
 
         <div className="notice success" style={{ marginTop: 28 }}>
           The short version: every tool is <b>designed to run in your browser</b> — what you type,
-          paste or upload into a tool is never sent to us. We have no accounts and no application
+          paste or load into a tool is processed in your browser, not on a server of ours. We have no accounts and no application
           backend. We <b>do</b> use privacy-conscious, consent-gated analytics (Google Analytics)
           to see which pages are popular; you can decline it, and it never receives your tool
           inputs. The clauses below set out the details and limits.

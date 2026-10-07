@@ -106,7 +106,7 @@ export default function OrganizePdf() {
         onFiles={onFiles}
         accept="application/pdf"
         label="Drop a PDF file, or click to choose"
-        hint="Reordered on your device · nothing is uploaded"
+        hint="Reordered on your device"
       />
       {error && <Notice kind="error">{error}</Notice>}
 

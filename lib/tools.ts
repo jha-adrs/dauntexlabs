@@ -151,7 +151,7 @@ export const tools: Tool[] = [
     slug: 'hash-generator',
     name: 'Hash Generator',
     category: 'Generators',
-    blurb: 'Compute SHA-256, SHA-512, MD5 and more, entirely on-device.',
+    blurb: 'Compute SHA-256, SHA-512, MD5 and more, right in your browser.',
     keywords: ['hash', 'sha256', 'sha512', 'md5', 'checksum'],
   },
   {
@@ -218,7 +218,7 @@ export const tools: Tool[] = [
     slug: 'image-compressor',
     name: 'Image Compressor',
     category: 'Image Tools',
-    blurb: 'Shrink JPG, PNG and WebP images in your browser — no upload, no quality sent anywhere.',
+    blurb: 'Shrink JPG, PNG and WebP images right in your browser, with a quality slider.',
     keywords: ['image', 'compress', 'compressor', 'optimize', 'jpg', 'png', 'webp'],
   },
   {
@@ -232,7 +232,7 @@ export const tools: Tool[] = [
     slug: 'image-resizer',
     name: 'Image Resizer',
     category: 'Image Tools',
-    blurb: 'Resize and crop images in your browser, with no upload.',
+    blurb: 'Resize and crop images right in your browser.',
     keywords: ['image', 'resize', 'crop', 'scale', 'dimensions'],
   },
   {
@@ -360,7 +360,7 @@ export const tools: Tool[] = [
     slug: 'morse-code',
     name: 'Morse Code Translator',
     category: 'Text Tools',
-    blurb: 'Translate text to and from Morse code, with optional audio dots and dashes.',
+    blurb: 'Translate text to and from International Morse code — letters A–Z and digits 0–9.',
     keywords: ['morse', 'code', 'translator', 'encode', 'decode'],
   },
   {
@@ -732,7 +732,7 @@ export const tools: Tool[] = [
     slug: 'meta-tag-generator',
     name: 'Meta Tag Generator',
     category: 'Marketing & SEO',
-    blurb: 'Generate SEO meta tags — title, description, robots, canonical and social cards.',
+    blurb: 'Generate SEO meta tags — title, description, keywords, robots, canonical and viewport.',
     keywords: ['meta tags', 'seo', 'html head', 'meta description'],
   },
   {

@@ -131,7 +131,7 @@ export default function ImagesToPdf() {
         accept="image/*"
         multiple
         label="Drop images (JPG / PNG), or click to choose"
-        hint="Converted on your device · nothing is uploaded"
+        hint="Converted on your device"
       />
       {error && <Notice kind="error">{error}</Notice>}
       {warn && <Notice kind="info">{warn}</Notice>}

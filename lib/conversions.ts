@@ -286,7 +286,7 @@ export function exampleText(pair: Pair): string {
   if (pair.family === 'base') {
     return `${BASES[pair.fromKey].label} 1010 = ${convertBase(pair, convertBaseSeed(pair))} in ${pair.toLabel.toLowerCase()}`
   }
-  return `Upload a ${pair.fromLabel} image and download it as ${pair.toLabel} — no upload to any server.`
+  return `Upload a ${pair.fromLabel} image and download it as ${pair.toLabel} — it is converted in your browser.`
 }
 
 // helper: for a base example, express decimal 10 in the fromBase as the input string

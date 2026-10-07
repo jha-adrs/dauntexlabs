@@ -137,7 +137,7 @@ export default function ImageResizer() {
         onFiles={onFiles}
         accept="image/*"
         label="Drop an image, or click to choose"
-        hint="resized on your device — nothing is uploaded"
+        hint="resized on your device"
       />
       {error && <Notice kind="error">{error}</Notice>}
 

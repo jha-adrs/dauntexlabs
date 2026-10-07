@@ -79,7 +79,7 @@ export default function MergePdf() {
         accept="application/pdf"
         multiple
         label="Drop PDF files, or click to choose"
-        hint="Merged on your device · nothing is uploaded"
+        hint="Merged on your device"
       />
       {error && <Notice kind="error">{error}</Notice>}
 

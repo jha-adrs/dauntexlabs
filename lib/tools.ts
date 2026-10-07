@@ -259,7 +259,7 @@ export const tools: Tool[] = [
     slug: 'merge-pdf',
     name: 'Merge PDF',
     category: 'PDF Tools',
-    blurb: 'Combine multiple PDF files into one — entirely in your browser.',
+    blurb: 'Combine multiple PDF files into one, right in your browser.',
     keywords: ['pdf', 'merge', 'combine', 'join'],
   },
   {

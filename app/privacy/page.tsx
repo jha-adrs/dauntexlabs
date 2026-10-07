@@ -6,7 +6,7 @@ import Footer from '@/components/Footer'
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   description:
-    'dauntexlabs tools are designed to run entirely in your browser — no accounts, no analytics, no trackers. Read how data is handled and the limits of that.',
+    'dauntexlabs tools are designed to run in your browser — no accounts, and analytics only with your consent. Read how data is handled and the limits of that.',
   alternates: { canonical: '/privacy/' },
 }
 

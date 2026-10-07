@@ -323,7 +323,7 @@ export default function Encryption() {
         )}
         {algo === 'pgp' && (
           <span className="hint-inline">
-            Full PGP via the bundled OpenPGP.js library — runs entirely in your browser.
+            Full PGP via the bundled OpenPGP.js library — runs in your browser.
           </span>
         )}
       </Toolbar>

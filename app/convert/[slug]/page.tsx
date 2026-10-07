@@ -88,7 +88,7 @@ export default async function ConvertPage({ params }: Params) {
     },
     {
       q: 'Is anything uploaded to a server?',
-      a: 'No. The conversion runs entirely in your browser, so nothing you type or upload ever leaves your device.',
+      a: 'The conversion is designed to run in your browser: what you type or load is processed on your device. See the privacy policy for the details and limits.',
     },
   ]
 

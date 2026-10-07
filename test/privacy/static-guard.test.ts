@@ -61,6 +61,6 @@ describe('privacy static guard', () => {
   })
 
   it('uses hedged privacy wording only', () => {
-    expect(hits(/never (upload|leave|sent)|nothing (is |ever )?(uploaded|leaves)|no uploads?\b|no telemetry/i)).toEqual([])
+    expect(hits(/never (upload|leave|sent)|nothing (is |ever )?(uploaded|leaves)|no uploads?\b|no telemetry|ever leaves|no analytics,|no trackers|runs entirely|— entirely in/i)).toEqual([])
   })
 })

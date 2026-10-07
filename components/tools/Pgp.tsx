@@ -3,7 +3,7 @@
 // Real PGP via OpenPGP.js. The library is bundled into the app (not loaded from
 // any CDN) and is imported dynamically so its ~weighty code only loads when a
 // PGP action actually runs. Every operation — key generation, encryption,
-// decryption — happens locally; no key, passphrase or message ever leaves the
+// decryption — happens locally; keys, passphrases and messages are processed in the
 // browser.
 
 import { useState } from 'react'

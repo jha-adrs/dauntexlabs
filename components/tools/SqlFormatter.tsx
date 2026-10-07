@@ -274,7 +274,7 @@ export default function SqlFormatter() {
             placeholder="select a, b from t where x = 1 and y = 2"
             rows={16}
           />
-          <span className="hint-inline">heuristic formatter · runs entirely in your browser</span>
+          <span className="hint-inline">heuristic formatter · runs in your browser</span>
         </Panel>
 
         <Panel

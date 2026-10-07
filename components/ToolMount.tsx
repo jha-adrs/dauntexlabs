@@ -136,6 +136,19 @@ const REGISTRY: Record<string, ComponentType> = {
   'engagement-rate-calculator': dynamic(() => import('@/components/tools/EngagementRateCalculator'), { ssr: false, loading }),
   'ab-test-calculator': dynamic(() => import('@/components/tools/AbTestCalculator'), { ssr: false, loading }),
   'email-signature-generator': dynamic(() => import('@/components/tools/EmailSignatureGenerator'), { ssr: false, loading }),
+  'cron-to-systemd-timer': dynamic(() => import('@/components/tools/CronToSystemdTimer'), { ssr: false, loading }),
+  'gpx-converter': dynamic(() => import('@/components/tools/GpxConverter'), { ssr: false, loading }),
+  'density-altitude-calculator': dynamic(() => import('@/components/tools/DensityAltitudeCalculator'), { ssr: false, loading }),
+  'wind-correction-angle': dynamic(() => import('@/components/tools/WindCorrectionAngle'), { ssr: false, loading }),
+  'true-airspeed-calculator': dynamic(() => import('@/components/tools/TrueAirspeedCalculator'), { ssr: false, loading }),
+  'crosswind-component': dynamic(() => import('@/components/tools/CrosswindComponent'), { ssr: false, loading }),
+  'aadhaar-masker': dynamic(() => import('@/components/tools/AadhaarMasker'), { ssr: false, loading }),
+  'photo-date-stamp': dynamic(() => import('@/components/tools/PhotoDateStamp'), { ssr: false, loading }),
+  'vcf-to-csv': dynamic(() => import('@/components/tools/VcfToCsv'), { ssr: false, loading }),
+  'ics-viewer': dynamic(() => import('@/components/tools/IcsViewer'), { ssr: false, loading }),
+  'amount-in-words-rupees': dynamic(() => import('@/components/tools/AmountInWordsRupees'), { ssr: false, loading }),
+  'pdf-metadata-remover': dynamic(() => import('@/components/tools/PdfMetadataRemover'), { ssr: false, loading }),
+  'homoglyph-detector': dynamic(() => import('@/components/tools/HomoglyphDetector'), { ssr: false, loading }),
 }
 
 export default function ToolMount({ slug }: { slug: string }) {

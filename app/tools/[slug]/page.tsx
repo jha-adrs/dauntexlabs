@@ -36,6 +36,8 @@ const SCHEMA_CATEGORY: Record<Category, string> = {
   'Health & Fitness': 'HealthApplication',
   Everyday: 'UtilitiesApplication',
   'Marketing & SEO': 'BusinessApplication',
+  Aviation: 'UtilitiesApplication',
+  India: 'UtilitiesApplication',
 }
 
 type Params = { params: Promise<{ slug: string }> }

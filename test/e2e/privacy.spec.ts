@@ -128,3 +128,75 @@ test('the checker itself catches a planted leak', async ({ page }) => {
   await page.waitForTimeout(200)
   await expect(assertNoLeak(page, cap, canary)).rejects.toThrow(/canary in request URL/)
 })
+
+// ---- niche tools (2026-10-07) ------------------------------------------------
+
+for (const slug of [
+  'cron-to-systemd-timer',
+  'homoglyph-detector',
+  'amount-in-words-rupees',
+  'density-altitude-calculator',
+  'wind-correction-angle',
+  'true-airspeed-calculator',
+  'crosswind-component',
+]) {
+  test(`${slug}: typed input never leaves the page`, async ({ page }) => {
+    const canary = canaryFor()
+    const cap = await watch(page)
+    await page.goto(STATIC + `/tools/${slug}/`, { waitUntil: 'networkidle' })
+    await exercise(page, canary)
+    const local = await assertNoLeak(page, cap, canary)
+    expect(local.href).not.toContain(canary)
+  })
+}
+
+const fileCases: { slug: string; file: (c: string) => Promise<{ name: string; mimeType: string; buffer: Buffer }> }[] = [
+  {
+    slug: 'vcf-to-csv',
+    file: async (c) => ({
+      name: `${c}.vcf`,
+      mimeType: 'text/vcard',
+      buffer: Buffer.from(`BEGIN:VCARD\r\nVERSION:3.0\r\nFN:${c} Person\r\nEMAIL:${c.toLowerCase()}@example.com\r\nTEL;TYPE=CELL:+911234567890\r\nEND:VCARD\r\n`),
+    }),
+  },
+  {
+    slug: 'ics-viewer',
+    file: async (c) => ({
+      name: `${c}.ics`,
+      mimeType: 'text/calendar',
+      buffer: Buffer.from(`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:1\r\nSUMMARY:${c} meeting\r\nLOCATION:${c} office\r\nDTSTART:20261007T033000Z\r\nDTEND:20261007T043000Z\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`),
+    }),
+  },
+  {
+    slug: 'gpx-converter',
+    file: async (c) => ({
+      name: `${c}.gpx`,
+      mimeType: 'application/gpx+xml',
+      buffer: Buffer.from(`<?xml version="1.0"?><gpx version="1.1" creator="t" xmlns="http://www.topografix.com/GPX/1/1"><trk><name>${c} ride</name><trkseg><trkpt lat="12.97" lon="77.59"><ele>900</ele></trkpt><trkpt lat="12.98" lon="77.60"><ele>910</ele></trkpt></trkseg></trk></gpx>`),
+    }),
+  },
+  {
+    slug: 'pdf-metadata-remover',
+    file: async (c) => {
+      const doc = await PDFDocument.create()
+      doc.addPage([200, 200])
+      doc.setAuthor(c)
+      doc.setTitle(`${c} report`)
+      return { name: `${c}.pdf`, mimeType: 'application/pdf', buffer: Buffer.from(await doc.save()) }
+    },
+  },
+  { slug: 'aadhaar-masker', file: async (c) => ({ name: `${c}.png`, mimeType: 'image/png', buffer: makePng(320, 200) }) },
+  { slug: 'photo-date-stamp', file: async (c) => ({ name: `${c}.png`, mimeType: 'image/png', buffer: makePng(200, 230) }) },
+]
+
+for (const { slug, file } of fileCases) {
+  test(`${slug}: a loaded file (contents and name) never leaves the page`, async ({ page }) => {
+    const canary = canaryFor()
+    const cap = await watch(page)
+    await page.goto(STATIC + `/tools/${slug}/`, { waitUntil: 'networkidle' })
+    await page.locator('.tool-console-body input[type="file"]').first().setInputFiles(await file(canary))
+    await page.waitForTimeout(500)
+    await exercise(page, canary) // also types the canary into any name/text fields (e.g. photo name strip)
+    await assertNoLeak(page, cap, canary)
+  })
+}

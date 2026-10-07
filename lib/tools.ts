@@ -17,6 +17,8 @@ export type Category =
   | 'Health & Fitness'
   | 'Everyday'
   | 'Marketing & SEO'
+  | 'Aviation'
+  | 'India'
 
 export interface Tool {
   /** url segment: /tools/<slug> */
@@ -46,6 +48,8 @@ export const CATEGORY_ORDER: Category[] = [
   'Health & Fitness',
   'Everyday',
   'Marketing & SEO',
+  'Aviation',
+  'India',
 ]
 
 export const tools: Tool[] = [
@@ -839,6 +843,97 @@ export const tools: Tool[] = [
     category: 'Marketing & SEO',
     blurb: 'Create a clean HTML email signature you can copy into your mail client.',
     keywords: ['email signature', 'html signature', 'branding'],
+  },
+  {
+    slug: 'cron-to-systemd-timer',
+    name: 'Cron to systemd Timer Converter',
+    category: 'Utilities',
+    blurb: 'Turn a cron line into a systemd OnCalendar= value plus .timer and .service files. Runs in your browser.',
+    keywords: ['cron to systemd timer', 'convert cron to systemd', 'oncalendar cron equivalent', 'systemd timer generator', 'crontab to systemd', 'systemd oncalendar examples', 'persistent systemd timer', 'replace cron with systemd'],
+  },
+  {
+    slug: 'gpx-converter',
+    name: 'GPX Converter',
+    category: 'Data Tools',
+    blurb: 'Convert GPX, KML and GeoJSON tracks, or export to CSV, with distance and elevation stats. Runs in your browser.',
+    keywords: ['gpx to geojson', 'kml to gpx', 'gpx to kml', 'geojson to gpx', 'gpx to csv', 'convert gpx file', 'gpx distance calculator', 'gpx elevation gain', 'kml to geojson'],
+  },
+  {
+    slug: 'density-altitude-calculator',
+    name: 'Density Altitude Calculator',
+    category: 'Aviation',
+    blurb: 'Density altitude from pressure altitude, temperature and optional dewpoint — runs in your browser.',
+    keywords: ['density altitude calculator', 'how to calculate density altitude', 'density altitude formula', 'pressure altitude to density altitude', 'isa temperature calculator', 'density altitude with dewpoint', 'high density altitude'],
+  },
+  {
+    slug: 'wind-correction-angle',
+    name: 'Wind Correction Angle Calculator',
+    category: 'Aviation',
+    blurb: 'Solve the wind triangle: wind correction angle, true heading and ground speed from TAS, course and wind.',
+    keywords: ['wind correction angle calculator', 'how to calculate wind correction angle', 'wind triangle calculator', 'ground speed calculator aviation', 'heading calculator', 'e6b wind side', 'wca formula'],
+  },
+  {
+    slug: 'true-airspeed-calculator',
+    name: 'True Airspeed (TAS) Calculator',
+    category: 'Aviation',
+    blurb: 'Convert calibrated airspeed to true airspeed and Mach from pressure altitude and temperature.',
+    keywords: ['true airspeed calculator', 'tas calculator', 'cas to tas', 'how to calculate true airspeed', 'calibrated airspeed to true airspeed', 'ias cas tas', 'mach number calculator'],
+  },
+  {
+    slug: 'crosswind-component',
+    name: 'Crosswind Component Calculator',
+    category: 'Aviation',
+    blurb: 'Headwind, tailwind and crosswind components for any runway and wind — runs in your browser.',
+    keywords: ['crosswind component calculator', 'how to calculate crosswind component', 'headwind component calculator', 'runway crosswind calculator', 'tailwind component', 'crosswind chart'],
+  },
+  {
+    slug: 'aadhaar-masker',
+    name: 'Aadhaar Masker',
+    category: 'India',
+    blurb: 'Cover your Aadhaar number on a photo or scan with solid boxes — you choose what to hide. Runs in your browser.',
+    keywords: ['mask aadhaar', 'masked aadhaar', 'hide aadhaar number', 'aadhaar masking tool', 'mask aadhaar number online', 'redact aadhaar card', 'black out id card', 'blur aadhaar number'],
+  },
+  {
+    slug: 'photo-date-stamp',
+    name: 'Photo with Name & Date',
+    category: 'India',
+    blurb: 'Add a name and date strip to an exam photo, join your signature and resize to 200×230 px. Runs in your browser.',
+    keywords: ['photo with name and date', 'add name and date on photo', 'exam photo with name and date', 'photo signature joiner', 'ssc photo resize', 'photo resize 200x230', 'signature resize 140x60', 'name and date on photo online'],
+  },
+  {
+    slug: 'vcf-to-csv',
+    name: 'VCF to CSV Converter',
+    category: 'Data Tools',
+    blurb: 'Convert vCard (.vcf) contacts to CSV for Excel, Google Contacts or Outlook — runs in your browser.',
+    keywords: ['vcf to csv', 'vcard to csv', 'convert vcf to excel', 'vcf to google contacts', 'vcf to outlook csv', 'iphone contacts to csv', 'android vcf to csv', 'vcf file converter'],
+  },
+  {
+    slug: 'ics-viewer',
+    name: 'ICS File Viewer',
+    category: 'Data Tools',
+    blurb: 'Open an .ics calendar file as a table in your time zone and export it to CSV — runs in your browser.',
+    keywords: ['ics viewer', 'open ics file', 'ics to csv', 'ics file reader', 'view ics online', 'ical viewer', 'convert ics to excel', 'calendar file viewer'],
+  },
+  {
+    slug: 'amount-in-words-rupees',
+    name: 'Amount in Words (Rupees)',
+    category: 'India',
+    blurb: 'Write any rupee amount in words with lakh, crore and paise, in English or Hindi. Runs in your browser.',
+    keywords: ['amount in words', 'rupees in words', 'number to words indian rupees', 'cheque amount in words', 'lakh crore in words', 'amount in words in hindi', 'rupees to words converter', 'invoice amount in words'],
+  },
+  {
+    slug: 'pdf-metadata-remover',
+    name: 'PDF Metadata Remover',
+    category: 'PDF Tools',
+    blurb: 'View, edit or remove PDF title, author, dates and XMP metadata. Processed on your device.',
+    keywords: ['remove pdf metadata', 'pdf metadata remover', 'remove author from pdf', 'edit pdf metadata', 'pdf properties editor', 'strip pdf metadata', 'clean pdf metadata', 'pdf xmp remove'],
+  },
+  {
+    slug: 'homoglyph-detector',
+    name: 'Homoglyph Detector',
+    category: 'Text Tools',
+    blurb: 'Spot lookalike Unicode letters (Cyrillic а, Greek Η) and invisible characters in text. Runs in your browser.',
+    keywords: ['homoglyph detector', 'confusable characters checker', 'detect cyrillic letters', 'zero width space detector', 'remove invisible characters', 'unicode lookalike checker', 'idn homograph check', 'punycode phishing check'],
   },
 ]
 

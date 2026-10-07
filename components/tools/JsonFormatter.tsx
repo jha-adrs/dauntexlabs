@@ -14,6 +14,7 @@ import {
   Notice,
   Field,
 } from '@/components/ui/kit'
+import { parseLooseJson } from '@/lib/json-loose'
 
 type Mode = 'beautify' | 'minify' | 'validate'
 
@@ -73,17 +74,9 @@ function locateError(message: string, source: string): string {
   return message
 }
 
-/** Parse strict JSON or — when loose is on — a JS object literal expression. */
+/** Parse strict JSON or — when loose is on — relaxed JSON (never executed as code). */
 function parseInput(input: string, loose: boolean): unknown {
-  if (loose) {
-    // Runs only in the user's own browser, on their own pasted input. The
-    // parenthesised wrapper lets `{...}` be read as an object literal rather
-    // than a block statement, and tolerates unquoted keys, single quotes,
-    // trailing commas and comments.
-    // eslint-disable-next-line no-new-func
-    return new Function('return (' + input + ')')()
-  }
-  return JSON.parse(input)
+  return loose ? parseLooseJson(input) : JSON.parse(input)
 }
 
 export default function JsonFormatter() {

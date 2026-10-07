@@ -52,6 +52,10 @@ describe('privacy static guard', () => {
     expect(hits(/console\.(log|info|debug|warn|error|trace)\(/, ['components/tools/FileGenerators.tsx'])).toEqual([])
   })
 
+  it('never evaluates strings as code (blocked by the CSP, and unsafe on pasted input)', () => {
+    expect(hits(/new Function\(|\beval\(|setTimeout\(\s*['"`]/)).toEqual([])
+  })
+
   it('never pushes history entries or rewrites the query string', () => {
     expect(hits(/history\.pushState|location\.search\s*=|location\.href\s*=/)).toEqual([])
   })

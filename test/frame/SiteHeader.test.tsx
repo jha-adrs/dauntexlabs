@@ -5,12 +5,28 @@ import SiteHeader from '@/components/SiteHeader'
 const search = () => screen.getByRole('textbox', { name: 'Search tools' })
 
 describe('SiteHeader', () => {
-  it('without props, search is a plain GET form to the homepage', () => {
+  it('without props, a search goes to /#q= so the term never reaches a server', () => {
+    const navigate = vi.fn()
+    render(<SiteHeader navigate={navigate} />)
+    fireEvent.change(search(), { target: { value: 'merge pdf' } })
+    const notCancelled = fireEvent.submit(search().closest('form')!)
+    expect(notCancelled).toBe(false)
+    expect(navigate).toHaveBeenCalledWith('/#q=merge%20pdf')
+  })
+
+  it('an empty search goes to the homepage', () => {
+    const navigate = vi.fn()
+    render(<SiteHeader navigate={navigate} />)
+    fireEvent.submit(search().closest('form')!)
+    expect(navigate).toHaveBeenCalledWith('/')
+  })
+
+  it('the form cannot leak the term without JavaScript (no action, method or field name)', () => {
     render(<SiteHeader />)
-    expect(search()).toHaveAttribute('name', 'q')
     const form = search().closest('form')!
-    expect(form).toHaveAttribute('action', '/')
-    expect(form).toHaveAttribute('method', 'get')
+    expect(form).not.toHaveAttribute('action')
+    expect(form).not.toHaveAttribute('method')
+    expect(search()).not.toHaveAttribute('name')
   })
 
   it('homepage mode: typing drives setQuery', () => {

@@ -1,23 +1,37 @@
 'use client'
 
+import { useEffect } from 'react'
 import Script from 'next/script'
+import { usePathname } from 'next/navigation'
 
-// Google Analytics 4 with Consent Mode v2. Loads only if NEXT_PUBLIC_GA_ID is set
-// (Cloudflare Pages → Settings → Environment variables). Consent defaults to
-// DENIED — no analytics cookies are set until the visitor accepts in the banner.
-// GA measures page visits only; it never receives what users type into a tool.
+// Google Analytics 4 with Consent Mode v2. Consent defaults to DENIED — no analytics
+// cookies are set until the visitor accepts in the banner.
+// GA only ever receives the page path: automatic page views are off and every
+// page_view is sent by hand with the query string and fragment stripped, so search
+// terms (/#q=…) and anything else in the URL never reach Google. Tool inputs are
+// never part of the URL in the first place (see test/privacy/static-guard.test.ts).
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? 'G-XXW3FWR6BY'
 
-export default function Analytics() {
-  if (!GA_ID) return null
-  return (
-    <>
-      <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-        strategy="afterInteractive"
-      />
-      <Script id="ga-consent-init" strategy="afterInteractive">
-        {`
+type Gtag = (...args: unknown[]) => void
+
+/** The only page data GA receives: origin + path, title, and the referrer's origin. */
+export function sanitisedPageView() {
+  const { origin, pathname } = window.location
+  let referrer = ''
+  try {
+    referrer = document.referrer ? new URL(document.referrer).origin : ''
+  } catch {
+    referrer = ''
+  }
+  return {
+    page_location: origin + pathname,
+    page_path: pathname,
+    page_title: document.title,
+    page_referrer: referrer,
+  }
+}
+
+const GA_INIT = `
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           window.gtag = gtag;
@@ -37,9 +51,28 @@ export default function Analytics() {
               gtag('consent', 'update', { analytics_storage: 'granted' });
             }
           } catch (e) {}
-          gtag('config', '${GA_ID}', { anonymize_ip: true });
-        `}
-      </Script>
+          // No automatic page views: Analytics.tsx sends sanitised ones (path only).
+          gtag('config', '${GA_ID}', { anonymize_ip: true, send_page_view: false });
+        `
+
+export default function Analytics() {
+  const pathname = usePathname()
+
+  useEffect(() => {
+    const gtag = (window as unknown as { gtag?: Gtag }).gtag
+    if (typeof gtag === 'function') gtag('event', 'page_view', sanitisedPageView())
+  }, [pathname])
+
+  if (!GA_ID) return null
+  return (
+    <>
+      <Script
+        src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+        strategy="afterInteractive"
+      />
+      {/* Plain inline script: runs while the HTML is parsed, before hydration, so
+          consent defaults and gtag exist before the first sanitised page_view. */}
+      <script id="ga-consent-init" dangerouslySetInnerHTML={{ __html: GA_INIT }} />
     </>
   )
 }

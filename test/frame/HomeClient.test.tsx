@@ -18,6 +18,12 @@ describe('readInitialFilters', () => {
   it('defaults when empty', () => {
     expect(readInitialFilters('')).toEqual({ query: '', active: 'All' })
   })
+  it('reads the search from the #q= fragment', () => {
+    expect(readInitialFilters('', '#q=merge%20pdf').query).toBe('merge pdf')
+  })
+  it('prefers the fragment over a legacy ?q=', () => {
+    expect(readInitialFilters('?q=old', '#q=new').query).toBe('new')
+  })
 })
 
 describe('HomeClient', () => {
@@ -27,6 +33,19 @@ describe('HomeClient', () => {
     window.history.replaceState(null, '', '/?cat=PDF%20Tools')
     render(<HomeClient />)
     expect(screen.getByText(/tools in PDF Tools/)).toBeInTheDocument()
+  })
+
+  it('seeds the search from #q= on load', () => {
+    window.history.replaceState(null, '', '/#q=merge')
+    render(<HomeClient />)
+    expect(screen.getByRole('textbox', { name: 'Search tools' })).toHaveValue('merge')
+  })
+
+  it('strips a legacy ?q= from the address bar but keeps ?cat=', () => {
+    window.history.replaceState(null, '', '/?q=merge&cat=PDF%20Tools')
+    render(<HomeClient />)
+    expect(window.location.search).toBe('?cat=PDF%20Tools')
+    expect(screen.getByRole('textbox', { name: 'Search tools' })).toHaveValue('merge')
   })
 
   it('seeds the search from ?q= on load', () => {

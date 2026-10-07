@@ -24,7 +24,7 @@ npm run preview    # serve ./out (npx serve)
 npm run typecheck  # tsc --noEmit (production only — test/ is excluded)
 npm test           # vitest run — 920 behavior tests (tools + conversions)
 npm run test:watch # vitest watch
-npm run e2e        # playwright — real-browser image-tool tests (auto-boots next dev)
+npm run e2e        # next build + playwright — image tools (next dev :3000) + privacy/CSP specs (static out/ :4173)
 npm run e2e:install# one-time: download the Chromium used by e2e
 npm run verify     # typecheck + unit tests + build — the CI / pre-push gate
 ```
@@ -71,10 +71,14 @@ A registry entry with **`status: 'maintenance'`** renders an "under maintenance"
 ### Programmatic long-tail pages (`/convert/`)
 Separate from the 106 tools: **~260 statically-generated conversion pages** at `/convert/<from>-to-<to>/` (units, number bases, image formats) — a long-tail SEO play. All derive from **`lib/conversions.ts`** (a `PAIRS` registry + pure `convertUnit`/`convertBase`/`formula`/`tableRows` helpers, isolated from the tool components). `app/convert/[slug]/page.tsx` does `generateStaticParams`/`generateMetadata`; `app/convert/page.tsx` is the hub. Unit/base pages use `components/convert/ConvertWidget.tsx`; image pages lazy-load `ImageConverter` (via `ConvertImage.tsx`, using its optional `presetFormat` prop). Each page = pre-set widget + example + reference table + formula + FAQ (FAQPage schema) + cross-links. All are in `sitemap.xml`. Design spec: `docs/superpowers/specs/2026-07-11-programmatic-conversion-pages-design.md`. Next growth levers (per that spec): **A** deepen the 106 tool pages (About/FAQ + category hubs), **C** embeds + shareable result links.
 
+**Indexing:** `isIndexedPair()` in `lib/conversions.ts` decides which `/convert/` pairs are indexed. Commodity unit pairs (km→mi etc., which Google answers in-SERP and earned ~0 clicks) get `noindex, follow` and stay out of the sitemap; nautical/knot, number-base, image and number-scale pairs are indexed.
+
 ### Adding a tool
 1. Add a registry entry in `lib/tools.ts` (page, sitemap, search, card appear automatically).
 2. Create `components/tools/<Name>.tsx` using the kit.
 3. Add the `slug → dynamic(import)` line to `components/ToolMount.tsx`. (Every *live* registry entry must resolve to a real file or the build fails; maintenance entries must NOT have one.)
+4. Add `lib/tool-content/<slug>.ts` (about / how-to / FAQ, 300–700 words, hedged privacy wording) and register it in `lib/tool-content.ts`. `components/ToolAbout.tsx` renders it server-side under the tool, with FAQPage JSON-LD; `test/lib/tool-content.test.ts` enforces the shape.
+5. Add a canary case to `test/e2e/privacy.spec.ts` if the tool takes text or files.
 
 ## Non-negotiable client-side constraints
 
@@ -86,6 +90,12 @@ Separate from the 106 tools: **~260 statically-generated conversion pages** at `
 
 - **`app/privacy/page.tsx`** — accurate but deliberately **hedged for legal safety**: it states tools are *designed* to run on-device (not an absolute guarantee), discloses bundled libs (OpenPGP.js, pdf-lib, QR), and includes a "circumstances in which data may leave your device" clause, a disclaimer of warranties, and a limitation-of-liability section. Keep it truthful: don't re-add absolute "nothing ever leaves" language, and if you add anything that genuinely makes a network request, disclose it at the point of use too.
 - **`components/ConsentBanner.tsx`** (in the root layout) — a first-visit acknowledgement stored in `localStorage['dxl-consent-v1']`; renders nothing until mounted (avoids SSR mismatch/flash). Footer links to `/privacy/`.
+- **Nothing private may reach a server, a log or a third party — enforced, not just promised:**
+  - **Rules:** no `fetch`/XHR/WebSocket/`sendBeacon`/`EventSource`; never put user input in the URL (path, query or hash), `document.title`, storage or `console.*`; revoke object URLs; re-encode image outputs via Canvas.
+  - **Search** from non-home pages goes to `/#q=<term>` (fragments are never sent in HTTP requests); `HomeClient` reads it and strips any legacy `?q=`.
+  - **Analytics** (`components/Analytics.tsx`) sends page views by hand with `page_location` = origin + path only (`send_page_view: false`), referrer reduced to its origin, consent default denied.
+  - **CSP** in `public/_headers` limits connections to the site and GA, so the browser blocks any other host.
+  - **Tests:** `test/privacy/static-guard.test.ts` (source scan: network calls, storage, console, history, absolute privacy wording), `test/privacy/analytics.test.tsx`, `test/e2e/privacy.spec.ts` (canary string fed into tools; asserts no request/storage/URL/title/console carries it; includes a self-test that a planted leak is caught), `test/e2e/csp.spec.ts` (zero violations; a cross-origin request is blocked).
 
 ## Design system ("Workbench", light)
 

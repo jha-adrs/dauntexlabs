@@ -33,7 +33,10 @@ async function assertNoLeak(page: Page, cap: Capture, canary: string) {
     href: location.href,
     title: document.title,
     storage: JSON.stringify({ ...localStorage }) + JSON.stringify({ ...sessionStorage }),
+    // Everything queued for Google Analytics (sent once gtag.js loads).
+    dataLayer: JSON.stringify((window as unknown as { dataLayer?: unknown[] }).dataLayer ?? []),
   }))
+  expect(local.dataLayer, 'canary queued for analytics').not.toContain(canary)
   expect(local.title).not.toContain(canary)
   expect(local.storage).not.toContain(canary)
   for (const line of cap.console) expect(line).not.toContain(canary)

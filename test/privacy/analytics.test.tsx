@@ -31,3 +31,14 @@ describe('analytics page views', () => {
     expect(JSON.stringify(call)).not.toContain('secret')
   })
 })
+
+describe('GA config', () => {
+  it('pins page_location and page_referrer for every event gtag sends, not just page_view', async () => {
+    const { default: Analytics } = await import('@/components/Analytics')
+    const { container } = render(<Analytics />)
+    const init = container.querySelector('#ga-consent-init')!.innerHTML
+    expect(init).toContain('send_page_view: false')
+    expect(init).toMatch(/page_location:\s*location\.origin \+ location\.pathname/)
+    expect(init).toMatch(/page_referrer:/)
+  })
+})

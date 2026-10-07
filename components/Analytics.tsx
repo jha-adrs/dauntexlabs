@@ -52,7 +52,17 @@ const GA_INIT = `
             }
           } catch (e) {}
           // No automatic page views: Analytics.tsx sends sanitised ones (path only).
-          gtag('config', '${GA_ID}', { anonymize_ip: true, send_page_view: false });
+          // page_location/page_referrer are pinned here too, so every event gtag.js
+          // sends by itself (engagement, scroll, enhanced measurement) carries the
+          // path only — never the query string or #fragment.
+          var ref = '';
+          try { ref = document.referrer ? new URL(document.referrer).origin : ''; } catch (e) {}
+          gtag('config', '${GA_ID}', {
+            anonymize_ip: true,
+            send_page_view: false,
+            page_location: location.origin + location.pathname,
+            page_referrer: ref,
+          });
         `
 
 export default function Analytics() {
@@ -60,7 +70,11 @@ export default function Analytics() {
 
   useEffect(() => {
     const gtag = (window as unknown as { gtag?: Gtag }).gtag
-    if (typeof gtag === 'function') gtag('event', 'page_view', sanitisedPageView())
+    if (typeof gtag !== 'function') return
+    const pv = sanitisedPageView()
+    // Keep the pinned location current after client-side navigation.
+    gtag('set', { page_location: pv.page_location, page_referrer: pv.page_referrer })
+    gtag('event', 'page_view', pv)
   }, [pathname])
 
   if (!GA_ID) return null

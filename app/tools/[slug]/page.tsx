@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import SiteHeader from '@/components/SiteHeader'
 import CategoryNav from '@/components/CategoryNav'
+import ToolAbout from '@/components/ToolAbout'
 import Footer from '@/components/Footer'
 import ToolMount from '@/components/ToolMount'
 import ToolCard from '@/components/ToolCard'
@@ -177,6 +178,8 @@ export default async function ToolPage({ params }: Params) {
           <p className="tool-foot-note">
             Designed to run in your browser. See the <Link href="/privacy/">privacy policy</Link>.
           </p>
+
+          <ToolAbout tool={tool} />
 
           {popularConversions.length > 0 && (
             <section className="related">

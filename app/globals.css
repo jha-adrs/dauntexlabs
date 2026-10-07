@@ -552,6 +552,30 @@ summary:focus-visible,
   font-size: 15px;
 }
 
+/* ---- tool about / how-to / FAQ (server-rendered, components/ToolAbout) */
+.tool-about {
+  margin-top: 40px;
+  max-width: 760px;
+}
+.tool-about h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 28px 0 10px;
+}
+.tool-about p,
+.tool-about li {
+  color: var(--mute);
+  font-size: 16px;
+  line-height: 1.7;
+}
+.tool-about p {
+  margin: 0 0 12px;
+}
+.tool-about ol {
+  margin: 0;
+  padding-left: 1.3em;
+}
+
 /* ---- footer -------------------------------------------------------- */
 .footer {
   border-top: 1px solid var(--line);

@@ -52,7 +52,7 @@ test('a request to another host is blocked', async ({ page }) => {
 
 test('json-formatter loose mode works under the policy (no eval)', async ({ page }) => {
   await page.goto(STATIC + '/tools/json-formatter/', { waitUntil: 'networkidle' })
-  await page.getByLabel(/Parse JS objects/).check({ force: true })
+  await page.getByText(/Parse JS objects/).click() // the styled toggle's label; the checkbox itself is visually hidden
   await page.locator('.tool-console-body textarea').first().fill("{ name: 'Ada', tags: ['x',], }")
   await expect(page.locator('.tool-console-body textarea').nth(1)).toHaveValue(/"name": "Ada"/)
   expect(await violations(page)).toEqual([])

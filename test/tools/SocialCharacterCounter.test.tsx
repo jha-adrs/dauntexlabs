@@ -44,6 +44,14 @@ describe('SocialCharacterCounter', () => {
     expect(screen.getByText('5 over')).toBeInTheDocument()
   })
 
+  it('shows the over-limit count in the danger colour', () => {
+    render(<SocialCharacterCounter />)
+    fireEvent.change(screen.getByPlaceholderText(/Paste or type/i), {
+      target: { value: 'a'.repeat(75) },
+    })
+    expect(screen.getByText('5 over').style.color).toBe('var(--danger)')
+  })
+
   it('counts words correctly', () => {
     render(<SocialCharacterCounter />)
 

@@ -101,3 +101,12 @@ describe('PasswordGenerator', () => {
     }, { timeout: 10000 })
   })
 })
+
+describe('PasswordGenerator strength label (light theme)', () => {
+  it('colours a "Strong" label with the accent token, not a pastel', () => {
+    render(<PasswordGenerator />)
+    fireEvent.change(screen.getAllByRole('slider')[0], { target: { value: '12' } })
+    const label = screen.getByText(/bits — Strong$/)
+    expect(label.style.color).toBe('var(--accent)')
+  })
+})

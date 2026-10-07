@@ -285,6 +285,10 @@ summary:focus-visible,
 .cat-nav-item.active em {
   color: var(--accent);
 }
+/* .cat-nav and its ul are scroll containers that clip outside outlines */
+.cat-nav-item:focus-visible {
+  outline-offset: -2px;
+}
 
 /* ---- hero + deck --------------------------------------------------- */
 .hero h1 {
@@ -492,7 +496,9 @@ summary:focus-visible,
 }
 .tool-console-body {
   padding: 22px;
-  /* a few tools use fixed-column grids; scroll inside the panel, never the page */
+  /* a few tools use fixed-column grids; scroll inside the panel, never the page.
+     Note: this also makes overflow-y auto, so tool popovers must stay inside the
+     panel and position: sticky inside a tool sticks to the panel, not the page. */
   overflow-x: auto;
 }
 .tool-console-body > .tool {

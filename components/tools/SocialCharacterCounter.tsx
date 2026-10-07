@@ -172,7 +172,7 @@ export default function SocialCharacterCounter() {
                   style={{
                     padding: '0.6rem 0.75rem',
                     background: 'var(--ink-800)',
-                    border: `1px solid ${within ? 'var(--line)' : 'rgba(255,80,80,0.35)'}`,
+                    border: `1px solid ${within ? 'var(--line)' : 'var(--danger)'}`,
                     borderRadius: '4px',
                   }}
                 >
@@ -200,7 +200,7 @@ export default function SocialCharacterCounter() {
                         fontFamily: 'var(--ff-mono)',
                         fontSize: '0.75rem',
                         fontWeight: 600,
-                        color: within ? 'var(--acid)' : 'rgb(255,100,100)',
+                        color: within ? 'var(--acid)' : 'var(--danger)',
                       }}
                       aria-label={`${Math.abs(remaining)} ${within ? 'remaining' : 'over'}`}
                     >
@@ -223,7 +223,7 @@ export default function SocialCharacterCounter() {
                       style={{
                         height: '100%',
                         width: `${pct}%`,
-                        background: within ? 'var(--acid)' : 'rgb(255,100,100)',
+                        background: within ? 'var(--acid)' : 'var(--danger)',
                         borderRadius: '2px',
                         transition: 'width 0.15s ease',
                       }}

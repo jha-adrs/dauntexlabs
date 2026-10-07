@@ -66,9 +66,9 @@ function entropyBits(charsetSize: number, length: number): number {
 }
 
 function strengthLabel(bits: number): { label: string; color: string } {
-  if (bits < 28) return { label: 'Weak', color: '#e05' }
-  if (bits < 60) return { label: 'Fair', color: '#f90' }
-  if (bits < 100) return { label: 'Strong', color: '#8c4' }
+  if (bits < 28) return { label: 'Weak', color: 'var(--danger)' }
+  if (bits < 60) return { label: 'Fair', color: 'var(--warn)' }
+  if (bits < 100) return { label: 'Strong', color: 'var(--accent)' }
   return { label: 'Very Strong', color: 'var(--acid)' }
 }
 

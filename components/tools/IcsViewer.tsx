@@ -134,7 +134,15 @@ export default function IcsViewer() {
                 <tbody>
                   {events.map((e, i) => (
                     <tr key={i} style={{ borderBottom: '1px solid var(--line)' }}>
-                      <td style={td}>{e.summary}</td>
+                      <td style={td}>
+                        {e.summary}
+                        {e.unknownZone && (
+                          <div style={{ fontSize: 12.5, color: 'var(--warn)', marginTop: 2 }}>
+                            Time zone “{e.unknownZone}” not recognised — times shown as written in
+                            the file.
+                          </div>
+                        )}
+                      </td>
                       <td style={{ ...td, fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
                         {formatInZone(e, 'start', zone)}
                       </td>

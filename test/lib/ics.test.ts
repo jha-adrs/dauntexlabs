@@ -132,3 +132,42 @@ describe('eventsToCsv', () => {
     expect(row).toBe('"Lunch, then talk",2026-10-07 03:30,,No,,Daily,')
   })
 })
+
+const tzCal = (body: string) =>
+  `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:x\r\nSUMMARY:t\r\n${body}END:VEVENT\r\nEND:VCALENDAR\r\n`
+const one = (body: string) => {
+  const r = parseIcs(tzCal(body))
+  if (!r.ok) throw new Error(r.error)
+  return r.events[0]
+}
+
+describe('Outlook / Exchange (Windows) time zone names', () => {
+  // Mapping per Unicode CLDR windowsZones.xml (territory 001).
+  it('resolves "India Standard Time" to Asia/Kolkata', () => {
+    const e = one('DTSTART;TZID=India Standard Time:20261007T090000\r\nDTEND;TZID=India Standard Time:20261007T100000\r\n')
+    expect(e.floating).toBeFalsy()
+    expect(e.start?.toISOString()).toBe('2026-10-07T03:30:00.000Z')
+  })
+  it('resolves "Pacific Standard Time" (winter) to America/Los_Angeles', () => {
+    const e = one('DTSTART;TZID=Pacific Standard Time:20260115T090000\r\n')
+    expect(e.start?.toISOString()).toBe('2026-01-15T17:00:00.000Z')
+  })
+  it('resolves quoted TZIDs', () => {
+    const e = one('DTSTART;TZID="W. Europe Standard Time":20260715T090000\r\n')
+    expect(e.start?.toISOString()).toBe('2026-07-15T07:00:00.000Z')
+  })
+})
+
+describe('unrecognised zones are flagged, and DTEND keeps its own flag', () => {
+  it('marks the zone name it could not resolve', () => {
+    const e = one('DTSTART;TZID=Mars/Olympus_Mons:20261007T090000\r\n')
+    expect(e.floating).toBe(true)
+    expect(e.unknownZone).toBe('Mars/Olympus_Mons')
+  })
+  it('shows an unresolvable DTEND as written even when DTSTART resolved', () => {
+    const e = one('DTSTART;TZID=Asia/Kolkata:20261007T090000\r\nDTEND;TZID=Mars/Olympus_Mons:20261007T100000\r\n')
+    expect(formatInZone(e, 'start', 'Asia/Kolkata')).toBe('2026-10-07 09:00')
+    expect(formatInZone(e, 'end', 'Asia/Kolkata')).toBe('2026-10-07 10:00')
+    expect(e.unknownZone).toBe('Mars/Olympus_Mons')
+  })
+})

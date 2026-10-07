@@ -24,6 +24,13 @@ function summaries() {
 }
 
 describe('IcsViewer', () => {
+  it('flags events whose time zone it could not recognise', () => {
+    render(<IcsViewer />)
+    const odd = ICS.replace('DTSTART:20261008T033000Z', 'DTSTART;TZID=Mars/Olympus_Mons:20261008T090000')
+    fireEvent.change(screen.getByPlaceholderText(/paste calendar text/i), { target: { value: odd } })
+    expect(screen.getByText(/time zone “Mars\/Olympus_Mons” not recognised/i)).toBeInTheDocument()
+  })
+
   it('lists events sorted by start, converted to the chosen time zone', () => {
     render(<IcsViewer />)
     fireEvent.change(screen.getByLabelText('Time zone'), { target: { value: 'Asia/Kolkata' } })

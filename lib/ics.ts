@@ -14,8 +14,12 @@ export interface IcsEvent {
   start: Date | null
   end: Date | null
   allDay: boolean
-  /** Wall-clock time with no usable zone (no TZID, or a TZID Intl doesn't know). */
+  /** Wall-clock start with no usable zone (no TZID, or a TZID Intl doesn't know). */
   floating?: boolean
+  /** Same for the end, which can carry its own TZID. */
+  endFloating?: boolean
+  /** A TZID that could not be resolved — times using it are shown as written. */
+  unknownZone?: string
   location: string
   description: string
   rrule?: string
@@ -78,9 +82,79 @@ export function zonedToInstant(y: number, mo: number, d: number, h: number, mi: 
   return new Date(t)
 }
 
-/** TZID → an IANA zone Intl knows, or null. Accepts `/vendor/…/Area/City` prefixes. */
-function resolveTzid(tzid: string): string | null {
+// Outlook / Exchange write Windows zone names. Mapping from Unicode CLDR
+// windowsZones.xml (territory "001", the primary zone for each Windows name).
+const WINDOWS_ZONES: Record<string, string> = {
+  'Dateline Standard Time': 'Etc/GMT+12',
+  'UTC-11': 'Etc/GMT+11',
+  'Hawaiian Standard Time': 'Pacific/Honolulu',
+  'Alaskan Standard Time': 'America/Anchorage',
+  'Pacific Standard Time': 'America/Los_Angeles',
+  'US Mountain Standard Time': 'America/Phoenix',
+  'Mountain Standard Time': 'America/Denver',
+  'Central America Standard Time': 'America/Guatemala',
+  'Central Standard Time': 'America/Chicago',
+  'Central Standard Time (Mexico)': 'America/Mexico_City',
+  'Canada Central Standard Time': 'America/Regina',
+  'SA Pacific Standard Time': 'America/Bogota',
+  'Eastern Standard Time': 'America/New_York',
+  'US Eastern Standard Time': 'America/Indiana/Indianapolis',
+  'Atlantic Standard Time': 'America/Halifax',
+  'Newfoundland Standard Time': 'America/St_Johns',
+  'E. South America Standard Time': 'America/Sao_Paulo',
+  'Argentina Standard Time': 'America/Argentina/Buenos_Aires',
+  UTC: 'Etc/UTC',
+  'GMT Standard Time': 'Europe/London',
+  'Greenwich Standard Time': 'Atlantic/Reykjavik',
+  'Morocco Standard Time': 'Africa/Casablanca',
+  'W. Europe Standard Time': 'Europe/Berlin',
+  'Central Europe Standard Time': 'Europe/Budapest',
+  'Romance Standard Time': 'Europe/Paris',
+  'Central European Standard Time': 'Europe/Warsaw',
+  'W. Central Africa Standard Time': 'Africa/Lagos',
+  'GTB Standard Time': 'Europe/Bucharest',
+  'E. Europe Standard Time': 'Europe/Chisinau',
+  'FLE Standard Time': 'Europe/Kiev',
+  'Egypt Standard Time': 'Africa/Cairo',
+  'South Africa Standard Time': 'Africa/Johannesburg',
+  'Israel Standard Time': 'Asia/Jerusalem',
+  'Turkey Standard Time': 'Europe/Istanbul',
+  'Arabic Standard Time': 'Asia/Baghdad',
+  'Arab Standard Time': 'Asia/Riyadh',
+  'Russian Standard Time': 'Europe/Moscow',
+  'E. Africa Standard Time': 'Africa/Nairobi',
+  'Iran Standard Time': 'Asia/Tehran',
+  'Arabian Standard Time': 'Asia/Dubai',
+  'Pakistan Standard Time': 'Asia/Karachi',
+  'West Asia Standard Time': 'Asia/Tashkent',
+  'India Standard Time': 'Asia/Kolkata',
+  'Sri Lanka Standard Time': 'Asia/Colombo',
+  'Nepal Standard Time': 'Asia/Kathmandu',
+  'Bangladesh Standard Time': 'Asia/Dhaka',
+  'Myanmar Standard Time': 'Asia/Yangon',
+  'SE Asia Standard Time': 'Asia/Bangkok',
+  'China Standard Time': 'Asia/Shanghai',
+  'Singapore Standard Time': 'Asia/Singapore',
+  'Taipei Standard Time': 'Asia/Taipei',
+  'W. Australia Standard Time': 'Australia/Perth',
+  'Tokyo Standard Time': 'Asia/Tokyo',
+  'Korea Standard Time': 'Asia/Seoul',
+  'Cen. Australia Standard Time': 'Australia/Adelaide',
+  'AUS Central Standard Time': 'Australia/Darwin',
+  'E. Australia Standard Time': 'Australia/Brisbane',
+  'AUS Eastern Standard Time': 'Australia/Sydney',
+  'New Zealand Standard Time': 'Pacific/Auckland',
+}
+
+/**
+ * TZID → an IANA zone Intl knows, or null. Accepts quoted values, Windows names
+ * (Outlook/Exchange) and `/vendor/…/Area/City` prefixes.
+ */
+function resolveTzid(raw: string): string | null {
+  const tzid = raw.trim().replace(/^"(.*)"$/, '$1')
   if (isValidTimeZone(tzid)) return tzid
+  const win = WINDOWS_ZONES[tzid]
+  if (win && isValidTimeZone(win)) return win
   const m = /([A-Za-z_]+\/[A-Za-z_+-]+(?:\/[A-Za-z_+-]+)?)$/.exec(tzid)
   return m && isValidTimeZone(m[1]) ? m[1] : null
 }
@@ -134,19 +208,27 @@ function buildEvent(lines: ContentLine[]): IcsEvent {
           e.allDay = w.allDay
           if (w.floating) e.floating = true
           if (w.tzid) e.tzid = w.tzid
+          if (w.floating && w.tzid) e.unknownZone = w.tzid
         }
         break
       }
       case 'DTEND':
-      case 'DUE':
-        e.end = parseWhen(cl)?.date ?? null
+      case 'DUE': {
+        const w = parseWhen(cl)
+        e.end = w?.date ?? null
+        if (w?.floating) e.endFloating = true
+        if (w?.floating && w.tzid) e.unknownZone = e.unknownZone ?? w.tzid
         break
+      }
       case 'DURATION':
         dur = durationMs(cl.value)
         break
     }
   }
-  if (!e.end && e.start && dur !== null) e.end = new Date(e.start.getTime() + dur)
+  if (!e.end && e.start && dur !== null) {
+    e.end = new Date(e.start.getTime() + dur)
+    if (e.floating) e.endFloating = true
+  }
   return e
 }
 
@@ -198,7 +280,8 @@ export function formatInZone(e: IcsEvent, which: 'start' | 'end', timeZone: stri
     if (which === 'end' && e.start && t > e.start.getTime()) t -= 86400000
     return fmt(t, 'UTC', false)
   }
-  return fmt(d.getTime(), e.floating ? 'UTC' : timeZone, true)
+  const asWritten = which === 'end' ? e.endFloating : e.floating
+  return fmt(d.getTime(), asWritten ? 'UTC' : timeZone, true)
 }
 
 const DAY: Record<string, string> = {

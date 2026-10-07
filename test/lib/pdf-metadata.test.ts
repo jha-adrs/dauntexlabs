@@ -77,3 +77,65 @@ describe('pdf-metadata', () => {
     expect(r.ok).toBe(false)
   })
 })
+
+// Every object the saved file still contains, decoded — compressed object streams
+// would hide text from a plain byte search.
+async function allObjectText(bytes: Uint8Array): Promise<string> {
+  const { PDFRawStream, decodePDFRawStream } = await import('pdf-lib')
+  const doc = await PDFDocument.load(bytes, { updateMetadata: false })
+  return doc.context
+    .enumerateIndirectObjects()
+    .map(([, obj]) => {
+      if (obj instanceof PDFRawStream) {
+        try {
+          return obj.dict.toString() + Buffer.from(decodePDFRawStream(obj).decode()).toString('latin1')
+        } catch {
+          return obj.dict.toString()
+        }
+      }
+      return obj.toString()
+    })
+    .join('\n')
+    // Decode <hex> strings too (pdf-lib writes Info values as UTF-16BE hex).
+    .replace(/<([0-9A-Fa-f]{4,})>/g, (_, hex: string) => {
+      const buf = Buffer.from(hex, 'hex')
+      return buf[0] === 0xfe && buf[1] === 0xff ? buf.subarray(2).swap16().toString('utf16le') : buf.toString('latin1')
+    })
+}
+
+describe('pdf-metadata: thorough removal', () => {
+  it('drops orphaned Info dictionaries left by earlier incremental saves', async () => {
+    const d = await PDFDocument.load(await canaryPdf(), { updateMetadata: false })
+    const { PDFString } = await import('pdf-lib')
+    d.context.register(d.context.obj({ Author: PDFString.of('OLDAUTHOR') })) // unreferenced, like an old revision
+    const r = await cleanPdf(await d.save({ useObjectStreams: false }), { mode: 'remove' })
+    if (!r.ok) throw new Error(r.error)
+    const text = await allObjectText(r.bytes)
+    expect(text).not.toContain('OLDAUTHOR')
+    expect(text).not.toContain('CANARY')
+  })
+
+  it('removes page-level and image-level XMP too', async () => {
+    const d = await PDFDocument.load(await canaryPdf(), { updateMetadata: false })
+    const xmp = d.context.stream('<x:xmpmeta>PAGEXMP</x:xmpmeta>', { Type: 'Metadata', Subtype: 'XML' })
+    d.getPage(0).node.set(PDFName.of('Metadata'), d.context.register(xmp))
+    d.getPage(0).node.set(PDFName.of('PieceInfo'), d.context.obj({ App: { Private: 'PIECEINFO' } }))
+    const r = await cleanPdf(await d.save(), { mode: 'remove' })
+    if (!r.ok) throw new Error(r.error)
+    const text = await allObjectText(r.bytes)
+    expect(text).not.toContain('PAGEXMP')
+    expect(text).not.toContain('PIECEINFO')
+    expect((await PDFDocument.load(r.bytes)).getPageCount()).toBe(1)
+  })
+
+  it('edit mode also leaves no old values behind', async () => {
+    const r = await cleanPdf(await canaryPdf(), {
+      mode: 'edit',
+      fields: { title: 'New', author: '', subject: '', keywords: '', creator: '', producer: '' },
+    })
+    if (!r.ok) throw new Error(r.error)
+    const text = await allObjectText(r.bytes)
+    expect(text).not.toContain('CANARY')
+    expect(text).toContain('New')
+  })
+})

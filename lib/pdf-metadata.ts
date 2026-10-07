@@ -87,8 +87,43 @@ export async function cleanPdf(bytes: Uint8Array | ArrayBuffer, op: CleanOp): Pr
         }
       }
     }
+    await stripAndCollect(doc)
     return { ok: true, bytes: await doc.save() }
   } catch {
     return { ok: false, error: 'Could not save the cleaned PDF. The file may be damaged.' }
+  }
+}
+
+/**
+ * Remove every /Metadata (XMP) and /PieceInfo (app-private data) key reachable from
+ * the document — catalog, pages, images, fonts — then delete every object nothing
+ * references any more (old Info dicts from earlier incremental saves, orphaned XMP).
+ * pdf-lib writes all parsed objects back on save, so unreachable ones must go too.
+ */
+async function stripAndCollect(doc: import('pdf-lib').PDFDocument): Promise<void> {
+  const { PDFName, PDFRef, PDFDict, PDFArray, PDFStream } = await import('pdf-lib')
+  const ctx = doc.context
+  const strip = [PDFName.of('Metadata'), PDFName.of('PieceInfo')]
+  const reachable = new Set<string>()
+  const stack: unknown[] = [ctx.trailerInfo.Root, ctx.trailerInfo.Info, ctx.trailerInfo.Encrypt]
+
+  while (stack.length) {
+    let obj = stack.pop()
+    if (obj instanceof PDFRef) {
+      if (reachable.has(obj.tag)) continue
+      reachable.add(obj.tag)
+      obj = ctx.lookup(obj)
+    }
+    const dict = obj instanceof PDFStream ? obj.dict : obj instanceof PDFDict ? obj : undefined
+    if (dict) {
+      for (const key of strip) dict.delete(key)
+      for (const [, value] of dict.entries()) stack.push(value)
+    } else if (obj instanceof PDFArray) {
+      for (const value of obj.asArray()) stack.push(value)
+    }
+  }
+
+  for (const [ref] of ctx.enumerateIndirectObjects()) {
+    if (!reachable.has(ref.tag)) ctx.delete(ref)
   }
 }

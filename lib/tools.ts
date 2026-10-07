@@ -935,6 +935,35 @@ export const tools: Tool[] = [
     blurb: 'Spot lookalike Unicode letters (Cyrillic а, Greek Η) and invisible characters in text. Runs in your browser.',
     keywords: ['homoglyph detector', 'confusable characters checker', 'detect cyrillic letters', 'zero width space detector', 'remove invisible characters', 'unicode lookalike checker', 'idn homograph check', 'punycode phishing check'],
   },
+  {
+    slug: 'krutidev-to-unicode',
+    name: 'Kruti Dev to Unicode Converter',
+    category: 'India',
+    blurb: 'Convert Kruti Dev 010 Hindi text to Unicode and back. Runs in your browser.',
+    keywords: ['kruti dev to unicode', 'krutidev to unicode converter', 'unicode to kruti dev', 'mangal to kruti dev', 'kruti dev 010 converter', 'hindi font converter', 'kruti dev to mangal'],
+  },
+  {
+    slug: 'devlys-to-unicode',
+    name: 'DevLys to Unicode Converter',
+    category: 'India',
+    blurb: 'Convert DevLys 010 Hindi text to Unicode and back. Same layout as Kruti Dev. Runs in your browser.',
+    keywords: ['devlys to unicode', 'devlys 010 to unicode', 'unicode to devlys', 'devlys converter', 'devlys to mangal', 'hindi font converter'],
+  },
+  {
+    slug: 'chanakya-to-unicode',
+    name: 'Chanakya to Unicode Converter',
+    category: 'India',
+    blurb: 'Convert Chanakya font Hindi text to Unicode and back. Runs in your browser.',
+    keywords: ['chanakya to unicode', 'chanakya font converter', 'unicode to chanakya', 'chanakya to mangal', 'hindi font converter', 'chanakya hindi font'],
+  },
+  {
+    slug: 'shivaji-to-unicode',
+    name: 'Shivaji to Unicode Converter (Marathi)',
+    category: 'India',
+    blurb: 'Convert Shivaji font Marathi text to Unicode — being finished; the mapping is still being verified.',
+    keywords: ['shivaji to unicode', 'shivaji font converter', 'marathi font converter', 'shivaji to unicode marathi', 'shivaji01 font', 'marathi legacy font to unicode'],
+    status: 'maintenance',
+  },
 ]
 
 export const toolsByCategory = (category: Category): Tool[] =>

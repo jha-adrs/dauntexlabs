@@ -149,6 +149,9 @@ const REGISTRY: Record<string, ComponentType> = {
   'amount-in-words-rupees': dynamic(() => import('@/components/tools/AmountInWordsRupees'), { ssr: false, loading }),
   'pdf-metadata-remover': dynamic(() => import('@/components/tools/PdfMetadataRemover'), { ssr: false, loading }),
   'homoglyph-detector': dynamic(() => import('@/components/tools/HomoglyphDetector'), { ssr: false, loading }),
+  'krutidev-to-unicode': dynamic(() => import('@/components/tools/KrutiDevToUnicode'), { ssr: false, loading }),
+  'devlys-to-unicode': dynamic(() => import('@/components/tools/DevLysToUnicode'), { ssr: false, loading }),
+  'chanakya-to-unicode': dynamic(() => import('@/components/tools/ChanakyaToUnicode'), { ssr: false, loading }),
 }
 
 export default function ToolMount({ slug }: { slug: string }) {

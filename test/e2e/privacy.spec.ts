@@ -132,6 +132,9 @@ test('the checker itself catches a planted leak', async ({ page }) => {
 // ---- niche tools (2026-10-07) ------------------------------------------------
 
 for (const slug of [
+  'krutidev-to-unicode',
+  'devlys-to-unicode',
+  'chanakya-to-unicode',
   'cron-to-systemd-timer',
   'homoglyph-detector',
   'amount-in-words-rupees',

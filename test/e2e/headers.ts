@@ -24,7 +24,8 @@ export const SITE_HEADERS = siteHeaders()
 /** Serve every same-origin response with the site's real security headers. */
 export async function applySiteHeaders(page: Page) {
   await page.route(`${STATIC}/**`, async (route) => {
-    const res = await route.fetch()
+    // `serve` occasionally resets a connection under parallel load; one retry.
+    const res = await route.fetch().catch(() => route.fetch())
     await route.fulfill({ response: res, headers: { ...res.headers(), ...SITE_HEADERS } })
   })
 }

@@ -14,6 +14,12 @@ export default function Footer() {
           <Link href="/" className="foot-link">
             All tools
           </Link>
+          <Link href="/category/india/" className="foot-link">
+            India tools
+          </Link>
+          <Link href="/category/aviation/" className="foot-link">
+            Aviation tools
+          </Link>
           <Link href="/convert/" className="foot-link">
             Conversions
           </Link>

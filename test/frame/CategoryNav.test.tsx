@@ -20,6 +20,12 @@ describe('CategoryNav', () => {
     )
   })
 
+  it('link mode: categories with a hub link to /category/<slug>/', () => {
+    render(<CategoryNav active="All" />)
+    expect(screen.getByRole('link', { name: /^India/ })).toHaveAttribute('href', expect.stringMatching(/^\/category\/india\/?$/))
+    expect(screen.getByRole('link', { name: /^Aviation/ })).toHaveAttribute('href', expect.stringMatching(/^\/category\/aviation\/?$/))
+  })
+
   it('button mode: clicking a category calls onSelect', () => {
     const onSelect = vi.fn()
     render(<CategoryNav active="All" onSelect={onSelect} />)

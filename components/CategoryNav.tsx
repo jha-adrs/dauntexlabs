@@ -1,11 +1,12 @@
 import Link from 'next/link'
 import { tools, CATEGORY_ORDER, toolsByCategory, type Category } from '@/lib/tools'
+import { categoryHref } from '@/lib/hubs'
 
 export type CategoryFilter = 'All' | Category
 
 interface Props {
   active: CategoryFilter
-  /** Homepage: filter in place. Omit on other pages to render links to /?cat=. */
+  /** Homepage: filter in place. Omit on other pages to render links (hub page or /?cat=). */
   onSelect?: (c: CategoryFilter) => void
 }
 
@@ -39,7 +40,7 @@ export default function CategoryNav({ active, onSelect }: Props) {
               ) : (
                 <Link
                   className={cls}
-                  href={c === 'All' ? '/' : `/?cat=${encodeURIComponent(c)}`}
+                  href={c === 'All' ? '/' : categoryHref(c)}
                   aria-current={isActive ? 'page' : undefined}
                 >
                   {inner}

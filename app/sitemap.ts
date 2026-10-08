@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { tools } from '@/lib/tools'
 import { PAIRS, isIndexedPair } from '@/lib/conversions'
+import { HUBS, hubHref } from '@/lib/hubs'
 
 const SITE = 'https://dauntexlabs.com'
 
@@ -13,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE}/`, changeFrequency: 'weekly', priority: 1 },
     { url: `${SITE}/privacy/`, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${SITE}/convert/`, changeFrequency: 'weekly', priority: 0.7 },
+    ...HUBS.map((h) => ({ url: `${SITE}${hubHref(h)}`, changeFrequency: 'weekly' as const, priority: 0.8 })),
     // Only index live tools — the under-maintenance page is noindex + excluded.
     ...tools
       .filter((t) => t.status !== 'maintenance')

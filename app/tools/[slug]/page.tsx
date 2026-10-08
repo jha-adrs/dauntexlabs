@@ -10,6 +10,7 @@ import ToolCard from '@/components/ToolCard'
 import JsonLd from '@/components/JsonLd'
 import { tools, type Category } from '@/lib/tools'
 import { PAIRS } from '@/lib/conversions'
+import { categoryHref } from '@/lib/hubs'
 
 // Tools that have a companion family of /convert long-tail pages.
 const CONVERT_PARENT: Record<string, 'unit' | 'base' | 'image'> = {
@@ -88,7 +89,7 @@ export default async function ToolPage({ params }: Params) {
             <nav className="crumbs" aria-label="Breadcrumb">
               <Link href="/">All tools</Link>
               <span className="sep">›</span>
-              <Link href={`/?cat=${encodeURIComponent(tool.category)}`}>{tool.category}</Link>
+              <Link href={categoryHref(tool.category)}>{tool.category}</Link>
               <span className="sep">›</span>
               <span className="crumb-here">{tool.name}</span>
             </nav>
@@ -154,7 +155,7 @@ export default async function ToolPage({ params }: Params) {
           <nav className="crumbs" aria-label="Breadcrumb">
             <Link href="/">All tools</Link>
             <span className="sep">›</span>
-            <Link href={`/?cat=${encodeURIComponent(tool.category)}`}>{tool.category}</Link>
+            <Link href={categoryHref(tool.category)}>{tool.category}</Link>
             <span className="sep">›</span>
             <span className="crumb-here">{tool.name}</span>
           </nav>

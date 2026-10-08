@@ -129,3 +129,12 @@ describe('renderSvg', () => {
     for (const p of PRESETS) expect(EYE_BALLS_FOR[p.style.eyeFrame], p.id).toContain(p.style.eyeBall)
   })
 })
+
+describe('box frame quiet zone', () => {
+  it('keeps at least 2 modules of quiet zone inside a box frame', async () => {
+    const m = await makeMatrix('https://x.co/a', 'M')
+    const box: QrStyle = { ...base, frame: 'box', cta: 'Scan me' }
+    expect(renderSvg(m, { ...box, quiet: 0 })).toBe(renderSvg(m, { ...box, quiet: 2 }))
+    expect(renderSvg(m, { ...box, quiet: 4 })).not.toBe(renderSvg(m, { ...box, quiet: 2 }))
+  })
+})

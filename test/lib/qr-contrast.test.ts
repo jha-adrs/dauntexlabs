@@ -28,16 +28,29 @@ describe('scanWarnings', () => {
     const r = scanWarnings({ ...base, logo: { dataUrl: 'data:image/png;base64,AA==', scale: 0.22, clear: true } }, 'M')
     expect(r.ec).toBe('H')
     expect(r.warnings.map((w) => w.kind)).toContain('ec-raised')
-    const small = scanWarnings({ ...base, logo: { dataUrl: 'data:image/png;base64,AA==', scale: 0.15, clear: true } }, 'M')
-    expect(small.ec).toBe('M')
+    expect(scanWarnings({ ...base }, 'M').ec).toBe('M')
   })
-  it('uses the darkest gradient stop', () => {
-    const r = scanWarnings({ ...base, fill: { kind: 'linear', from: '#eeeeee', to: '#000000' } }, 'M')
+  it('checks the gradient stop closest to the background', () => {
+    const r = scanWarnings({ ...base, fill: { kind: 'linear', from: '#333333', to: '#000000' } }, 'M')
     expect(r.warnings).toEqual([])
     const bad = scanWarnings({ ...base, fill: { kind: 'linear', from: '#eeeeee', to: '#dddddd' } }, 'M')
     expect(bad.warnings.map((w) => w.kind)).toContain('contrast')
   })
   it('treats a transparent background as white', () => {
     expect(scanWarnings({ ...base, background: 'transparent' }, 'M').warnings).toEqual([])
+  })
+})
+
+describe('review fixes', () => {
+  it('warns when the light end of a gradient has too little contrast', () => {
+    const s: QrStyle = { ...base, fill: { kind: 'linear', from: '#000000', to: '#ffffff' } }
+    expect(scanWarnings(s, 'M').warnings.map((w) => w.kind)).toContain('contrast')
+  })
+  it('raises error correction to H for any logo, even a small one', () => {
+    for (const scale of [0.1, 0.15, 0.2]) {
+      const s: QrStyle = { ...base, logo: { dataUrl: 'data:image/png;base64,AA==', scale, clear: true } }
+      expect(scanWarnings(s, 'L').ec).toBe('H')
+      expect(scanWarnings(s, 'M').ec).toBe('H')
+    }
   })
 })

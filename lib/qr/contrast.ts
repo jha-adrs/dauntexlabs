@@ -31,10 +31,13 @@ const MIN_RATIO = 4
 export function scanWarnings(s: QrStyle, ec: Ec): { warnings: Warning[]; ec: Ec } {
   const warnings: Warning[] = []
   const bg = s.background === 'transparent' ? '#ffffff' : s.background
+  // For a gradient, check the end closest to the background — that is where scanners fail.
   const moduleColor =
     s.fill.kind === 'solid'
       ? s.fill.color
-      : luminance(s.fill.from) <= luminance(s.fill.to) ? s.fill.from : s.fill.to
+      : Math.abs(luminance(s.fill.from) - luminance(bg)) <= Math.abs(luminance(s.fill.to) - luminance(bg))
+        ? s.fill.from
+        : s.fill.to
 
   const ratio = Math.min(contrastRatio(moduleColor, bg), contrastRatio(s.eyeColor, bg))
   if (ratio < MIN_RATIO) {
@@ -50,11 +53,12 @@ export function scanWarnings(s: QrStyle, ec: Ec): { warnings: Warning[]; ec: Ec 
     })
   }
   let out = ec
-  if (s.logo && s.logo.scale > 0.2 && ec !== 'H') {
+  // Any logo hides modules; even small ones failed to scan at L/M, so always use H.
+  if (s.logo && ec !== 'H') {
     out = 'H'
     warnings.push({
       kind: 'ec-raised',
-      message: 'Error correction raised to H so the code still scans with a large logo covering part of it.',
+      message: 'Error correction raised to H so the code still scans with a logo covering part of it.',
     })
   }
   return { warnings, ec: out }

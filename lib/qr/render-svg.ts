@@ -95,7 +95,8 @@ function alignmentCentres(size: number): number[] {
 }
 
 export function renderSvg(m: QrMatrix, s: QrStyle): string {
-  const q = Math.max(0, Math.min(8, Math.round(s.quiet)))
+  // A box frame is dark right up to the quiet zone; with less than 2 modules it breaks the finder patterns.
+  const q = Math.max(s.frame === 'box' ? 2 : 0, Math.min(8, Math.round(s.quiet)))
   const size = m.size
   const total = size + 2 * q
   const bg = s.background === 'transparent' ? null : color(s.background, '#ffffff')

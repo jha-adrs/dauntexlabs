@@ -144,3 +144,17 @@ describe('decodeTaf', () => {
     expect(decodeTaf('TAF').ok).toBe(false)
   })
 })
+
+describe('review fixes', () => {
+  it('uses prevailing (first) visibility for the flight category, not a directional minimum', () => {
+    const r = decodeMetar('EGLL 081150Z 24008KT 4000 0800NE +SHRA BKN008 12/10 Q1010')
+    if (!r.ok) throw new Error(r.error)
+    expect(r.category).toBe('IFR')
+  })
+  it('accepts METAR COR before the station', () => {
+    const r = decodeMetar('METAR COR LFPG 081130Z 24010KT 9999 FEW030 15/08 Q1018')
+    if (!r.ok) throw new Error(r.error)
+    expect(r.station).toBe('LFPG')
+    expect(r.rows.some((x) => x.group === 'COR')).toBe(true)
+  })
+})

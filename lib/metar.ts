@@ -221,6 +221,10 @@ export function decodeMetar(text: string): MetarResult {
     rows.push({ group: t[0], label: 'Report type', meaning: t[0] === 'METAR' ? 'Routine weather report' : 'Special weather report' })
     i++
   }
+  if (t[i] === 'COR') {
+    rows.push({ group: 'COR', label: 'Correction', meaning: 'Corrected report' })
+    i++
+  }
   const station = t[i]
   if (!station || !STATION_RE.test(station))
     return { ok: false, error: 'Could not find a four-character station identifier (e.g. KJFK) at the start of the report.' }
@@ -260,7 +264,8 @@ export function decodeMetar(text: string): MetarResult {
     if (!trend) {
       if (d.visSm !== undefined) {
         sawVis = true
-        visSm = visSm === null ? d.visSm : Math.min(visSm, d.visSm)
+        // The first visibility group is the prevailing one; later ones are directional minimums.
+        if (visSm === null) visSm = d.visSm
       }
       if (d.sky) sawSky = true
       if (d.ceilFt !== undefined) ceilFt = ceilFt === null ? d.ceilFt : Math.min(ceilFt, d.ceilFt)

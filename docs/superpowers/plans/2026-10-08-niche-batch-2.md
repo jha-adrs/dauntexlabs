@@ -126,7 +126,7 @@ export function validateAadhaar(input: string): { ok: true; masked: string } | {
   - bad format `27AAPFU0939F1YV` (14th not `Z`) → format error; state `40` → unknown state; lowercase input accepted.
   - mod-36: factor 1 at even index, 2 at odd; `sum += floor(p/36) + p%36`; check = `(36 - sum%36) % 36` over `0-9A-Z`.
   - PAN 4th char → entity: P Individual, C Company, H HUF, F Firm, A AOP, T Trust, B BOI, L Local authority, J Artificial juridical person, G Government, K Krish (AJP).
-  - Verhoeff: `verhoeffCheck('236') === 3`; `verhoeffValid('2363')`; `verhoeffCheck('23412341234') === 9`; `validateAadhaar('2341 2341 2349')` ok, masked `XXXX XXXX 2349`; `234123412348` → check-digit error; `134123412349` (starts 1) → error; 11 digits → error.
+  - Verhoeff: `verhoeffCheck('236') === 3`; `verhoeffValid('2363')`; `verhoeffCheck('23412341234') === 6`; `validateAadhaar('2341 2341 2346')` ok, masked `XXXX XXXX 2346`; `234123412349` → check-digit error; `134123412349` (starts 1) → error; 11 digits → error.
   - Batch: component given 3 lines → table 3 rows, "Download CSV" uses `toCsv` from `lib/csv-write.ts`.
 - [ ] **GREEN:** state table 01–38 + 97 (Other territory) + 99 (Centre jurisdiction). Aadhaar UI: number masked by default, `Toggle` "Show full number"; notice "This checks the format and check digit only. It cannot tell you whether an Aadhaar number was issued." Link to `/tools/aadhaar-masker/`.
 - [ ] Verify; commit `feat(india): GSTIN and Aadhaar format validators`.

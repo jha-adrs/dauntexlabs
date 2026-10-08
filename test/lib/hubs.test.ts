@@ -32,3 +32,10 @@ describe('HUBS', () => {
     expect(urls).toContain('https://dauntexlabs.com/category/aviation/')
   })
 })
+
+describe('hub links', () => {
+  it('every hub has a HUB_SLUGS entry and vice versa', async () => {
+    const { HUB_SLUGS } = await import('@/lib/hub-links')
+    expect(Object.fromEntries(HUBS.map((h) => [h.category, h.slug]))).toEqual(HUB_SLUGS)
+  })
+})

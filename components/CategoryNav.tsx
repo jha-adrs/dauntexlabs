@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { tools, CATEGORY_ORDER, toolsByCategory, type Category } from '@/lib/tools'
-import { categoryHref } from '@/lib/hubs'
+import { categoryHref } from '@/lib/hub-links'
 
 export type CategoryFilter = 'All' | Category
 

@@ -77,8 +77,5 @@ export function hubForCategory(c: Category): Hub | undefined {
 
 export const hubHref = (h: Hub) => `/category/${h.slug}/`
 
-/** Where a category link should go: its hub page if it has one, else the homepage filter. */
-export function categoryHref(c: Category): string {
-  const hub = hubForCategory(c)
-  return hub ? hubHref(hub) : `/?cat=${encodeURIComponent(c)}`
-}
+
+export { categoryHref } from '@/lib/hub-links'

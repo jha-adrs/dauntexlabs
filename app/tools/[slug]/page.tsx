@@ -10,7 +10,7 @@ import ToolCard from '@/components/ToolCard'
 import JsonLd from '@/components/JsonLd'
 import { tools, type Category } from '@/lib/tools'
 import { PAIRS } from '@/lib/conversions'
-import { categoryHref } from '@/lib/hubs'
+import { categoryHref } from '@/lib/hub-links'
 
 // Tools that have a companion family of /convert long-tail pages.
 const CONVERT_PARENT: Record<string, 'unit' | 'base' | 'image'> = {

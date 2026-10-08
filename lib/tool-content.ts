@@ -39,6 +39,7 @@ import harSanitizer from './tool-content/har-sanitizer'
 import emlViewer from './tool-content/eml-viewer'
 import qrCodeGenerator from './tool-content/qr-code-generator'
 import upiQrCodeGenerator from './tool-content/upi-qr-code-generator'
+import walkmanChanakyaToUnicode from './tool-content/walkman-chanakya-to-unicode'
 
 export type { ToolContent } from './tool-content/types'
 
@@ -85,4 +86,5 @@ export const TOOL_CONTENT: Record<string, ToolContent> = {
   'eml-viewer': emlViewer,
   'qr-code-generator': qrCodeGenerator,
   'upi-qr-code-generator': upiQrCodeGenerator,
+  'walkman-chanakya-to-unicode': walkmanChanakyaToUnicode,
 }

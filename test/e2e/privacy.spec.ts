@@ -145,6 +145,7 @@ for (const slug of [
   'krutidev-to-unicode',
   'devlys-to-unicode',
   'chanakya-to-unicode',
+  'walkman-chanakya-to-unicode',
   'cron-to-systemd-timer',
   'homoglyph-detector',
   'amount-in-words-rupees',

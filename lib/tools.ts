@@ -1055,6 +1055,13 @@ export const tools: Tool[] = [
     blurb: 'Make a free UPI payment QR code with your UPI ID, name and optional amount — add a logo and colours, download PNG or SVG.',
     keywords: ['upi qr code generator', 'upi qr code', 'create upi qr code', 'upi payment qr', 'upi qr with amount', 'free upi qr code', 'shop upi qr code', 'bhim upi qr generator'],
   },
+  {
+    slug: 'walkman-chanakya-to-unicode',
+    name: 'Walkman-Chanakya to Unicode Converter',
+    category: 'India',
+    blurb: 'Convert Walkman-Chanakya 901/905 Hindi text (used in government documents) to Unicode Devanagari, and back. Runs in your browser.',
+    keywords: ['walkman chanakya to unicode', 'walkman chanakya 901 to unicode', 'chanakya 905 to unicode', 'walkman chanakya converter', 'unicode to walkman chanakya', 'hindi font converter government'],
+  },
 ]
 
 export const toolsByCategory = (category: Category): Tool[] =>

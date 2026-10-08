@@ -165,6 +165,7 @@ const REGISTRY: Record<string, ComponentType> = {
   'har-sanitizer': dynamic(() => import('@/components/tools/HarSanitizer'), { ssr: false, loading }),
   'eml-viewer': dynamic(() => import('@/components/tools/EmlViewer'), { ssr: false, loading }),
   'upi-qr-code-generator': dynamic(() => import('@/components/tools/UpiQrCodeGenerator'), { ssr: false, loading }),
+  'walkman-chanakya-to-unicode': dynamic(() => import('@/components/tools/WalkmanChanakyaToUnicode'), { ssr: false, loading }),
 }
 
 export default function ToolMount({ slug }: { slug: string }) {

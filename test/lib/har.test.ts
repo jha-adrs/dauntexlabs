@@ -237,3 +237,32 @@ describe('redactHar', () => {
     expect(count).toBe(1)
   })
 })
+
+describe('review fixes', () => {
+  const ALL_BUT_BODIES = new Set<Category>(['cookies', 'auth', 'query', 'jwt'])
+  const one = (entry: Record<string, unknown>) => JSON.stringify({ log: { version: '1.2', entries: [entry] } })
+  const req = (headers: { name: string; value: string }[]) => ({
+    request: { method: 'GET', url: 'https://a.example/api', headers, cookies: [], queryString: [] },
+    response: { status: 200, headers: [], cookies: [], content: { size: 0, mimeType: 'text/plain', text: '' } },
+  })
+
+  it('redacts tokens in the HTTP/2 :path pseudo-header and leaves :authority alone', () => {
+    const r = analyzeHar(one(req([{ name: ':path', value: '/api?access_token=SECRETPATH123&page=2' }, { name: ':authority', value: 'a.example' }])))
+    if (!r.ok) throw new Error(r.error)
+    const out = redactHar(r.har, ALL_BUT_BODIES).text
+    expect(out).not.toContain('SECRETPATH123')
+    expect(out).toContain('page=2')
+    expect(out).toContain('"a.example"')
+  })
+
+  it('scrubs WebSocket messages, and drops them with bodies', () => {
+    const entry = { ...req([]), _webSocketMessages: [{ type: 'send', time: 1, opcode: 1, data: '{"password":"SECRETWS123","token":"SECRETWS456","n":1}' }] }
+    const r = analyzeHar(one(entry))
+    if (!r.ok) throw new Error(r.error)
+    const out = redactHar(r.har, ALL_BUT_BODIES).text
+    expect(out).not.toContain('SECRETWS123')
+    expect(out).not.toContain('SECRETWS456')
+    const dropped = redactHar(r.har, new Set<Category>(['bodies'])).text
+    expect(dropped).not.toContain('SECRETWS123')
+  })
+})

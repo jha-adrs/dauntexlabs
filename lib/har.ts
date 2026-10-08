@@ -32,7 +32,7 @@ const NAME_RE = /token|key|secret|session|code|passw|pwd|auth|sig|csrf|xsrf|jwt/
 const JWT_RE = /eyJ[\w-]+\.[\w-]+\.[\w-]*/g
 const COOKIE_HEADERS = new Set(['cookie', 'set-cookie', 'cookie2', 'set-cookie2'])
 const AUTH_HEADERS = new Set(['authorization', 'proxy-authorization', 'x-api-key', 'x-auth-token', 'x-csrf-token', 'x-xsrf-token'])
-const URL_HEADERS = new Set(['referer', 'location', 'content-location'])
+const URL_HEADERS = new Set(['referer', 'location', 'content-location', ':path'])
 const R = '[REDACTED]'
 const RU = 'REDACTED' // inside URLs and urlencoded text, so the result stays valid
 
@@ -148,7 +148,7 @@ function headers(ctx: Ctx, list: unknown[], where: string) {
     const lname = name.toLowerCase()
     if (COOKIE_HEADERS.has(lname)) {
       h.value = value && ctx.hit('cookies', w, name, value) ? redactCookieHeader(value, lname.startsWith('set-')) : jwt(ctx, value, w, name)
-    } else if (AUTH_HEADERS.has(lname) || NAME_RE.test(lname)) {
+    } else if (AUTH_HEADERS.has(lname) || (NAME_RE.test(lname) && !lname.startsWith(':'))) {
       h.value = value && ctx.hit('auth', w, name, value) ? R : jwt(ctx, value, w, name)
     } else if (URL_HEADERS.has(lname)) {
       h.value = url(ctx, value, w)
@@ -278,6 +278,24 @@ function content(ctx: Ctx, c: Rec, where: string) {
   }
 }
 
+/** Chrome's `_webSocketMessages`: scrub each frame like a body; drop them all with `bodies`. */
+function wsMessages(ctx: Ctx, list: unknown[], where: string): unknown[] {
+  const w = `${where} WebSocket`
+  for (let i = 0; i < list.length; i++) {
+    const msg = list[i]
+    if (!isObj(msg) || typeof msg.data !== 'string') {
+      list[i] = generic(ctx, msg, w, 'message')
+      continue
+    }
+    const data = msg.data
+    const json = /^\s*[[{]/.test(data) ? 'application/json' : ''
+    if (data) msg.data = body(ctx, data, json, w, false)
+    rest(ctx, msg, ['data'], w)
+  }
+  const raw = list.map((m) => (isObj(m) && typeof m.data === 'string' ? m.data : '')).join('')
+  return list.length && ctx.hit('bodies', w, 'WebSocket messages', raw || 'messages') ? [] : list
+}
+
 function walk(ctx: Ctx, har: unknown) {
   if (!isObj(har) || !isObj(har.log)) {
     generic(ctx, har, 'file', 'file')
@@ -293,6 +311,7 @@ function walk(ctx: Ctx, har: unknown) {
         for (const ek of Object.keys(e)) {
           const ev = e[ek]
           if ((ek === 'request' || ek === 'response') && isObj(ev)) message(ctx, ev, `${n} · ${ek}`)
+          else if (ek === '_webSocketMessages' && Array.isArray(ev)) e[ek] = wsMessages(ctx, ev, n)
           else e[ek] = generic(ctx, ev, n, ek)
         }
       })

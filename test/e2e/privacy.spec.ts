@@ -24,6 +24,8 @@ async function assertNoLeak(page: Page, cap: Capture, canary: string) {
   for (const r of cap.requests) {
     const url = new URL(r.url())
     if (url.protocol === 'data:' || url.protocol === 'blob:') continue
+    // Blocked by the CSP inside the browser: Playwright still reports it, but nothing was sent.
+    if (r.failure()?.errorText === 'csp') continue
     expect(ALLOWED_HOSTS.some((h) => h.test(url.hostname)), `unexpected host ${url.hostname}`).toBe(true)
     expect(r.url(), 'canary in request URL').not.toContain(canary)
     expect(JSON.stringify(await r.allHeaders()), 'canary in request headers').not.toContain(canary)
@@ -39,7 +41,12 @@ async function assertNoLeak(page: Page, cap: Capture, canary: string) {
   expect(local.dataLayer, 'canary queued for analytics').not.toContain(canary)
   expect(local.title).not.toContain(canary)
   expect(local.storage).not.toContain(canary)
-  for (const line of cap.console) expect(line).not.toContain(canary)
+  // Chromium's own "violates the following Content Security Policy" notices quote the blocked
+  // URL; they are local and the CSP has no report-uri, so only app console output is checked.
+  for (const line of cap.console) {
+    if (/violates the following Content Security Policy directive/.test(line)) continue
+    expect(line).not.toContain(canary)
+  }
   return local
 }
 
@@ -145,6 +152,16 @@ for (const slug of [
   'wind-correction-angle',
   'true-airspeed-calculator',
   'crosswind-component',
+  // batch 2 (2026-10-08)
+  'gstin-validator',
+  'aadhaar-validator',
+  'hindi-typing-keyboard',
+  'metar-decoder',
+  'taf-decoder',
+  'cloud-base-calculator',
+  'pressure-altitude-calculator',
+  'flight-time-fuel-calculator',
+  'weight-and-balance-calculator',
 ]) {
   test(`${slug}: typed input never leaves the page`, async ({ page }) => {
     const canary = canaryFor()
@@ -191,6 +208,40 @@ const fileCases: { slug: string; file: (c: string) => Promise<{ name: string; mi
       return { name: `${c}.pdf`, mimeType: 'application/pdf', buffer: Buffer.from(await doc.save()) }
     },
   },
+  {
+    slug: 'subtitle-sync-fixer',
+    file: async (c) => ({
+      name: `${c}.srt`,
+      mimeType: 'application/x-subrip',
+      buffer: Buffer.from(`1\r\n00:00:01,000 --> 00:00:02,000\r\n${c} line one\r\n\r\n2\r\n00:00:03,000 --> 00:00:04,000\r\nline two\r\n`),
+    }),
+  },
+  {
+    slug: 'har-sanitizer',
+    file: async (c) => ({
+      name: `${c}.har`,
+      mimeType: 'application/json',
+      buffer: Buffer.from(
+        JSON.stringify({
+          log: {
+            version: '1.2',
+            entries: [
+              {
+                request: {
+                  method: 'GET',
+                  url: `https://api.example.com/v1?access_token=${c}`,
+                  headers: [{ name: 'Cookie', value: `sid=${c}` }, { name: 'Authorization', value: `Bearer ${c}` }],
+                  cookies: [{ name: 'sid', value: c }],
+                  queryString: [{ name: 'access_token', value: c }],
+                },
+                response: { status: 200, headers: [], cookies: [], content: { size: 2, mimeType: 'application/json', text: '{}' } },
+              },
+            ],
+          },
+        }),
+      ),
+    }),
+  },
   { slug: 'aadhaar-masker', file: async (c) => ({ name: `${c}.png`, mimeType: 'image/png', buffer: makePng(320, 200) }) },
   { slug: 'photo-date-stamp', file: async (c) => ({ name: `${c}.png`, mimeType: 'image/png', buffer: makePng(200, 230) }) },
 ]
@@ -206,3 +257,27 @@ for (const { slug, file } of fileCases) {
     await assertNoLeak(page, cap, canary)
   })
 }
+
+test('eml-viewer: an email (and its tracking pixel) never reaches the network', async ({ page }) => {
+  const canary = canaryFor()
+  const cap = await watch(page)
+  await page.goto(STATIC + '/tools/eml-viewer/', { waitUntil: 'networkidle' })
+  const eml = [
+    `From: ${canary} <a@example.com>`,
+    'To: b@example.com',
+    `Subject: ${canary} invoice`,
+    'MIME-Version: 1.0',
+    'Content-Type: text/html; charset=utf-8',
+    '',
+    `<p>${canary} body</p><img src="https://tracker.example/${canary}.gif"><img src="https://tracker.example/p.gif">`,
+    '',
+  ].join('\r\n')
+  await page.locator('.tool-console-body input[type="file"]').first().setInputFiles({ name: `${canary}.eml`, mimeType: 'message/rfc822', buffer: Buffer.from(eml) })
+  // The HTML body really rendered (so the check below is not vacuous).
+  await expect(page.frameLocator('.tool-console-body iframe').locator('p')).toHaveText(`${canary} body`)
+  await page.waitForTimeout(500)
+  // Chromium reports the attempted image loads; every one must have been stopped by the CSP.
+  const tracker = cap.requests.filter((r) => r.url().includes('tracker.example'))
+  expect(tracker.map((r) => r.failure()?.errorText ?? 'sent'), 'tracker requests').toEqual(tracker.map(() => 'csp'))
+  await assertNoLeak(page, cap, canary)
+})

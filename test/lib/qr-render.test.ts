@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import { makeMatrix, type QrMatrix } from '@/lib/qr/matrix'
-import { renderSvg, PRESETS, type QrStyle, type ModuleShape } from '@/lib/qr/render-svg'
+import { renderSvg, PRESETS, EYE_BALLS_FOR, type QrStyle, type ModuleShape } from '@/lib/qr/render-svg'
 
 let m: QrMatrix
 beforeAll(async () => {
@@ -113,5 +113,19 @@ describe('renderSvg', () => {
     expect(PRESETS.length).toBe(6)
     expect(new Set(PRESETS.map((p) => p.id)).size).toBe(6)
     for (const p of PRESETS) parse(renderSvg(m, p.style))
+  })
+
+  it('offers only eye frame/centre pairs that decode in jsQR for every module shape', () => {
+    expect(EYE_BALLS_FOR).toEqual({
+      square: ['square'],
+      rounded: ['rounded'],
+      circle: ['circle'],
+      leaf: ['rounded', 'circle'],
+    })
+    expect(Object.values(EYE_BALLS_FOR).flat()).not.toContain('diamond')
+  })
+
+  it('every preset uses an allowed eye pair', () => {
+    for (const p of PRESETS) expect(EYE_BALLS_FOR[p.style.eyeFrame], p.id).toContain(p.style.eyeBall)
   })
 })

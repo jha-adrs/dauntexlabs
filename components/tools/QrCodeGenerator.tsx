@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/kit'
 import { buildPayload, type QrType } from '@/lib/qr/payloads'
 import { makeMatrix, type Ec, type QrMatrix } from '@/lib/qr/matrix'
-import { PRESETS, renderSvg, type EyeBall, type EyeFrame, type ModuleShape, type QrStyle } from '@/lib/qr/render-svg'
+import { EYE_BALLS_FOR, PRESETS, renderSvg, type EyeBall, type EyeFrame, type ModuleShape, type QrStyle } from '@/lib/qr/render-svg'
 import { scanWarnings } from '@/lib/qr/contrast'
 import { svgToBlob } from '@/lib/qr/export'
 
@@ -343,10 +343,18 @@ export default function QrCodeGenerator({ initialType = 'url' }: { initialType?:
               </Field>
             </div>
             <Group label="Eye frame">
-              <Segmented value={style.eyeFrame} onChange={(v) => patch({ eyeFrame: v as EyeFrame })} options={FRAMES} />
+              <Segmented
+                value={style.eyeFrame}
+                onChange={(v) => {
+                  const eyeFrame = v as EyeFrame
+                  const allowed = EYE_BALLS_FOR[eyeFrame]
+                  patch({ eyeFrame, eyeBall: allowed.includes(style.eyeBall) ? style.eyeBall : allowed[0] })
+                }}
+                options={FRAMES}
+              />
             </Group>
             <Group label="Eye centre">
-              <Segmented value={style.eyeBall} onChange={(v) => patch({ eyeBall: v as EyeBall })} options={BALLS} />
+              <Segmented value={style.eyeBall} onChange={(v) => patch({ eyeBall: v as EyeBall })} options={BALLS.filter((b) => EYE_BALLS_FOR[style.eyeFrame].includes(b.value))} />
             </Group>
 
             <div style={row}>

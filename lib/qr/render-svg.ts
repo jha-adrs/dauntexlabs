@@ -247,6 +247,19 @@ export function renderSvg(m: QrMatrix, s: QrStyle): string {
   )
 }
 
+/**
+ * Eye centres offered for each eye frame. Only pairs that decoded back in real Chromium + jsQR for every
+ * module shape, with and without a 25% logo, across six sample payloads (24–200 chars) at 512 px.
+ * Mismatched shapes upset the finder pattern's diagonal 1:1:3:1:1 ratio; 'diamond' never passed reliably.
+ * renderSvg itself still draws any pair.
+ */
+export const EYE_BALLS_FOR: Record<EyeFrame, EyeBall[]> = {
+  square: ['square'],
+  rounded: ['rounded'],
+  circle: ['circle'],
+  leaf: ['rounded', 'circle'],
+}
+
 const solid = (color: string): Fill => ({ kind: 'solid', color })
 const BASE: Omit<QrStyle, 'module' | 'eyeFrame' | 'eyeBall' | 'fill' | 'eyeColor'> = {
   background: '#ffffff',
@@ -260,7 +273,7 @@ export const PRESETS: { id: string; label: string; style: QrStyle }[] = [
   { id: 'classic', label: 'Classic', style: { ...BASE, module: 'square', eyeFrame: 'square', eyeBall: 'square', fill: solid('#000000'), eyeColor: '#000000' } },
   { id: 'soft', label: 'Soft green', style: { ...BASE, module: 'rounded', eyeFrame: 'rounded', eyeBall: 'rounded', fill: solid('#0f7a4a'), eyeColor: '#0b5c38' } },
   { id: 'dots', label: 'Dots', style: { ...BASE, module: 'dots', eyeFrame: 'circle', eyeBall: 'circle', fill: solid('#10261b'), eyeColor: '#0f7a4a' } },
-  { id: 'fluid', label: 'Fluid', style: { ...BASE, module: 'fluid', eyeFrame: 'rounded', eyeBall: 'circle', fill: { kind: 'linear', from: '#0b5c38', to: '#10261b', angle: 45 }, eyeColor: '#10261b' } },
+  { id: 'fluid', label: 'Fluid', style: { ...BASE, module: 'fluid', eyeFrame: 'rounded', eyeBall: 'rounded', fill: { kind: 'linear', from: '#0b5c38', to: '#10261b', angle: 45 }, eyeColor: '#10261b' } },
   { id: 'classy', label: 'Classy', style: { ...BASE, module: 'classy', eyeFrame: 'leaf', eyeBall: 'rounded', fill: solid('#1f2a24'), eyeColor: '#0f7a4a', background: '#f4f7f5' } },
-  { id: 'badge', label: 'Scan me badge', style: { ...BASE, module: 'rounded', eyeFrame: 'rounded', eyeBall: 'circle', fill: solid('#0f7a4a'), eyeColor: '#0f7a4a', frame: 'badge', cta: 'Scan me' } },
+  { id: 'badge', label: 'Scan me badge', style: { ...BASE, module: 'rounded', eyeFrame: 'rounded', eyeBall: 'rounded', fill: solid('#0f7a4a'), eyeColor: '#0f7a4a', frame: 'badge', cta: 'Scan me' } },
 ]

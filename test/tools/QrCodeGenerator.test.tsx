@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
 import QrCodeGenerator from '@/components/tools/QrCodeGenerator'
 
 /* qrcode-generator is a real installed dep. The preview is our own SVG markup,
@@ -106,5 +106,24 @@ describe('QrCodeGenerator', () => {
     fireEvent.change(screen.getByLabelText('Longitude'), { target: { value: '10' } })
     expect(await screen.findByText(/Latitude must be/)).toBeInTheDocument()
     expect(screen.queryByRole('img', { name: /qr code preview/i })).toBeNull()
+  })
+
+  it('offers only the eye centres allowed for the chosen frame, snapping when needed', () => {
+    render(<QrCodeGenerator />)
+    const group = (label: string) => within(screen.getByText(label).parentElement as HTMLElement)
+    const names = () => group('Eye centre').getAllByRole('tab').map((t) => t.textContent)
+    const selected = () => group('Eye centre').getAllByRole('tab').find((t) => t.getAttribute('aria-selected') === 'true')?.textContent
+
+    expect(names()).toEqual(['Square'])
+    fireEvent.click(group('Eye frame').getByRole('tab', { name: 'Leaf' }))
+    expect(names()).toEqual(['Rounded', 'Circle'])
+    expect(selected()).toBe('Rounded')
+    fireEvent.click(group('Eye centre').getByRole('tab', { name: 'Circle' }))
+    fireEvent.click(group('Eye frame').getByRole('tab', { name: 'Circle' }))
+    expect(names()).toEqual(['Circle'])
+    expect(selected()).toBe('Circle')
+    fireEvent.click(group('Eye frame').getByRole('tab', { name: 'Rounded' }))
+    expect(selected()).toBe('Rounded')
+    expect(screen.queryByRole('tab', { name: 'Diamond' })).toBeNull()
   })
 })

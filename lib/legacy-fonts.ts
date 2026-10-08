@@ -1,6 +1,6 @@
 /**
  * Legacy Hindi / Marathi font ⇄ Unicode conversion (Kruti Dev 010, DevLys 010,
- * Chanakya, Shivaji). Pure functions, no I/O.
+ * Chanakya, Walkman-Chanakya 901/905, Shivaji). Pure functions, no I/O.
  *
  * Legacy "fonts" draw Devanagari glyphs on top of Latin / Windows-1252 code points,
  * in *visual* order: the short-i matra is typed before its consonant and the reph
@@ -26,19 +26,25 @@
  *    keyboard layout with Kruti Dev" — typingbaba.com/hindi-font/krutidev-font.php;
  *    converters such as the "Unicode Converter" Google Workspace add-on treat
  *    "KrutiDev/DevLys" as one input), so it reuses the Kruti Dev table.
+ *  - Walkman-Chanakya: see the WALKMAN table (SIL W-C-905.map, IIT Delhi walkman.tsv,
+ *    pravakta.com 901 converter; real text from the Economic Survey Hindi PDFs).
  *
  * Known gaps
  *  - Shivaji: only legacy → Unicode, and only the glyphs confirmed by real Shivaji
  *    text (see the SHIVAJI table). No reliable published map exists.
  *  - Chanakya: "d", "r", "¨", "ì", "í" are not mapped (sources disagree).
+ *  - Walkman-Chanakya: most cp1252 0x80–0x9F glyphs and a few others are not mapped
+ *    (only one source, or sources disagree); a "Q" hook after any letter other than
+ *    प / व / त्त is left as "Q".
  */
 
-export type LegacyFont = 'krutidev' | 'chanakya' | 'devlys' | 'shivaji'
+export type LegacyFont = 'krutidev' | 'chanakya' | 'devlys' | 'walkman' | 'shivaji'
 
 export const FONT_SUPPORT: Record<LegacyFont, { toUnicode: boolean; fromUnicode: boolean }> = {
   krutidev: { toUnicode: true, fromUnicode: true },
   devlys: { toUnicode: true, fromUnicode: true },
   chanakya: { toUnicode: true, fromUnicode: true },
+  walkman: { toUnicode: true, fromUnicode: true },
   shivaji: { toUnicode: true, fromUnicode: false },
 }
 
@@ -47,6 +53,7 @@ export const FONT_SUPPORT: Record<LegacyFont, { toUnicode: boolean; fromUnicode:
 const I = '' // short-i matra ि, still in front of its consonant
 const IM = '' // ि + anusvara, still in front of its consonant
 const REPH = '' // reph र्, still after its syllable
+const HOOK = '\uE004' // Walkman "Q": hook glyph that turns प/व/त्त into फ/क/क्त
 
 /**
  * [legacy, unicode, flag?] — flag 'd' = decode-only (alternative legacy spelling,
@@ -468,6 +475,202 @@ const CHANAKYA: Row[] = [
   ['9', '९'],
 ]
 
+/* ---- Walkman-Chanakya 901 / 905 ------------------------------------------------
+ * A Remington (Kruti Dev-style) layout, but NOT the Kruti Dev table: "/" = ध, "=" = त्र्,
+ * "(" ")" are brackets, "_" = ";", "¼" = द्ध, "½" = ऋ, "•" = ख, digits ú–ÿ / ö–ù are
+ * Devanagari, and "Q" is a hook glyph (प/व/त्त + Q = फ/क/क्त, handled in toUnicode;
+ * व and त्त are each in one map only, confirmed by eye-checked real text: osQ = के,
+ * ÙkQ = क्त).
+ * Sources: [W1] SIL W-C-905.map (silnrsi/wsresources), [W2] IIT Delhi AssisTech
+ * walkman.tsv + reorder.tsv (assistech-iitdelhi/InDesignFontConverters, used there for 901
+ * and 905), [W3] pravakta.com "Unicode to Walkman-Chanakya-901" converter table. A glyph is
+ * here only when two of them agree; where the third disagreed, real Economic Survey text
+ * (indiabudget.gov.in, fonts WalkmanChanakya901Bold / Walkman-Chanakya905*) decided it
+ * (• = ख, Á = द्म, Ý = फ्). Notes: .superpowers/sdd/2026-10-08-niche-batch-2/fonts-research.md
+ */
+const WALKMAN: Row[] = [
+  // independent vowels
+  ['vks', 'ओ'],
+  ['vkS', 'औ'],
+  ['vkW', 'ऑ'],
+  ['vk', 'आ'],
+  ['v', 'अ'],
+  ['b±', 'ईं'],
+  ['bZ', 'ई'],
+  ['b', 'इ'],
+  ['m', 'उ'],
+  ['Å', 'ऊ'],
+  [',s', 'ऐ'],
+  [',', 'ए'],
+  ['½', 'ऋ'],
+  ['Í', 'ऋ', 'd'],
+  // consonants — full forms typed as half + k come first
+  ['d', 'क'],
+  ['D', 'क्'],
+  ['[k', 'ख'],
+  ['•', 'ख', 'd'],
+  ['[', 'ख्'],
+  ['x', 'ग'],
+  ['X', 'ग्'],
+  ['?k', 'घ'],
+  ['?', 'घ्'],
+  ['Ä', 'ङ'],
+  ['p', 'च'],
+  ['P', 'च्'],
+  ['N', 'छ'],
+  ['t', 'ज'],
+  ['T', 'ज्'],
+  ['>', 'झ'],
+  ['Ö', 'झ्'],
+  ['×k', 'ञ'],
+  ['×', 'ञ्'],
+  ['V', 'ट'],
+  ['ê', 'ट', 'd'],
+  ['B', 'ठ'],
+  ['ë', 'ठ', 'd'],
+  ['M', 'ड'],
+  ['î', 'ड', 'd'],
+  ['<', 'ढ'],
+  ['ì', 'ढ', 'd'],
+  ['.k', 'ण'],
+  ['.', 'ण्'],
+  ['r', 'त'],
+  ['R', 'त्'],
+  ['Fk', 'थ'],
+  ['F', 'थ्'],
+  ['n', 'द'],
+  ['/', 'ध'],
+  ['è', 'ध्'],
+  ['u', 'न'],
+  ['U', 'न्'],
+  ['i', 'प'],
+  ['I', 'प्'],
+  ['iQ', 'फ'],
+  ['Ý', 'फ्'],
+  ['c', 'ब'],
+  ['C', 'ब्'],
+  ['Hk', 'भ'],
+  ['H', 'भ्'],
+  ['e', 'म'],
+  ['E', 'म्'],
+  [';', 'य'],
+  ['Õ', 'य्'],
+  ['j', 'र'],
+  ['y', 'ल'],
+  ['Y', 'ल्'],
+  ['G', 'ळ'],
+  ['o', 'व'],
+  ['O', 'व्'],
+  ["'k", 'श'],
+  ["'", 'श्'],
+  ['"k', 'ष'],
+  ['"', 'ष्'],
+  ['l', 'स'],
+  ['L', 'स्'],
+  ['g', 'ह'],
+  // conjuncts and ligatures
+  ['{k', 'क्ष'],
+  ['{', 'क्ष्'],
+  ['=k', 'त्र'],
+  ['Ë', 'त्र', 'd'],
+  ['=', 'त्र्'],
+  ['K', 'ज्ञ'],
+  ['J', 'श्र'],
+  ['Ø', 'क्र'],
+  ['Ñ', 'कृ'],
+  ['ç', 'प्र'],
+  ['æ', 'द्र'],
+  ['Ú', 'फ्र'],
+  ['ß', 'ह्र'],
+  ['à', 'ह्व'],
+  ['á', 'ह्य'],
+  ['â', 'हृ'],
+  ['ã', 'ह्म'],
+  ['É', 'ह्न'],
+  ['Ê', 'ह्ण'],
+  ['È', 'ह्ल'],
+  ['Â', 'न्न'],
+  ['ä', 'द्न'],
+  ['å', 'द्ग'],
+  ['í', 'द्द'],
+  ['¼', 'द्ध'],
+  ['Á', 'द्म'],
+  ['|', 'द्य'],
+  ['}', 'द्व'],
+  ['Ùk', 'त्त'],
+  ['Ù', 'त्त्'],
+  ['#', 'रु'],
+  [':', 'रू'],
+  // rakar after rounded letters, then the other subscript forms
+  ['Vª', 'ट्र'],
+  ['Mª', 'ड्र'],
+  ['Nª', 'छ्र'],
+  ['z', '्र'],
+  ['ª', '्र', 'd'],
+  ['Ò', '्व'],
+  ['Ó', '्च'],
+  ['Ô', '्य'],
+  ['ï', '्क'],
+  ['ð', '्ट'],
+  ['ò', '्ठ'],
+  ['ó', '्ड'],
+  ['ô', '्ढ'],
+  ['õ', '्ग'],
+  // matras and signs
+  ['ks', 'ो'],
+  ['kS', 'ौ'],
+  ['kW', 'ॉ'],
+  ['k', 'ा'],
+  ['f', I],
+  ['¯', IM, 'd'],
+  ['h', 'ी'],
+  ['q', 'ु'],
+  ['w', 'ू'],
+  ['`', 'ृ'],
+  ['s', 'े'],
+  ['S', 'ै'],
+  ['W', 'ॅ'],
+  ['a', 'ं'],
+  ['¡', 'ँ'],
+  ['%', 'ः'],
+  ['%', ':', 'e'], // the same glyph is the colon
+  ['~', '्'],
+  ['+', '़'],
+  ['Z', REPH],
+  ['±', REPH + 'ं', 'd'],
+  ['£', 'र्' + I, 'd'],
+  ['²', 'र्' + IM, 'd'],
+  ['Q', HOOK, 'd'],
+  // punctuation and digits ("(", ")", "!" and 0–9 are themselves)
+  ['A', '।'],
+  ['¿', 'ऽ'],
+  ['ñ', '॰'],
+  ['-', '.'],
+  [']', ','],
+  ['_', ';'],
+  ['&', '-'],
+  ['@', '/'],
+  ['\\', '?'],
+  ['$', '+'],
+  ['»', '%'],
+  ['¾', '='],
+  ['·', '*'],
+  ['¹', '['],
+  ['º', ']'],
+  ['^', '‘'],
+  ['*', '’'],
+  ['ú', '०'],
+  ['û', '१'],
+  ['ü', '२'],
+  ['ý', '३'],
+  ['þ', '४'],
+  ['ÿ', '५'],
+  ['ö', '६'],
+  ['÷', '७'],
+  ['ø', '८'],
+  ['ù', '९'],
+]
+
 /* ---- Shivaji (Shivaji01; Marathi) — legacy → Unicode only ---------------------
  * Padma documents Shivaji as the Shusha layout, and rajbhasha.net's Shivaji table
  * agrees, but real Shivaji01 text contradicts both for several glyphs: "p", "t" and
@@ -607,12 +810,16 @@ const SPECS: Record<LegacyFont, Spec> = {
   krutidev: KRUTI_SPEC,
   devlys: KRUTI_SPEC,
   chanakya: buildSpec(CHANAKYA, COMMON_FIXUPS),
+  walkman: buildSpec(WALKMAN, COMMON_FIXUPS),
   shivaji: buildSpec(SHIVAJI, SHIVAJI_FIXUPS),
 }
 
 const RE_I_FORWARD = new RegExp(`([${I}${IM}])(${CLUSTER})`, 'g')
 const RE_REPH_BACK = new RegExp(`(${CLUSTER}[ा-ौॢॣँं]*)${REPH}`, 'g')
 const RE_ANUSVARA_FIRST = /([ँं])([ा-ौ])/g
+// Walkman hook "Q" (with any matras typed between): प → फ, व → क, त्त → क्त
+const HOOKED: Record<string, string> = { प: 'फ', व: 'क', त्त: 'क्त' }
+const RE_HOOK = new RegExp(`(त्त|[पव])(${NUK}(?:्र)?[ा-ौॅँं]*)${HOOK}`, 'g')
 
 /** Legacy-encoded text → Unicode Devanagari (NFC). */
 export function toUnicode(text: string, font: LegacyFont): string {
@@ -620,6 +827,7 @@ export function toUnicode(text: string, font: LegacyFont): string {
   const spec = SPECS[font]
   let s = translate(text, spec.decode, spec.decodeMax)
   for (const [from, to] of spec.fixups) s = s.split(from).join(to)
+  if (s.includes(HOOK)) s = s.replace(RE_HOOK, (_, base: string, marks: string) => HOOKED[base] + marks).replaceAll(HOOK, 'Q')
   // anusvara typed before a vowel sign → after it
   s = s.replace(RE_ANUSVARA_FIRST, '$2$1')
   // short-i: typed before the consonant (cluster) → after it

@@ -216,6 +216,143 @@ describe('Shivaji (Marathi) — legacy → Unicode', () => {
   })
 })
 
+/*
+ * Walkman-Chanakya 901 / 905 — glyphs mapped only where at least two of these agree:
+ *  [W1] SIL W-C-905.map — github.com/silnrsi/wsresources scripts/Deva/legacy/w-c-905/mappings
+ *  [W2] IIT Delhi walkman.tsv + reorder.tsv — github.com/assistech-iitdelhi/InDesignFontConverters
+ *  [W3] pravakta.com Unicode → Walkman-Chanakya-901 converter table
+ * Real text (embedded fonts WalkmanChanakya901Bold / Walkman-Chanakya905*, read from the
+ * PDFs and checked against the rendered pages), Economic Survey, indiabudget.gov.in:
+ *  [ES901] hepreface.pdf of budget2022-23 … budget2025-26; Statistical-Appendix-in-Hindi.pdf
+ *  [ES905] budget2019-20 hepreface_vol1.pdf and Hindi chapters 2019-20 … 2025-26
+ * Full notes: .superpowers/sdd/2026-10-08-niche-batch-2/fonts-research.md
+ */
+describe('Walkman-Chanakya 901', () => {
+  // [ES901] — text set in WalkmanChanakya901Bold
+  const words901: [string, string][] = [
+    ['çLrkouk', 'प्रस्तावना'],
+    ['xSj&fofu;eu', 'गैर-विनियमन'],
+    ['ekè;e', 'माध्यम'],
+    ['?kjsyw', 'घरेलू'],
+    ['fodkl', 'विकास'],
+    ['vkSj', 'और'],
+    ["leqRFkku'khyrk", 'समुत्थानशीलता'],
+    ['c<+kok', 'बढ़ावा'],
+    ['le>kSrksa', 'समझौतों'],
+    ['lgefr', 'सहमति'],
+    ["ns'k", 'देश'],
+    ['lapkyu', 'संचालन'],
+    ['fiNys', 'पिछले'],
+    ['vkfFkZd', 'आर्थिक'],
+    ['losZ{k.kksa', 'सर्वेक्षणों'],
+    ['i`"B', 'पृष्ठ'],
+    ['rkfydkvksa', 'तालिकाओं'],
+    ['(la[;k esa)', '(संख्या में)'],
+  ]
+  // [ES905] — same encoding in Walkman-Chanakya905; picked to cover the less common glyphs
+  const words905: [string, string][] = [
+    ['ifjorZu', 'परिवर्तन'],
+    ['jkstxkj', 'रोजगार'],
+    ['eq[;', 'मुख्य'],
+    ['miyfCèk;k¡', 'उपलब्धियाँ'],
+    ['lao`f¼', 'संवृद्धि'], // ¼ = द्ध [W1][W2][W3]
+    ["vFkZ'kkL=k", 'अर्थशास्त्र'], // =k = त्र
+    ['egRoiw.kZ', 'महत्वपूर्ण'],
+    ['lq/kj', 'सुधार'], // / = ध (Kruti Dev: ध्)
+    [',oa', 'एवं'],
+    ['tksf[ke', 'जोखिम'],
+    ['çeq•', 'प्रमुख'], // • = ख [W1][W3]; [W2] disagrees, real text settles it
+    ['Ñf"k', 'कृषि'],
+    ['ewY;ßkl', 'मूल्यह्रास'],
+    ['fpfÉr', 'चिह्नित'],
+    ['vk£Fkd', 'आर्थिक'], // £ = reph + short i
+    ['o"kks±', 'वर्षों'], // ± = reph + anusvara
+    ['iÁdqekj', 'पद्मकुमार'], // Á = द्म [W2][W3]
+    ['ÅtkZ', 'ऊर्जा'],
+    ['ân;', 'हृदय'],
+    ['eqækLiQhfr', 'मुद्रास्फीति'], // iQ = फ (Q is a hook glyph)
+    ['fiQj', 'फिर'],
+    ['Í.k', 'ऋण'],
+    ['jk"Vªh;', 'राष्ट्रीय'],
+    ['cká', 'बाह्य'],
+    ['ÚseodZ', 'फ्रेमवर्क'],
+    ['izfØ;k', 'प्रक्रिया'],
+    ['eqÝr', 'मुफ्त'],
+    ['lkWÝVos;j', 'सॉफ्टवेयर'],
+  ]
+  for (const [legacy, uni] of [...words901, ...words905]) {
+    it(`${legacy} → ${uni}`, () => expect(toUnicode(legacy, 'walkman')).toBe(nfc(uni)))
+  }
+
+  it('converts a whole 901 heading [ES901]', () => {
+    expect(toUnicode("le>kSrksa vkSj vke lgefr ds ekè;e ls ns'k dk lapkyu", 'walkman')).toBe(
+      'समझौतों और आम सहमति के माध्यम से देश का संचालन',
+    )
+  })
+
+  it('reads punctuation and both digit styles [W1][W2]', () => {
+    expect(toUnicode('ubZ fnYyh&110001', 'walkman')).toBe('नई दिल्ली-110001')
+    expect(toUnicode('gSA', 'walkman')).toBe('है।')
+    expect(toUnicode('tqykbZ] 2019', 'walkman')).toBe('जुलाई, 2019')
+    expect(toUnicode('úûüý', 'walkman')).toBe('०१२३')
+  })
+
+  it('differs from Kruti Dev where the fonts differ', () => {
+    expect(toUnicode('fp=k', 'walkman')).toBe('चित्र')
+    expect(toUnicode('laca/', 'walkman')).toBe('संबंध')
+  })
+
+  // Q hook after व (= क) is in [W2] only, after त्त (= क्त) in [W3] only; each is the second
+  // source here via real text, every pair below eye-checked on the rendered page [ES901][ES905].
+  const hookWords: [string, string][] = [
+    ['osQ', 'के'],
+    ['mlosQ', 'उसके'],
+    ['blosQ', 'इसके'],
+    ['osQanz', 'केंद्र'],
+    ['osaQnz', 'केंद्र'], // anusvara typed before the hook
+    ['laosQrk{kj', 'संकेताक्षर'],
+    ['oqQekj', 'कुमार'],
+    ['oqQy', 'कुल'],
+    ['miHkksÙkQk', 'उपभोक्ता'],
+    ['la;qÙkQ', 'संयुक्त'],
+    ['vfrfjÙkQ', 'अतिरिक्त'],
+    ['O;fÙkQ', 'व्यक्ति'],
+    ['eqÙkQ', 'मुक्त'],
+    ["'kfÙkQ", 'शक्ति'],
+    ['mijksÙkQ', 'उपरोक्त'],
+  ]
+  for (const [legacy, uni] of hookWords) {
+    it(`hook: ${legacy} → ${uni}`, () => expect(toUnicode(legacy, 'walkman')).toBe(nfc(uni)))
+  }
+
+  it('converts a 901 heading with के typed as osQ [ES901]', () => {
+    expect(toUnicode('fiNys vkfFkZd losZ{k.kksa osQ doj i`"B', 'walkman')).toBe(
+      'पिछले आर्थिक सर्वेक्षणों के कवर पृष्ठ',
+    )
+  })
+
+  it('leaves a stray Q after any other letter untouched', () => {
+    expect(toUnicode('dkQh', 'walkman')).toBe('काQी')
+  })
+
+  it('writes the conventional Walkman spelling', () => {
+    for (const legacy of ['çLrkouk', 'vkfFkZd', 'lapkyu', "ns'k", 'ekè;e', 'egRoiw.kZ', 'jk"Vªh;']) {
+      expect(fromUnicode(toUnicode(legacy, 'walkman'), 'walkman')).toBe(legacy)
+    }
+  })
+
+  it('round-trips Unicode through Walkman-Chanakya', () => {
+    for (const [, uni] of [...words901, ...words905]) {
+      expect(toUnicode(fromUnicode(nfc(uni), 'walkman'), 'walkman')).toBe(nfc(uni))
+    }
+  })
+
+  it('does not change Kruti Dev', () => {
+    expect(toUnicode(SENTENCE_KRUTI, 'krutidev')).toBe(SENTENCE_UNI)
+    expect(FONT_SUPPORT.walkman).toEqual({ toUnicode: true, fromUnicode: true })
+  })
+})
+
 describe('support matrix', () => {
   it('declares which directions each font supports', () => {
     const fonts: LegacyFont[] = ['krutidev', 'devlys', 'chanakya', 'shivaji']

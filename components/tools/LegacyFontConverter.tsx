@@ -23,6 +23,7 @@ const FONT_NAME: Record<LegacyFont, string> = {
   krutidev: 'Kruti Dev 010',
   devlys: 'DevLys 010',
   chanakya: 'Chanakya',
+  walkman: 'Walkman-Chanakya',
   shivaji: 'Shivaji',
 }
 

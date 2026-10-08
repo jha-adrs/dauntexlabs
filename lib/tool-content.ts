@@ -37,6 +37,8 @@ import weightAndBalanceCalculator from './tool-content/weight-and-balance-calcul
 import subtitleSyncFixer from './tool-content/subtitle-sync-fixer'
 import harSanitizer from './tool-content/har-sanitizer'
 import emlViewer from './tool-content/eml-viewer'
+import qrCodeGenerator from './tool-content/qr-code-generator'
+import upiQrCodeGenerator from './tool-content/upi-qr-code-generator'
 
 export type { ToolContent } from './tool-content/types'
 
@@ -81,4 +83,6 @@ export const TOOL_CONTENT: Record<string, ToolContent> = {
   'subtitle-sync-fixer': subtitleSyncFixer,
   'har-sanitizer': harSanitizer,
   'eml-viewer': emlViewer,
+  'qr-code-generator': qrCodeGenerator,
+  'upi-qr-code-generator': upiQrCodeGenerator,
 }

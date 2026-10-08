@@ -327,8 +327,8 @@ export const tools: Tool[] = [
     slug: 'qr-code-generator',
     name: 'QR Code Generator',
     category: 'Generators',
-    blurb: 'Create QR codes for text, URLs and Wi-Fi — rendered in your browser.',
-    keywords: ['qr', 'qr code', 'generator', 'url', 'wifi', 'barcode'],
+    blurb: 'Free QR code designer: custom shapes, colours, logo and frame. Wi-Fi, vCard, UPI and more. PNG, SVG or JPEG, no watermark.',
+    keywords: ['qr code generator', 'qr code with logo', 'custom qr code', 'qr code svg', 'wifi qr code', 'vcard qr code', 'free qr code no watermark', 'qr code designer', 'qr', 'barcode'],
   },
   {
     slug: 'lorem-ipsum',
@@ -1047,6 +1047,13 @@ export const tools: Tool[] = [
     category: 'Utilities',
     blurb: 'Open .eml email files to read headers, text and HTML and save attachments. Remote images and trackers are blocked.',
     keywords: ['eml viewer', 'open eml file', 'eml file reader', 'view eml online', 'eml to text', 'eml attachment extractor', 'read email file'],
+  },
+  {
+    slug: 'upi-qr-code-generator',
+    name: 'UPI QR Code Generator',
+    category: 'India',
+    blurb: 'Make a free UPI payment QR code with your UPI ID, name and optional amount — add a logo and colours, download PNG or SVG.',
+    keywords: ['upi qr code generator', 'upi qr code', 'create upi qr code', 'upi payment qr', 'upi qr with amount', 'free upi qr code', 'shop upi qr code', 'bhim upi qr generator'],
   },
 ]
 

@@ -164,6 +164,7 @@ const REGISTRY: Record<string, ComponentType> = {
   'subtitle-sync-fixer': dynamic(() => import('@/components/tools/SubtitleSyncFixer'), { ssr: false, loading }),
   'har-sanitizer': dynamic(() => import('@/components/tools/HarSanitizer'), { ssr: false, loading }),
   'eml-viewer': dynamic(() => import('@/components/tools/EmlViewer'), { ssr: false, loading }),
+  'upi-qr-code-generator': dynamic(() => import('@/components/tools/UpiQrCodeGenerator'), { ssr: false, loading }),
 }
 
 export default function ToolMount({ slug }: { slug: string }) {

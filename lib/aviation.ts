@@ -14,6 +14,13 @@
  *  - Wind triangle (FAA Pilot's Handbook of Aeronautical Knowledge, ch. 16 / E6B):
  *    crosswind = W·sin(windFrom − course), WCA = asin(crosswind / TAS),
  *    GS = TAS·cos(WCA) − W·cos(windFrom − course).
+ *  - Cloud base (FAA AC 00-6B / common pilot rule): base ≈ (temp − dewpoint) ÷ 2.5 °C × 1000 ft,
+ *    i.e. 400 ft per °C of spread. Relative humidity via the Magnus formula (Alduchov & Eskridge 1996:
+ *    a = 17.625, b = 243.04 °C).
+ *  - Pressure altitude (NWS pressure-altitude formula): PA = elev + (1 − (P/1013.25)^0.190284) × 145366.45 ft,
+ *    1 inHg = 33.8639 hPa. Rule of thumb: elev + (29.92 − altimeter inHg) × 1000.
+ *  - Fuel weights (typical, temperature dependent): avgas 6 lb/US gal, Jet A 6.7 lb/US gal; 1 US gal = 3.78541 L.
+ *  - Weight & balance (FAA Weight & Balance Handbook, FAA-H-8083-1): moment = weight × arm, CG = Σmoment ÷ Σweight.
  */
 
 export type Fail = { ok: false; error: string }
@@ -152,4 +159,97 @@ export function crosswind(i: {
     crosswindKt: Math.abs(cross),
     side: cross > 0 ? 'right' : cross < 0 ? 'left' : 'none',
   }
+}
+
+export function cloudBase(i: {
+  tempC: number
+  dewC: number
+}): { ok: true; baseFt: number; baseFt400: number; rhPct: number } | Fail {
+  const { tempC, dewC } = i
+  if (!finite(tempC, dewC)) return { ok: false, error: 'Enter numbers for every field.' }
+  const e = checkTemp(tempC, 'Temperature') ?? checkTemp(dewC, 'Dewpoint')
+  if (e) return { ok: false, error: e }
+  if (dewC > tempC) return { ok: false, error: 'Dewpoint cannot be higher than the temperature.' }
+  const spread = tempC - dewC
+  const g = (t: number) => (17.625 * t) / (243.04 + t)
+  const rh = 100 * Math.exp(g(dewC) - g(tempC))
+  return { ok: true, baseFt: clean((spread / 2.5) * 1000), baseFt400: clean(spread * 400), rhPct: Math.min(100, rh) }
+}
+
+const HPA_PER_INHG = 33.8639
+
+export function pressureAltitude(i: {
+  elevationFt: number
+  altimeter: number
+  unit: 'inHg' | 'hPa'
+}): { ok: true; pressureAltFt: number; ruleOfThumbFt: number } | Fail {
+  const { elevationFt, altimeter, unit } = i
+  if (!finite(elevationFt, altimeter)) return { ok: false, error: 'Enter numbers for every field.' }
+  if (elevationFt < MIN_ALT_FT || elevationFt > MAX_ALT_FT)
+    return {
+      ok: false,
+      error: `Field elevation must be between ${MIN_ALT_FT.toLocaleString('en-US')} and ${MAX_ALT_FT.toLocaleString('en-US')} ft.`,
+    }
+  const hPa = unit === 'inHg' ? altimeter * HPA_PER_INHG : altimeter
+  if (unit === 'inHg' && (altimeter < 25 || altimeter > 32))
+    return { ok: false, error: 'Altimeter setting must be between 25.00 and 32.00 inHg.' }
+  if (unit === 'hPa' && (altimeter < 850 || altimeter > 1085))
+    return { ok: false, error: 'Altimeter setting must be between 850 and 1085 hPa.' }
+  const pa = elevationFt + (1 - Math.pow(hPa / P0_HPA, 0.190284)) * 145366.45
+  const inHg = hPa / HPA_PER_INHG
+  return { ok: true, pressureAltFt: clean(pa), ruleOfThumbFt: clean(elevationFt + (29.92 - inHg) * 1000) }
+}
+
+const LB_PER_GAL = { avgas: 6, jeta: 6.7 } as const
+const L_PER_GAL = 3.78541
+
+export function flightTimeFuel(i: {
+  distanceNm: number
+  groundSpeedKt: number
+  burnPerHour: number
+  reserveMin: number
+  fuel: 'avgas' | 'jeta'
+  unit: 'gal' | 'L' | 'lb'
+}): { ok: true; minutes: number; tripFuel: number; reserveFuel: number; totalFuel: number; totalLb: number } | Fail {
+  const { distanceNm, groundSpeedKt, burnPerHour, reserveMin, fuel, unit } = i
+  if (!finite(distanceNm, groundSpeedKt, burnPerHour, reserveMin))
+    return { ok: false, error: 'Enter numbers for every field.' }
+  if (groundSpeedKt <= 0) return { ok: false, error: 'Ground speed must be greater than 0 kt.' }
+  if (distanceNm < 0) return { ok: false, error: 'Distance cannot be negative.' }
+  if (burnPerHour < 0) return { ok: false, error: 'Fuel burn cannot be negative.' }
+  if (reserveMin < 0) return { ok: false, error: 'Reserve time cannot be negative.' }
+  const minutes = (distanceNm / groundSpeedKt) * 60
+  const tripFuel = (burnPerHour * minutes) / 60
+  const reserveFuel = (burnPerHour * reserveMin) / 60
+  const totalFuel = tripFuel + reserveFuel
+  const totalLb =
+    unit === 'lb' ? totalFuel : unit === 'gal' ? totalFuel * LB_PER_GAL[fuel] : (totalFuel / L_PER_GAL) * LB_PER_GAL[fuel]
+  return { ok: true, minutes, tripFuel, reserveFuel, totalFuel, totalLb }
+}
+
+export type WbRow = { item: string; weight: number; arm: number }
+
+export function weightBalance(
+  rows: WbRow[],
+  env: { minCg: number; maxCg: number; maxWeight: number },
+): { ok: true; totalWeight: number; totalMoment: number; cg: number; within: boolean; reasons: string[] } | Fail {
+  if (rows.length === 0) return { ok: false, error: 'Add at least one item.' }
+  for (const r of rows) {
+    const name = r.item.trim() || 'Each item'
+    if (!finite(r.weight, r.arm)) return { ok: false, error: `${name}: enter a number for weight and arm.` }
+    if (r.weight < 0) return { ok: false, error: `${name}: weight cannot be negative.` }
+  }
+  const { minCg, maxCg, maxWeight } = env
+  if (!finite(minCg, maxCg, maxWeight)) return { ok: false, error: 'Enter numbers for the envelope limits.' }
+  if (minCg > maxCg) return { ok: false, error: 'Forward CG limit must not be greater than the aft limit.' }
+  if (maxWeight <= 0) return { ok: false, error: 'Maximum weight must be greater than 0.' }
+  const totalWeight = rows.reduce((s, r) => s + r.weight, 0)
+  if (totalWeight <= 0) return { ok: false, error: 'Total weight must be greater than 0.' }
+  const totalMoment = rows.reduce((s, r) => s + r.weight * r.arm, 0)
+  const cg = totalMoment / totalWeight
+  const reasons: string[] = []
+  if (totalWeight > maxWeight) reasons.push(`Total weight is over the maximum by ${+(totalWeight - maxWeight).toFixed(2)}.`)
+  if (cg < minCg) reasons.push(`CG is forward of the limit by ${+(minCg - cg).toFixed(2)}.`)
+  if (cg > maxCg) reasons.push(`CG is aft of the limit by ${+(cg - maxCg).toFixed(2)}.`)
+  return { ok: true, totalWeight, totalMoment, cg, within: reasons.length === 0, reasons }
 }

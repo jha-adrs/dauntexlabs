@@ -25,6 +25,18 @@ import sqlToCsv from './tool-content/sql-to-csv'
 import trueAirspeedCalculator from './tool-content/true-airspeed-calculator'
 import vcfToCsv from './tool-content/vcf-to-csv'
 import windCorrectionAngle from './tool-content/wind-correction-angle'
+import gstinValidator from './tool-content/gstin-validator'
+import aadhaarValidator from './tool-content/aadhaar-validator'
+import hindiTypingKeyboard from './tool-content/hindi-typing-keyboard'
+import metarDecoder from './tool-content/metar-decoder'
+import tafDecoder from './tool-content/taf-decoder'
+import cloudBaseCalculator from './tool-content/cloud-base-calculator'
+import pressureAltitudeCalculator from './tool-content/pressure-altitude-calculator'
+import flightTimeFuelCalculator from './tool-content/flight-time-fuel-calculator'
+import weightAndBalanceCalculator from './tool-content/weight-and-balance-calculator'
+import subtitleSyncFixer from './tool-content/subtitle-sync-fixer'
+import harSanitizer from './tool-content/har-sanitizer'
+import emlViewer from './tool-content/eml-viewer'
 
 export type { ToolContent } from './tool-content/types'
 
@@ -57,4 +69,16 @@ export const TOOL_CONTENT: Record<string, ToolContent> = {
   'true-airspeed-calculator': trueAirspeedCalculator,
   'vcf-to-csv': vcfToCsv,
   'wind-correction-angle': windCorrectionAngle,
+  'gstin-validator': gstinValidator,
+  'aadhaar-validator': aadhaarValidator,
+  'hindi-typing-keyboard': hindiTypingKeyboard,
+  'metar-decoder': metarDecoder,
+  'taf-decoder': tafDecoder,
+  'cloud-base-calculator': cloudBaseCalculator,
+  'pressure-altitude-calculator': pressureAltitudeCalculator,
+  'flight-time-fuel-calculator': flightTimeFuelCalculator,
+  'weight-and-balance-calculator': weightAndBalanceCalculator,
+  'subtitle-sync-fixer': subtitleSyncFixer,
+  'har-sanitizer': harSanitizer,
+  'eml-viewer': emlViewer,
 }

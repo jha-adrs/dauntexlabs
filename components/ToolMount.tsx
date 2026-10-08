@@ -152,6 +152,18 @@ const REGISTRY: Record<string, ComponentType> = {
   'krutidev-to-unicode': dynamic(() => import('@/components/tools/KrutiDevToUnicode'), { ssr: false, loading }),
   'devlys-to-unicode': dynamic(() => import('@/components/tools/DevLysToUnicode'), { ssr: false, loading }),
   'chanakya-to-unicode': dynamic(() => import('@/components/tools/ChanakyaToUnicode'), { ssr: false, loading }),
+  'gstin-validator': dynamic(() => import('@/components/tools/GstinValidator'), { ssr: false, loading }),
+  'aadhaar-validator': dynamic(() => import('@/components/tools/AadhaarValidator'), { ssr: false, loading }),
+  'hindi-typing-keyboard': dynamic(() => import('@/components/tools/HindiTypingKeyboard'), { ssr: false, loading }),
+  'metar-decoder': dynamic(() => import('@/components/tools/MetarDecoder'), { ssr: false, loading }),
+  'taf-decoder': dynamic(() => import('@/components/tools/TafDecoder'), { ssr: false, loading }),
+  'cloud-base-calculator': dynamic(() => import('@/components/tools/CloudBaseCalculator'), { ssr: false, loading }),
+  'pressure-altitude-calculator': dynamic(() => import('@/components/tools/PressureAltitudeCalculator'), { ssr: false, loading }),
+  'flight-time-fuel-calculator': dynamic(() => import('@/components/tools/FlightTimeFuelCalculator'), { ssr: false, loading }),
+  'weight-and-balance-calculator': dynamic(() => import('@/components/tools/WeightAndBalanceCalculator'), { ssr: false, loading }),
+  'subtitle-sync-fixer': dynamic(() => import('@/components/tools/SubtitleSyncFixer'), { ssr: false, loading }),
+  'har-sanitizer': dynamic(() => import('@/components/tools/HarSanitizer'), { ssr: false, loading }),
+  'eml-viewer': dynamic(() => import('@/components/tools/EmlViewer'), { ssr: false, loading }),
 }
 
 export default function ToolMount({ slug }: { slug: string }) {

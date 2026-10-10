@@ -43,8 +43,9 @@ export default function ConsentBanner() {
       <div className="shell consent-row">
         <p className="consent-text">
           <span className="consent-mark">◇</span> Tools are <b>designed to run in your browser</b>, so
-          what you type into a tool is processed on your device. We use cookies for privacy-conscious usage
-          analytics (which pages are popular) to improve the site. See the{' '}
+          what you type into a tool is processed on your device. We use Google Analytics to see which pages
+          are popular. Accept to allow its cookies; if you decline, only anonymous, cookie-free page
+          counts are sent. See the{' '}
           <Link href="/privacy/" className="consent-link">
             privacy policy
           </Link>

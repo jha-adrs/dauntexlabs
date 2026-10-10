@@ -6,7 +6,7 @@ import Footer from '@/components/Footer'
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   description:
-    'dauntexlabs tools are designed to run in your browser — no accounts, and analytics only with your consent. Read how data is handled and the limits of that.',
+    'dauntexlabs tools are designed to run in your browser — no accounts, and analytics cookies only with your consent. Read how data is handled and the limits of that.',
   alternates: { canonical: '/privacy/' },
 }
 
@@ -23,14 +23,14 @@ export default function PrivacyPage() {
           <span className="cat">Legal</span>
         </div>
         <h1>Privacy Policy</h1>
-        <p className="lede">Last updated 13 July 2026.</p>
+        <p className="lede">Last updated 10 October 2026.</p>
 
         <div className="notice success" style={{ marginTop: 28 }}>
           The short version: every tool is <b>designed to run in your browser</b> — what you type,
           paste or load into a tool is processed in your browser, not on a server of ours. We have no accounts and no application
-          backend. We <b>do</b> use privacy-conscious, consent-gated analytics (Google Analytics)
-          to see which pages are popular; you can decline it, and it never receives your tool
-          inputs. The clauses below set out the details and limits.
+          backend. We <b>do</b> use Google Analytics to see which pages are popular. Analytics
+          cookies are set only if you accept; if you decline, Google still receives anonymous,
+          cookie-free page counts. Analytics never receives your tool inputs. The clauses below set out the details and limits.
         </div>
 
         <div className="prose">
@@ -39,8 +39,8 @@ export default function PrivacyPage() {
             We operate no application server, database, or account system, so we do not collect the
             data you enter into tools. dauntexlabs is a set of static files (HTML, CSS, JavaScript)
             your browser downloads and runs locally, and we never ask you to sign in. The one thing
-            we do measure is <b>aggregate page usage</b> via Google Analytics — only with your
-            consent, and never including your tool inputs (see section 5).
+            we do measure is <b>aggregate page usage</b> via Google Analytics — never including
+            your tool inputs (see section 5).
           </p>
 
           <h2>2. Your data is processed on your device</h2>
@@ -85,6 +85,16 @@ export default function PrivacyPage() {
             extension that blocks it.
           </p>
           <p>
+            <b>If you decline, or before you choose,</b> the Google Analytics script still loads
+            and sends <b>cookie-free pings</b>: the page path and title, approximate region,
+            device and browser type, and the referring site&apos;s domain. No analytics cookie
+            or identifier is stored on your device, so these pings cannot be linked into a visit
+            history; Google uses them only in aggregate to estimate overall traffic. We send the
+            page path without any query string or <code>#</code> fragment, and we have turned
+            off Google signals and ad personalisation. To stop these pings entirely, use a
+            browser or extension that blocks Google Analytics — every tool keeps working.
+          </p>
+          <p>
             Apart from analytics, there are no advertising networks, social embeds, or cross-site
             trackers. The libraries the tools rely on — the fonts and the open-source{' '}
             <a href="https://openpgpjs.org" target="_blank" rel="noopener noreferrer">
@@ -112,8 +122,7 @@ export default function PrivacyPage() {
             The site is delivered by a static hosting/CDN provider. Like essentially every
             website, that provider may automatically record standard technical request metadata
             (such as IP address, timestamp and user-agent) for security and operational purposes.
-            We do not add analytics on top of this and do not combine it with anything you enter
-            into a tool.
+            We do not combine these logs with analytics or with anything you enter into a tool.
           </p>
 
           <h2>8. Circumstances in which data may leave your device</h2>

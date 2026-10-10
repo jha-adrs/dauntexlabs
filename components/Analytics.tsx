@@ -5,7 +5,9 @@ import Script from 'next/script'
 import { usePathname } from 'next/navigation'
 
 // Google Analytics 4 with Consent Mode v2. Consent defaults to DENIED — no analytics
-// cookies are set until the visitor accepts in the banner.
+// cookies are set until the visitor accepts in the banner. gtag.js still loads for
+// everyone and, without consent, sends cookieless pings (disclosed in the privacy
+// policy, section 5). Google signals and ad personalisation are off.
 // GA only ever receives the page path: automatic page views are off and every
 // page_view is sent by hand with the query string and fragment stripped, so search
 // terms (/#q=…) and anything else in the URL never reach Google. Tool inputs are
@@ -59,6 +61,8 @@ const GA_INIT = `
           try { ref = document.referrer ? new URL(document.referrer).origin : ''; } catch (e) {}
           gtag('config', '${GA_ID}', {
             anonymize_ip: true,
+            allow_google_signals: false,
+            allow_ad_personalization_signals: false,
             send_page_view: false,
             page_location: location.origin + location.pathname,
             page_referrer: ref,

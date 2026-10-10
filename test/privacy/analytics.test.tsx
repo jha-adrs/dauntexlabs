@@ -41,4 +41,12 @@ describe('GA config', () => {
     expect(init).toMatch(/page_location:\s*location\.origin \+ location\.pathname/)
     expect(init).toMatch(/page_referrer:/)
   })
+
+  it('turns off Google signals and ad personalisation', async () => {
+    const { default: Analytics } = await import('@/components/Analytics')
+    const { container } = render(<Analytics />)
+    const init = container.querySelector('#ga-consent-init')!.innerHTML
+    expect(init).toContain('allow_google_signals: false')
+    expect(init).toContain('allow_ad_personalization_signals: false')
+  })
 })

@@ -71,6 +71,18 @@ describe('helpers', () => {
     expect(tableRows(p('kilograms-to-pounds')).length).toBeGreaterThan(0)
     expect(tableRows(p('binary-to-decimal'))[0]).toHaveProperty('out')
   })
+  it('knots use the exact 1852/3600 m/s factor', () => {
+    const pair = PAIRS.find((p) => p.slug === 'knots-to-kilometers-per-hour')!
+    expect(formatNum(convertUnit(pair, 1))).toBe('1.852')
+    const mph = PAIRS.find((p) => p.slug === 'knots-to-miles-per-hour')!
+    expect(formatNum(convertUnit(mph, 1))).toBe('1.150779')
+  })
+
+  it('formatNum keeps 6 significant digits below 1', () => {
+    expect(formatNum(0.5399568)).toBe('0.539957')
+    expect(formatNum(0.44704)).toBe('0.44704')
+  })
+
   it('formatNum trims trailing zeros', () => {
     expect(formatNum(2.5)).toBe('2.5')
     expect(formatNum(100)).toBe('100')

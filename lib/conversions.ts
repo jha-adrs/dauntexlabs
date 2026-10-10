@@ -68,7 +68,7 @@ const CATEGORIES: Record<string, UnitCategory> = {
       mps: { key: 'mps', label: 'Meters per second', symbol: 'm/s', factor: 1 },
       kmh: { key: 'kmh', label: 'Kilometers per hour', symbol: 'km/h', factor: 1 / 3.6 },
       mph: { key: 'mph', label: 'Miles per hour', symbol: 'mph', factor: 0.44704 },
-      knot: { key: 'knot', label: 'Knots', symbol: 'kn', factor: 0.514444 },
+      knot: { key: 'knot', label: 'Knots', symbol: 'kn', factor: 1852 / 3600 },
     },
   },
   Volume: {
@@ -224,7 +224,7 @@ export function formatNum(n: number): string {
   const abs = Math.abs(n)
   let s: string
   if (abs >= 1e12 || abs < 1e-4) s = n.toExponential(4)
-  else s = n.toPrecision(abs >= 1 ? 7 : 4)
+  else s = n.toPrecision(abs >= 1 ? 7 : 6)
   // trim trailing zeros / dot
   if (s.indexOf('e') === -1 && s.indexOf('.') !== -1) s = s.replace(/\.?0+$/, '')
   return s

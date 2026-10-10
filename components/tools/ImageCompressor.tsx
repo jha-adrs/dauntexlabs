@@ -55,6 +55,11 @@ export default function ImageCompressor() {
       canvas.height = img.h
       const ctx = canvas.getContext('2d')
       if (!ctx) throw new Error('no canvas context')
+      // JPEG has no alpha: paint white first or transparent pixels encode as black.
+      if (format === 'image/jpeg') {
+        ctx.fillStyle = '#ffffff'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+      }
       ctx.drawImage(im, 0, 0)
       const q = format === 'image/png' ? undefined : quality / 100
       const blob: Blob = await new Promise((res, rej) =>

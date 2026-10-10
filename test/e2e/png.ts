@@ -50,3 +50,16 @@ export function makePng(w = 128, h = 96): Buffer {
   const idat = deflateSync(raw)
   return Buffer.concat([sig, chunk('IHDR', ihdr), chunk('IDAT', idat), chunk('IEND', Buffer.alloc(0))])
 }
+
+/** A valid 8-bit RGBA PNG that is fully transparent, w×h. */
+export function makeTransparentPng(w = 32, h = 32): Buffer {
+  const sig = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+  const ihdr = Buffer.alloc(13)
+  ihdr.writeUInt32BE(w, 0)
+  ihdr.writeUInt32BE(h, 4)
+  ihdr[8] = 8 // bit depth
+  ihdr[9] = 6 // color type: 6 = RGBA
+  const raw = Buffer.alloc(h * (1 + w * 4)) // all zero: filter none, alpha 0
+  const idat = deflateSync(raw)
+  return Buffer.concat([sig, chunk('IHDR', ihdr), chunk('IDAT', idat), chunk('IEND', Buffer.alloc(0))])
+}

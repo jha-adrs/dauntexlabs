@@ -5,6 +5,7 @@
 
 import { useEffect, useState } from 'react'
 import { FileDrop, FilePreview, Button, Notice, Field, Select, downloadBlob } from '@/components/ui/kit'
+import { jpegOrientation, stripJpegMetadata } from '@/lib/jpeg-meta'
 
 type Item = { id: string; name: string; bytes: number; type: string; data: ArrayBuffer; url: string }
 type Fit = 'native' | 'a4p' | 'a4l'
@@ -26,6 +27,34 @@ function isEmbeddable(t: string, name: string): boolean {
 
 function isPng(t: string, name: string): boolean {
   return t === 'image/png' || name.toLowerCase().endsWith('.png')
+}
+
+/**
+ * JPEG bytes safe to put in a shared PDF: metadata (EXIF incl. GPS, XMP, IPTC,
+ * comments) removed. Upright photos are stripped losslessly; a rotated photo is
+ * redrawn through canvas, which applies the EXIF orientation and drops metadata.
+ */
+async function cleanJpeg(data: ArrayBuffer, url: string): Promise<Uint8Array> {
+  const bytes = new Uint8Array(data)
+  if (jpegOrientation(bytes) === 1) return stripJpegMetadata(bytes)
+  const im = new Image()
+  await new Promise<void>((res, rej) => {
+    im.onload = () => res()
+    im.onerror = () => rej(new Error('load'))
+    im.src = url
+  })
+  const canvas = document.createElement('canvas')
+  canvas.width = im.naturalWidth
+  canvas.height = im.naturalHeight
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('no canvas context')
+  ctx.fillStyle = '#ffffff'
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.drawImage(im, 0, 0)
+  const blob: Blob = await new Promise((res, rej) =>
+    canvas.toBlob((b) => (b ? res(b) : rej(new Error('encode'))), 'image/jpeg', 0.92),
+  )
+  return new Uint8Array(await blob.arrayBuffer())
 }
 
 export default function ImagesToPdf() {
@@ -98,7 +127,10 @@ export default function ImagesToPdf() {
       const { PDFDocument } = await import('pdf-lib')
       const doc = await PDFDocument.create()
       for (const it of items) {
-        const img = isPng(it.type, it.name) ? await doc.embedPng(it.data) : await doc.embedJpg(it.data)
+        // PNG pixels are decoded and re-compressed by pdf-lib, so PNG text/EXIF chunks never reach the PDF.
+        const img = isPng(it.type, it.name)
+          ? await doc.embedPng(it.data)
+          : await doc.embedJpg(await cleanJpeg(it.data, it.url))
         const iw = img.width
         const ih = img.height
 

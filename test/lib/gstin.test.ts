@@ -68,4 +68,26 @@ describe('validateGstin', () => {
   it('rejects empty input without throwing', () => {
     expect(validateGstin('').ok).toBe(false)
   })
+
+  it('accepts a TDS deductor GSTIN (TAN body, D in position 14)', () => {
+    const g = '07DELA12345B1D' + gstinCheckChar('07DELA12345B1D')
+    const r = validateGstin(g)
+    expect(r.ok).toBe(true)
+    if (r.ok) {
+      expect(r.pan).toBe('DELA12345B')
+      expect(r.entity).toMatch(/TDS deductor/)
+    }
+  })
+
+  it('accepts a TCS collector GSTIN (PAN body, C in position 14)', () => {
+    const g = '29AAACB2894G1C' + gstinCheckChar('29AAACB2894G1C')
+    const r = validateGstin(g)
+    expect(r.ok).toBe(true)
+    if (r.ok) expect(r.entity).toMatch(/TCS collector/)
+  })
+
+  it('rejects a PAN body with D in position 14', () => {
+    const g = '27AAPFU0939F1D' + gstinCheckChar('27AAPFU0939F1D')
+    expect(validateGstin(g).ok).toBe(false)
+  })
 })

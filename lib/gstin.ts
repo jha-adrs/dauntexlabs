@@ -1,9 +1,12 @@
 // GSTIN (Goods and Services Tax Identification Number) format checks.
 // Layout: 2-digit state code + 10-char PAN + entity number (1-9, A-Z) + 'Z' + check character.
+// TCS collectors (e-commerce operators) use 'C' in place of 'Z'; TDS deductors use their
+// 10-char TAN as the body and 'D' in place of 'Z'.
 // The check character is GSTN's mod-36 scheme over 0-9A-Z. Pure logic, no lookups.
 
 const CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-const FORMAT = /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/
+const FORMAT = /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z][ZC][0-9A-Z]$/
+const TDS_FORMAT = /^\d{2}[A-Z]{4}\d{5}[A-Z][1-9A-Z]D[0-9A-Z]$/
 
 export const GST_STATES: Record<string, string> = {
   '01': 'Jammu and Kashmir',
@@ -81,11 +84,12 @@ export function validateGstin(input: string): GstinInfo {
   const gstin = input.trim().toUpperCase()
   if (!gstin) return { ok: false, gstin, error: 'Enter a GSTIN.' }
   if (gstin.length !== 15) return { ok: false, gstin, error: `A GSTIN has 15 characters; this has ${gstin.length}.` }
-  if (!FORMAT.test(gstin)) {
+  const tds = TDS_FORMAT.test(gstin)
+  if (!tds && !FORMAT.test(gstin)) {
     return {
       ok: false,
       gstin,
-      error: 'Invalid format: expected 2-digit state code, 10-character PAN, entity number, Z, check character.',
+      error: 'Invalid format: expected 2-digit state code, 10-character PAN, entity number, Z (or C for TCS, D with a TAN for TDS), check character.',
     }
   }
   const stateCode = gstin.slice(0, 2)
@@ -102,7 +106,9 @@ export function validateGstin(input: string): GstinInfo {
     state,
     stateCode,
     pan,
-    entity: ENTITY[pan[3]] ?? `Unknown (${pan[3]})`,
+    entity: tds
+      ? 'TDS deductor (TAN)'
+      : (ENTITY[pan[3]] ?? `Unknown (${pan[3]})`) + (gstin[13] === 'C' ? ' — TCS collector' : ''),
     entityNo: gstin[12],
   }
 }

@@ -28,7 +28,7 @@ describe('GstinValidator', () => {
     const body = csv.replace(/^\uFEFF/, '')
     expect(body.startsWith(
       toCsv([
-        ['GSTIN', 'Valid', 'State', 'State code', 'PAN', 'Entity type', 'Registration no.', 'Error'],
+        ['GSTIN', 'Valid', 'State', 'State code', 'PAN / TAN', 'Entity type', 'Registration no.', 'Error'],
         ['27AAPFU0939F1ZV', 'Yes', 'Maharashtra', '27', 'AAPFU0939F', 'Firm', '1', ''],
       ]),
     )).toBe(true)

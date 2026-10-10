@@ -9,7 +9,7 @@ const th: CSSProperties = { padding: '0.4rem 0.5rem', fontWeight: 500, textAlign
 const td: CSSProperties = { padding: '0.35rem 0.5rem', verticalAlign: 'top' }
 const mono: CSSProperties = { ...td, fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }
 
-const HEADER = ['GSTIN', 'Valid', 'State', 'State code', 'PAN', 'Entity type', 'Registration no.', 'Error']
+const HEADER = ['GSTIN', 'Valid', 'State', 'State code', 'PAN / TAN', 'Entity type', 'Registration no.', 'Error']
 
 export default function GstinValidator() {
   const [text, setText] = useState('')
@@ -71,7 +71,7 @@ export default function GstinValidator() {
                   <th style={th}>GSTIN</th>
                   <th style={th}>Status</th>
                   <th style={th}>State</th>
-                  <th style={th}>PAN</th>
+                  <th style={th}>PAN / TAN</th>
                   <th style={th}>Entity type</th>
                 </tr>
               </thead>

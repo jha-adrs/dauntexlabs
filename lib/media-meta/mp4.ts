@@ -1,9 +1,13 @@
-// Lossless MP4 / MOV (ISO BMFF) metadata removal. Removes the user-data boxes where
-// phones and cameras put GPS, device and software details (`udta` and `meta` inside
-// `moov` and each `trak`) plus top-level XMP `uuid` boxes. Audio/video samples are
-// copied byte-for-byte; every ancestor box size is recomputed, and absolute media
-// offsets (stco, co64, tfhd base_data_offset, tfra moof_offset) are moved back by the number of bytes
-// removed in front of them. Pure byte logic, no DOM, no network.
+// Lossless MP4 / MOV (ISO BMFF) metadata removal. Removes the boxes where phones,
+// cameras and dashcams put GPS, device and software details: `udta` (top level, in
+// `moov` and in each `trak`), `meta` (in `moov` and each `trak`), vendor `uuid` boxes
+// at the top level and anywhere inside `moov` (XMP, C2PA, Canon CMT, Sony PROF/USMT…;
+// only spherical-video metadata is kept) and a top-level dashcam `gps ` box.
+// Audio/video samples are copied byte-for-byte; every ancestor box size is
+// recomputed, and absolute media offsets (stco, co64, tfhd base_data_offset, tfra
+// moof_offset) are moved back by the number of bytes removed in front of them.
+// Timed metadata / telemetry tracks are reported but kept. HEIF/AVIF/CR3 still images
+// share the container but are not handled. Pure byte logic, no DOM, no network.
 
 export type Mp4Metadata = {
   location?: string
@@ -12,16 +16,30 @@ export type Mp4Metadata = {
   software?: string
   date?: string
   xmp: boolean
-  /** True when any udta/meta box is present (and will be removed). */
+  /** A udta/meta box was found (and is removed). */
   userData: boolean
+  /** Other vendor uuid boxes were found (and are removed). */
+  vendor: boolean
+  /** A top-level dashcam GPS log box was found (and is removed). */
+  gpsLog: boolean
+  /** A timed metadata / telemetry / text track exists. It is kept, not removed. */
+  telemetry: boolean
 }
 
 type Box = { type: string; start: number; hdr: number; end: number; large: boolean; toEnd: boolean }
+type Kind = 'udta' | 'meta' | 'xmp' | 'uuid' | 'gps'
 
+const MAX_DEPTH = 16
 const XMP_UUID = [0xbe, 0x7a, 0xcf, 0xcb, 0x97, 0xa9, 0x42, 0xe8, 0x9c, 0x71, 0x99, 0x94, 0x91, 0xe3, 0xaf, 0xac]
+const SPHERICAL_UUID = [0xff, 0xcc, 0x82, 0x63, 0xf8, 0x55, 0x4a, 0x93, 0x88, 0x14, 0x58, 0x7a, 0x02, 0x52, 0x1f, 0xdd]
 const TOP_TYPES = new Set(['ftyp', 'moov', 'mdat', 'free', 'skip', 'wide', 'pnot', 'uuid', 'styp', 'sidx'])
-/** Boxes we descend into: the path to stco/co64 and to fragment headers. */
-const CONTAINERS = new Set(['moov', 'trak', 'mdia', 'minf', 'stbl', 'moof', 'traf', 'mfra'])
+/** Still-image brands (HEIF, HEIC, AVIF, Canon CR3) that use the same container. */
+const STILL_BRANDS = new Set(['heic', 'heix', 'hevc', 'hevx', 'heim', 'heis', 'hevm', 'hevs', 'mif1', 'msf1', 'avif', 'avis', 'crx '])
+/** The part of moov we search for user data (and that leads to stco/co64). */
+const MOOV_TREE = new Set(['moov', 'trak', 'mdia', 'minf', 'stbl'])
+/** Boxes rebuilt on output: the moov tree plus fragment headers and the random-access index. */
+const CONTAINERS = new Set([...MOOV_TREE, 'moof', 'traf', 'mfra'])
+const TELEMETRY_ENTRIES = new Set(['gpmd', 'djmd', 'mebx', 'tx3g', 'camm'])
 
 const u32 = (b: Uint8Array, i: number) => ((b[i] << 24) >>> 0) + (b[i + 1] << 16) + (b[i + 2] << 8) + b[i + 3]
 const u64 = (b: Uint8Array, i: number) => u32(b, i) * 2 ** 32 + u32(b, i + 4)
@@ -58,36 +76,59 @@ function boxes(b: Uint8Array, start: number, end: number): Box[] {
   return out
 }
 
-/** True when the bytes start like an ISO BMFF (MP4, MOV, M4V, 3GP) file. */
-export const isMp4 = (b: Uint8Array) => b.length >= 8 && TOP_TYPES.has(type4(b, 4))
+const kids = (b: Uint8Array, x: Box, depth: number) => {
+  if (depth > MAX_DEPTH) throw new Error('Corrupt MP4: boxes nested too deeply')
+  return boxes(b, x.start + x.hdr, x.end)
+}
+
+/**
+ * True when the bytes are an ISO BMFF video (MP4, MOV, M4V, 3GP) this tool handles:
+ * false for HEIF/HEIC/AVIF/CR3 brands and for files with a top-level `meta` box,
+ * whose metadata lives in items this tool does not rewrite.
+ */
+export function isMp4(b: Uint8Array): boolean {
+  if (b.length < 8 || !TOP_TYPES.has(type4(b, 4))) return false
+  if (type4(b, 4) === 'ftyp') {
+    const end = Math.min(b.length, u32(b, 0))
+    for (let i = 8; i + 4 <= end; i += i === 8 ? 8 : 4) if (STILL_BRANDS.has(type4(b, i))) return false
+  }
+  try {
+    return !boxes(b, 0, b.length).some((x) => x.type === 'meta')
+  } catch {
+    return true // damaged: let the stripper report it
+  }
+}
 
 function topBoxes(b: Uint8Array) {
   if (!isMp4(b)) throw new Error('Not an MP4/MOV file')
   return boxes(b, 0, b.length)
 }
 
-const isXmp = (b: Uint8Array, x: Box) =>
-  x.type === 'uuid' && x.end - x.start >= x.hdr + 16 && XMP_UUID.every((v, k) => b[x.start + x.hdr + k] === v)
-const isUserData = (parent: string, x: Box) => (parent === 'moov' || parent === 'trak') && (x.type === 'udta' || x.type === 'meta')
+const uuidIs = (b: Uint8Array, x: Box, id: number[]) =>
+  x.end - x.start >= x.hdr + 16 && id.every((v, k) => b[x.start + x.hdr + k] === v)
 
-/** Every byte range this tool removes, in file order. */
-function removals(b: Uint8Array, top: Box[]): Box[] {
-  const out: Box[] = []
-  const visit = (parent: string, list: Box[]) => {
+/** Every box this tool removes, with why, in file order. */
+function findRemovals(b: Uint8Array, top: Box[]): { box: Box; kind: Kind }[] {
+  const out: { box: Box; kind: Kind }[] = []
+  const visit = (parent: string, list: Box[], depth: number) => {
     for (const x of list) {
-      if (isUserData(parent, x)) out.push(x)
-      else if (x.type === 'moov' || (parent === 'moov' && x.type === 'trak')) visit(x.type, boxes(b, x.start + x.hdr, x.end))
+      if (x.type === 'uuid') {
+        if (uuidIs(b, x, XMP_UUID)) out.push({ box: x, kind: 'xmp' })
+        else if (!uuidIs(b, x, SPHERICAL_UUID)) out.push({ box: x, kind: 'uuid' })
+      } else if (x.type === 'udta' && (parent === '' || parent === 'moov' || parent === 'trak')) out.push({ box: x, kind: 'udta' })
+      else if (x.type === 'meta' && (parent === 'moov' || parent === 'trak')) out.push({ box: x, kind: 'meta' })
+      else if (x.type === 'gps ' && parent === '') out.push({ box: x, kind: 'gps' })
+      else if (parent === '' ? x.type === 'moov' : MOOV_TREE.has(x.type)) visit(x.type, kids(b, x, depth + 1), depth + 1)
     }
   }
-  for (const x of top) if (isXmp(b, x)) out.push(x)
-  visit('', top)
-  return out.sort((p, q) => p.start - q.start)
+  visit('', top, 0)
+  return out.sort((p, q) => p.box.start - q.box.start)
 }
 
-/** Copy of the MP4/MOV without user metadata. Throws if the bytes are not ISO BMFF. */
+/** Copy of the MP4/MOV without user metadata. Throws if the bytes are not a supported video. */
 export function stripMp4Metadata(b: Uint8Array): Uint8Array {
   const top = topBoxes(b)
-  const removed = removals(b, top)
+  const removed = findRemovals(b, top).map((r) => r.box)
   if (!removed.length) return b.slice()
   const gone = new Set(removed.map((x) => x.start))
   const shift = (off: number) => {
@@ -96,18 +137,18 @@ export function stripMp4Metadata(b: Uint8Array): Uint8Array {
     return off - s
   }
 
-  const emit = (x: Box): Uint8Array => {
+  const emit = (x: Box, depth: number): Uint8Array => {
     if (CONTAINERS.has(x.type)) {
-      const kids = boxes(b, x.start + x.hdr, x.end)
+      const parts = kids(b, x, depth + 1)
         .filter((k) => !gone.has(k.start))
-        .map(emit)
-      const size = x.hdr + kids.reduce((n, k) => n + k.length, 0)
+        .map((k) => emit(k, depth + 1))
+      const size = x.hdr + parts.reduce((n, k) => n + k.length, 0)
       const out = new Uint8Array(size)
       out.set(b.subarray(x.start, x.start + x.hdr))
       if (x.large) setU64(out, 8, size)
       else if (!x.toEnd) setU32(out, 0, size)
       let o = x.hdr
-      for (const k of kids) {
+      for (const k of parts) {
         out.set(k, o)
         o += k.length
       }
@@ -143,7 +184,7 @@ export function stripMp4Metadata(b: Uint8Array): Uint8Array {
     return out
   }
 
-  const parts = top.filter((x) => !gone.has(x.start)).map(emit)
+  const parts = top.filter((x) => !gone.has(x.start)).map((x) => emit(x, 0))
   const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0))
   let o = 0
   for (const p of parts) {
@@ -191,17 +232,31 @@ function metaChildren(b: Uint8Array, x: Box) {
   return boxes(b, plain ? p : p + 4, x.end)
 }
 
-/** What user metadata an MP4/MOV carries. Throws if the bytes are not ISO BMFF. */
+/** True when a trak is a timed metadata / telemetry / text track. */
+function isTelemetryTrack(b: Uint8Array, trak: Box, depth: number): boolean {
+  const mdia = kids(b, trak, depth + 1).find((k) => k.type === 'mdia')
+  if (!mdia) return false
+  const mk = kids(b, mdia, depth + 2)
+  const hdlr = mk.find((k) => k.type === 'hdlr')
+  if (hdlr && hdlr.end - hdlr.start >= hdlr.hdr + 12 && type4(b, hdlr.start + hdlr.hdr + 8) === 'meta') return true
+  const minf = mk.find((k) => k.type === 'minf')
+  const stbl = minf && kids(b, minf, depth + 3).find((k) => k.type === 'stbl')
+  const stsd = stbl && kids(b, stbl, depth + 4).find((k) => k.type === 'stsd')
+  if (!stsd) return false
+  return boxes(b, stsd.start + stsd.hdr + 8, stsd.end).some((e) => TELEMETRY_ENTRIES.has(e.type))
+}
+
+/** What user metadata an MP4/MOV carries. Throws if the bytes are not a supported video. */
 export function mp4Metadata(b: Uint8Array): Mp4Metadata {
   const top = topBoxes(b)
-  const m: Mp4Metadata = { xmp: false, userData: false }
+  const m: Mp4Metadata = { xmp: false, userData: false, vendor: false, gpsLog: false, telemetry: false }
   const set = (name: string, v: string | undefined) => {
     const f = FIELDS[name]
     if (f && v && !m[f]) m[f] = v
   }
   const readMeta = (x: Box) => {
-    const kids = metaChildren(b, x)
-    const keysBox = kids.find((k) => k.type === 'keys')
+    const parts = metaChildren(b, x)
+    const keysBox = parts.find((k) => k.type === 'keys')
     const names: string[] = []
     if (keysBox) {
       let i = keysBox.start + keysBox.hdr + 8
@@ -212,7 +267,7 @@ export function mp4Metadata(b: Uint8Array): Mp4Metadata {
         i += size
       }
     }
-    for (const ilst of kids.filter((k) => k.type === 'ilst'))
+    for (const ilst of parts.filter((k) => k.type === 'ilst'))
       for (const item of boxes(b, ilst.start + ilst.hdr, ilst.end)) {
         const idx = u32(b, item.start + 4)
         set(keysBox ? names[idx - 1] ?? '' : item.type, dataValue(b, item))
@@ -229,20 +284,22 @@ export function mp4Metadata(b: Uint8Array): Mp4Metadata {
       }
     }
   }
-  const visit = (parent: string, list: Box[]) => {
-    for (const x of list) {
-      if (isUserData(parent, x)) {
-        m.userData = true
-        try {
-          if (x.type === 'udta') readUdta(x)
-          else readMeta(x)
-        } catch {
-          // unreadable details: the box is still removed
-        }
-      } else if (x.type === 'moov' || (parent === 'moov' && x.type === 'trak')) visit(x.type, boxes(b, x.start + x.hdr, x.end))
+  for (const { box, kind } of findRemovals(b, top)) {
+    if (kind === 'xmp') m.xmp = true
+    else if (kind === 'uuid') m.vendor = true
+    else if (kind === 'gps') m.gpsLog = true
+    else {
+      m.userData = true
+      try {
+        if (kind === 'udta') readUdta(box)
+        else readMeta(box)
+      } catch {
+        // unreadable details: the box is still removed
+      }
     }
   }
-  for (const x of top) if (isXmp(b, x)) m.xmp = true
-  visit('', top)
+  for (const moov of top.filter((x) => x.type === 'moov'))
+    for (const trak of kids(b, moov, 1).filter((k) => k.type === 'trak'))
+      if (isTelemetryTrack(b, trak, 1)) m.telemetry = true
   return m
 }

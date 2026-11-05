@@ -7,7 +7,21 @@ import { webpMetadata, stripWebpMetadata } from './webp'
 import { isMp4, mp4Metadata, stripMp4Metadata } from './mp4'
 
 export type MetaItem = { label: string; value?: string }
-export type Inspection = { format: string; mime: string; items: MetaItem[]; clean: () => Uint8Array }
+export type Inspection = {
+  format: string
+  mime: string
+  /** What was found and is removed (plus a kept orientation, labelled as kept). */
+  items: MetaItem[]
+  /** Shown when items is empty. */
+  none: string
+  /** Something privacy-relevant that is kept, e.g. a video telemetry track. */
+  warning?: string
+  clean: () => Uint8Array
+}
+
+const NONE = 'No metadata found. The copy is the same as the original.'
+const C2PA: MetaItem = { label: 'Content credentials (C2PA)' }
+export const TELEMETRY_WARNING = 'This video has a metadata/telemetry track that may contain location; it was not removed.'
 
 const KEPT_ORIENTATION: MetaItem = { label: 'Orientation', value: 'kept, so the photo stays upright' }
 
@@ -42,21 +56,26 @@ export function inspectMedia(b: Uint8Array): Inspection | null {
     if (s.iptc) items.push({ label: 'IPTC / Photoshop data' })
     if (s.comment) items.push({ label: 'Comment' })
     if (s.other) items.push({ label: 'Other app or camera data' })
-    return { format: 'JPEG', mime: 'image/jpeg', items, clean: () => stripJpegMetadata(b, { keepOrientation: true }) }
+    if (s.trailer) items.push({ label: 'Extra images / motion photo data' })
+    return { format: 'JPEG', mime: 'image/jpeg', items, none: NONE, clean: () => stripJpegMetadata(b, { keepOrientation: true }) }
   }
   if (isPng(b)) {
     const s = pngMetadata(b)
     const items: MetaItem[] = s.text.map((k) => ({ label: 'Text', value: k }))
     if (s.exif) items.push(...exifItems(s.exif))
+    if (s.exif && s.exif.orientation !== 1) items.push(KEPT_ORIENTATION)
     if (s.xmp) items.push({ label: 'XMP metadata' })
     if (s.time) items.push({ label: 'Last-modified time' })
-    return { format: 'PNG', mime: 'image/png', items, clean: () => stripPngMetadata(b) }
+    if (s.c2pa) items.push(C2PA)
+    return { format: 'PNG', mime: 'image/png', items, none: NONE, clean: () => stripPngMetadata(b) }
   }
   if (isWebp(b)) {
     const s = webpMetadata(b)
     const items: MetaItem[] = s.exif ? exifItems(s.exif) : []
+    if (s.exif && s.exif.orientation !== 1) items.push(KEPT_ORIENTATION)
     if (s.xmp) items.push({ label: 'XMP metadata' })
-    return { format: 'WebP', mime: 'image/webp', items, clean: () => stripWebpMetadata(b) }
+    if (s.c2pa) items.push(C2PA)
+    return { format: 'WebP', mime: 'image/webp', items, none: NONE, clean: () => stripWebpMetadata(b) }
   }
   if (isMp4(b)) {
     const s = mp4Metadata(b)
@@ -68,7 +87,16 @@ export function inspectMedia(b: Uint8Array): Inspection | null {
     if (s.date) items.push({ label: 'Creation date', value: s.date })
     if (s.userData && !items.length) items.push({ label: 'User data (udta / meta)' })
     if (s.xmp) items.push({ label: 'XMP metadata' })
-    return { format: 'MP4 / MOV', mime: 'video/mp4', items, clean: () => stripMp4Metadata(b) }
+    if (s.vendor) items.push({ label: 'Other vendor data (uuid boxes)' })
+    if (s.gpsLog) items.push({ label: 'Dashcam GPS log' })
+    return {
+      format: 'MP4 / MOV',
+      mime: 'video/mp4',
+      items,
+      none: 'No location, device or other user metadata found; recording timestamp kept.',
+      warning: s.telemetry ? TELEMETRY_WARNING : undefined,
+      clean: () => stripMp4Metadata(b),
+    }
   }
   return null
 }

@@ -41,3 +41,47 @@ describe('inspectMedia', () => {
     expect(inspectMedia(new Uint8Array(0))).toBeNull()
   })
 })
+
+const box = (type: string, ...payload: number[][]) => [...u32(8 + payload.flat().length), ...ascii(type), ...payload.flat()]
+const FTYP = box('ftyp', ascii('isom'), u32(0), ascii('isom'))
+
+describe('inspectMedia reporting', () => {
+  it('treats HEIC as unsupported (it is not a video), whatever the file is called', () => {
+    const heic = Uint8Array.from([...box('ftyp', ascii('heic'), u32(0), ascii('mif1heic')), ...box('meta', u32(0)), ...box('mdat', ascii('GPSSECRET'))])
+    expect(inspectMedia(heic)).toBeNull()
+  })
+
+  it('reports data after a JPEG primary image', () => {
+    const plain = [0xff, 0xd8, 0xff, 0xda, 0, 2, 1, 0xff, 0xd9]
+    const r = inspectMedia(Uint8Array.from([...plain, ...plain]))!
+    expect(r.items).toContainEqual({ label: 'Extra images / motion photo data' })
+  })
+
+  it('reports C2PA content credentials in PNG and WebP', () => {
+    const chunk = (t: string, d: number[]) => [...u32(d.length), ...ascii(t), ...d, 0, 0, 0, 0]
+    const png = Uint8Array.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, ...chunk('caBX', [1]), ...chunk('IEND', [])])
+    expect(inspectMedia(png)!.items).toContainEqual({ label: 'Content credentials (C2PA)' })
+    const webp = Uint8Array.from([...ascii('RIFF'), 14, 0, 0, 0, ...ascii('WEBP'), ...ascii('C2PA'), 2, 0, 0, 0, 1, 2])
+    expect(inspectMedia(webp)!.items).toContainEqual({ label: 'Content credentials (C2PA)' })
+  })
+
+  it('never says nothing was found when unknown MP4 boxes are dropped', () => {
+    const mp4 = Uint8Array.from([...FTYP, ...box('moov', box('uuid', new Array(16).fill(5), ascii('x'))), ...box('gps ', [1]), ...box('mdat', [1])])
+    const r = inspectMedia(mp4)!
+    expect(r.items).toEqual([{ label: 'Other vendor data (uuid boxes)' }, { label: 'Dashcam GPS log' }])
+  })
+
+  it('says the recording timestamp is kept when a video has no user metadata', () => {
+    const r = inspectMedia(Uint8Array.from([...FTYP, ...box('moov'), ...box('mdat', [1])]))!
+    expect(r.items).toEqual([])
+    expect(r.none).toMatch(/recording timestamp kept/)
+    expect(r.warning).toBeUndefined()
+  })
+
+  it('warns about a telemetry track that is kept', () => {
+    const full = (t: string, ...p: number[][]) => box(t, [0, 0, 0, 0], ...p)
+    const trak = box('trak', box('mdia', full('hdlr', u32(0), ascii('meta'), new Array(13).fill(0))))
+    const r = inspectMedia(Uint8Array.from([...FTYP, ...box('moov', trak), ...box('mdat', [1])]))!
+    expect(r.warning).toBe('This video has a metadata/telemetry track that may contain location; it was not removed.')
+  })
+})

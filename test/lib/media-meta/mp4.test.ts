@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { mp4Metadata, stripMp4Metadata } from '@/lib/media-meta/mp4'
+import { isMp4, mp4Metadata, stripMp4Metadata } from '@/lib/media-meta/mp4'
 
 // Synthetic ISO BMFF files built byte by byte. Chunk offsets (stco/co64) point at
 // 4-byte markers inside mdat, so a correct strip must still land on the same markers.
@@ -37,7 +37,10 @@ const META = box(
 
 const XMP_UUID = [0xbe, 0x7a, 0xcf, 0xcb, 0x97, 0xa9, 0x42, 0xe8, 0x9c, 0x71, 0x99, 0x94, 0x91, 0xe3, 0xaf, 0xac]
 const XMP = box('uuid', XMP_UUID, ascii('<x:xmpmeta>XMP-SECRET</x:xmpmeta>'))
-const OTHER_UUID = box('uuid', new Array(16).fill(7), ascii('KEEP-ME'))
+/** Vendor uuid boxes (Canon CMT, Sony PROF/USMT, C2PA…) are removed; spherical-video metadata is kept. */
+const VENDOR_UUID = box('uuid', new Array(16).fill(7), ascii('VENDOR-SECRET'))
+const CANON_UUID = box('uuid', new Array(16).fill(9), ascii('CMT-GPS-SECRET'))
+const SPHERICAL = box('uuid', [0xff, 0xcc, 0x82, 0x63, 0xf8, 0x55, 0x4a, 0x93, 0x88, 0x14, 0x58, 0x7a, 0x02, 0x52, 0x1f, 0xdd], ascii('<rdf:SphericalVideo>KEEP-ME'))
 
 const FTYP = box('ftyp', ascii('isom'), u32(512), ascii('isommp41'))
 const MVHD = full('mvhd', new Array(96).fill(1))
@@ -53,7 +56,8 @@ function trak(chunkTable: number[], withUdta: boolean, co64: boolean) {
   return box(
     'trak',
     full('tkhd', new Array(80).fill(2)),
-    ...(withUdta ? [box('udta', qtString([C, ...ascii('nam')], 'TRACK-SECRET'))] : []),
+    ...(withUdta ? [box('udta', qtString([C, ...ascii('nam')], 'TRACK-SECRET')), box('uuid', new Array(16).fill(3), ascii('USMT-SECRET'))] : []),
+    SPHERICAL,
     box('mdia', full('mdhd', new Array(20).fill(3)), box('minf', box('stbl', full('stsd', u32(0)), table))),
   )
 }
@@ -63,13 +67,13 @@ function build(o: Opts, withMeta = true) {
   const make = (offsets: number[]) => {
     const t1 = trak(offsets.slice(0, 2), withMeta, false)
     const t2 = trak(offsets.slice(2), false, !!o.co64)
-    const kids = [MVHD, ...(withMeta ? [UDTA, META] : []), t1, t2]
+    const kids = [MVHD, ...(withMeta ? [UDTA, META, CANON_UUID] : []), t1, t2]
     const moov = o.bigMoov ? bigBox('moov', ...kids) : box('moov', ...kids)
     const mdat = o.mdatToEnd ? [...u32(0), ...ascii('mdat'), ...mdatPayload] : box('mdat', mdatPayload)
-    const xmp = withMeta ? XMP : []
+    const extra = withMeta ? [XMP, VENDOR_UUID] : []
     const parts = o.moovFirst
-      ? [FTYP, moov, ...(o.xmpBefore ? [xmp, OTHER_UUID] : []), mdat, ...(o.xmpBefore ? [] : [xmp, OTHER_UUID])]
-      : [FTYP, ...(o.xmpBefore ? [xmp, OTHER_UUID] : []), mdat, moov, ...(o.xmpBefore ? [] : [xmp, OTHER_UUID])]
+      ? [FTYP, moov, ...(o.xmpBefore ? extra : []), mdat, ...(o.xmpBefore ? [] : extra)]
+      : [FTYP, ...(o.xmpBefore ? extra : []), mdat, moov, ...(o.xmpBefore ? [] : extra)]
     return parts.flat()
   }
   const probe = make([0, 0, 0, 0])
@@ -116,7 +120,7 @@ function assertSizes(b: Uint8Array, start = 0, end = b.length) {
   expect(i).toBe(end)
 }
 
-const SECRETS = ['CANARY', 'TRACK-SECRET', 'XMP-SECRET', '12.9716', '37.3317', 'iPhone 99', 'location.ISO6709', 'udta']
+const SECRETS = ['CANARY', 'TRACK-SECRET', 'XMP-SECRET', 'VENDOR-SECRET', 'CMT-GPS-SECRET', 'USMT-SECRET', '12.9716', '37.3317', 'iPhone 99', 'location.ISO6709', 'udta']
 
 describe('stripMp4Metadata', () => {
   it('moov before mdat: removes udta/meta/XMP and shifts every stco + co64 offset', () => {
@@ -124,7 +128,7 @@ describe('stripMp4Metadata', () => {
     expect(markersAt(input)).toEqual(MARKERS)
     const out = stripMp4Metadata(input)
     for (const s of SECRETS) expect(has(out, s), s).toBe(false)
-    expect(has(out, 'KEEP-ME')).toBe(true)
+    expect(has(out, 'KEEP-ME')).toBe(true) // spherical-video uuid stays
     assertSizes(out)
     expect(markersAt(out)).toEqual(MARKERS)
     expect(chunkOffsets(out)).not.toEqual(chunkOffsets(input)) // they really moved
@@ -218,15 +222,83 @@ describe('mp4Metadata', () => {
       date: '2026-01-02T03:04:05+0530',
       xmp: true,
       userData: true,
+      vendor: true,
+      gpsLog: false,
+      telemetry: false,
     })
   })
 
   it('reads Apple keys/ilst values when udta has none', () => {
     const input = Uint8Array.from([...FTYP, ...box('moov', MVHD, META), ...box('mdat', [1])])
-    expect(mp4Metadata(input)).toEqual({ location: '+37.3317-122.0302/', model: 'iPhone 99', xmp: false, userData: true })
+    expect(mp4Metadata(input)).toEqual({
+      location: '+37.3317-122.0302/', model: 'iPhone 99', xmp: false, userData: true, vendor: false, gpsLog: false, telemetry: false,
+    })
   })
 
   it('reports nothing for a clean file', () => {
-    expect(mp4Metadata(build({ moovFirst: true }, false))).toEqual({ xmp: false, userData: false })
+    expect(mp4Metadata(build({ moovFirst: true }, false))).toEqual({ xmp: false, userData: false, vendor: false, gpsLog: false, telemetry: false })
+  })
+})
+
+describe('files this tool must not treat as video', () => {
+  const heif = (major: string, compat: string) =>
+    Uint8Array.from([...box('ftyp', ascii(major), u32(0), ascii(compat)), ...full('meta', full('hdlr', u32(0), ascii('pict'), new Array(13).fill(0))), ...box('mdat', ascii('Exif\0\0MM GPSSECRET'))])
+
+  it('rejects HEIC/HEIF/AVIF/CR3 brands, even with a video-looking major brand', () => {
+    for (const [major, compat] of [['heic', 'mif1heic'], ['avif', 'mif1avif'], ['mif1', 'heix'], ['crx ', 'isom'], ['isom', 'msf1hevc'], ['avis', 'avis']])
+      expect(isMp4(Uint8Array.from([...box('ftyp', ascii(major), u32(0), ascii(compat)), ...box('mdat', [1])])), major + compat).toBe(false)
+    expect(() => stripMp4Metadata(heif('heic', 'mif1heic'))).toThrow(/Not an MP4/)
+  })
+
+  it('rejects any file with a top-level meta box (HEIF-style item metadata)', () => {
+    expect(isMp4(heif('isom', 'isom'))).toBe(false)
+  })
+
+  it('still accepts ordinary MP4 and QuickTime files', () => {
+    expect(isMp4(build({ moovFirst: true }))).toBe(true)
+    expect(isMp4(Uint8Array.from([...box('ftyp', ascii('qt  '), u32(0), ascii('qt  ')), ...box('mdat', [1])]))).toBe(true)
+  })
+})
+
+describe('more user-data locations', () => {
+  it('removes top-level udta and a dashcam gps box, and reports them', () => {
+    const gps = box('gps ', ascii('NOVATEK-GPS-SECRET'))
+    const make = (extra: number[][]) => [...FTYP, ...box('moov', MVHD), ...extra.flat(), ...box('mdat', [1, 2])]
+    const input = Uint8Array.from(make([box('udta', qtString([C, ...ascii('xyz')], '+12.3+045.6/')), gps]))
+    const out = stripMp4Metadata(input)
+    expect(has(out, '+12.3')).toBe(false)
+    expect(has(out, 'NOVATEK')).toBe(false)
+    expect(Array.from(out)).toEqual(make([]))
+    expect(mp4Metadata(input)).toMatchObject({ location: '+12.3+045.6/', userData: true, gpsLog: true })
+  })
+})
+
+describe('timed metadata / telemetry tracks', () => {
+  const track = (handler: string, entry: string) =>
+    box('trak', full('tkhd', new Array(80).fill(2)), box('mdia',
+      full('hdlr', u32(0), ascii(handler), new Array(13).fill(0)),
+      box('minf', box('stbl', full('stsd', u32(1), box(entry, new Array(8).fill(0))), full('stco', u32(0)))),
+    ))
+  const file = (t: number[]) => Uint8Array.from([...FTYP, ...box('moov', MVHD, t), ...box('mdat', [1])])
+
+  it('flags a track whose handler is meta, or whose sample entry is gpmd/djmd/mebx/tx3g/camm', () => {
+    expect(mp4Metadata(file(track('meta', 'mett'))).telemetry).toBe(true)
+    for (const e of ['gpmd', 'djmd', 'mebx', 'tx3g', 'camm']) expect(mp4Metadata(file(track('vide', e))).telemetry, e).toBe(true)
+    expect(mp4Metadata(file(track('vide', 'avc1'))).telemetry).toBe(false)
+  })
+
+  it('keeps the telemetry track (it is reported, not removed)', () => {
+    const input = file(track('meta', 'gpmd'))
+    expect(Array.from(stripMp4Metadata(input))).toEqual(Array.from(input))
+  })
+})
+
+describe('hostile nesting', () => {
+  it('refuses boxes nested deeper than 16 levels instead of recursing without limit', () => {
+    let nest = box('udta', ascii('DEEP'))
+    for (let k = 0; k < 40; k++) nest = box('trak', nest)
+    const input = Uint8Array.from([...FTYP, ...box('moov', MVHD, nest), ...box('mdat', [1])])
+    expect(() => stripMp4Metadata(input)).toThrow(/Corrupt/)
+    expect(() => mp4Metadata(input)).toThrow(/Corrupt/)
   })
 })

@@ -229,7 +229,7 @@ export const tools: Tool[] = [
     slug: 'metadata-remover',
     name: 'Photo & Video Metadata Remover',
     category: 'Image Tools',
-    blurb: 'See and remove GPS location, camera, date and software metadata from photos and videos, without re-encoding.',
+    blurb: 'See and remove GPS, camera, date and software metadata from JPEG, PNG, WebP, MP4 and MOV files, without re-encoding.',
     keywords: [
       'remove exif data', 'remove location from photo', 'remove metadata from video', 'exif remover',
       'strip gps from photo', 'remove metadata from png', 'remove metadata from photo', 'exif viewer',

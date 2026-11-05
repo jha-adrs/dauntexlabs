@@ -183,7 +183,8 @@ test('MP4 recorded by MediaRecorder: udta removed, file is byte-identical to the
     clearInterval(iv)
     return Array.from(new Uint8Array(await new Blob(parts).arrayBuffer()))
   })
-  test.skip(recorded === null, 'this Chromium cannot record video/mp4')
+  // Must really run: our Chromium records MP4. If a future build cannot, fail loudly instead of skipping.
+  expect(recorded, 'MediaRecorder in this Chromium cannot record video/mp4, so the MP4 path was not exercised').not.toBeNull()
   const original = Buffer.from(recorded!)
   expect(original.toString('latin1', 4, 8)).toBe('ftyp')
   expect((await canPlay(page, original)).ok).toBe(true)

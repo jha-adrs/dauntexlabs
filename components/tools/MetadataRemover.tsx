@@ -15,6 +15,8 @@ type Row = {
   format?: string
   mime?: string
   items?: MetaItem[]
+  none?: string
+  warning?: string
   out?: Uint8Array
   error?: string
 }
@@ -27,15 +29,26 @@ function fmtBytes(n: number): string {
 
 let nextId = 1
 
+const TOO_LARGE = 'This file is too large for your browser\'s memory, so it was not changed.'
+
+/** Out-of-memory errors from reading or copying a big file. */
+const isMemoryError = (e: unknown) => e instanceof RangeError || (e instanceof Error && e.name === 'NotReadableError')
+
 async function process(f: File): Promise<Row> {
   const row: Row = { id: nextId++, name: f.name, bytes: f.size }
+  let b: Uint8Array
   try {
-    const b = new Uint8Array(await f.arrayBuffer())
+    b = new Uint8Array(await f.arrayBuffer())
+  } catch (e) {
+    return { ...row, error: isMemoryError(e) ? TOO_LARGE : 'This file could not be read.' }
+  }
+  try {
     const r = inspectMedia(b)
-    if (!r) return { ...row, error: 'This file type is not supported. Use a JPEG, PNG, WebP, MP4 or MOV file.' }
-    return { ...row, format: r.format, mime: r.mime, items: r.items, out: r.clean() }
-  } catch {
-    return { ...row, error: 'This file looks damaged or incomplete, so it was not changed.' }
+    if (!r)
+      return { ...row, error: 'This file type is not supported. Use a JPEG, PNG, WebP, MP4 or MOV file (HEIC and AVIF are not supported).' }
+    return { ...row, format: r.format, mime: r.mime, items: r.items, none: r.none, warning: r.warning, out: r.clean() }
+  } catch (e) {
+    return { ...row, error: isMemoryError(e) ? TOO_LARGE : 'This file looks damaged or incomplete, so it was not changed.' }
   }
 }
 
@@ -80,7 +93,7 @@ export default function MetadataRemover() {
                 {r.items && (
                   <div style={{ fontSize: 14 }}>
                     {r.items.length === 0 ? (
-                      <span style={{ color: 'var(--mute)' }}>No metadata found. The copy is the same as the original.</span>
+                      <span style={{ color: 'var(--mute)' }}>{r.none}</span>
                     ) : (
                       <>
                         <div style={{ color: 'var(--mute)', marginBottom: 4 }}>Found and removed:</div>
@@ -96,6 +109,7 @@ export default function MetadataRemover() {
                     )}
                   </div>
                 )}
+                {r.warning && <Notice kind="error">{r.warning}</Notice>}
                 {r.out && (
                   <Toolbar>
                     <Button variant="primary" onClick={() => downloadBlob(r.out!, r.name, r.mime)}>

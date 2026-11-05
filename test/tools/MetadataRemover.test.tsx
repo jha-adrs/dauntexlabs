@@ -66,6 +66,26 @@ describe('MetadataRemover', () => {
     expect(within(pdfRow).queryByRole('button', { name: 'Download' })).toBeNull()
   })
 
+  it('says a file is too large for browser memory rather than damaged', async () => {
+    const big = new File([new Uint8Array(4)], 'huge.mov', { type: 'video/quicktime' })
+    Object.defineProperty(big, 'arrayBuffer', { value: () => Promise.reject(new RangeError('Array buffer allocation failed')) })
+    const { container } = render(<MetadataRemover />)
+    fireEvent.change(fileInput(container), { target: { files: [big] } })
+    expect(await screen.findByText(/too large/i)).toBeInTheDocument()
+    expect(screen.queryByText(/damaged/i)).toBeNull()
+  })
+
+  it('warns about a kept telemetry track and says the recording timestamp is kept', async () => {
+    const u32 = (v: number) => [v >>> 24, (v >> 16) & 0xff, (v >> 8) & 0xff, v & 0xff]
+    const box = (type: string, ...p: number[][]) => [...u32(8 + p.flat().length), ...ascii(type), ...p.flat()]
+    const trak = box('trak', box('mdia', box('hdlr', [0, 0, 0, 0], u32(0), ascii('meta'), new Array(13).fill(0))))
+    const mp4 = Uint8Array.from([...box('ftyp', ascii('isom'), u32(0), ascii('isom')), ...box('moov', trak), ...box('mdat', [1])])
+    const { container } = render(<MetadataRemover />)
+    fireEvent.change(fileInput(container), { target: { files: [new File([mp4], 'ride.mp4', { type: 'video/mp4' })] } })
+    expect(await screen.findByText(/metadata\/telemetry track that may contain location/)).toBeInTheDocument()
+    expect(screen.getByText(/recording timestamp kept/)).toBeInTheDocument()
+  })
+
   it('reports a damaged file instead of crashing', async () => {
     const { container } = render(<MetadataRemover />)
     fireEvent.change(fileInput(container), {

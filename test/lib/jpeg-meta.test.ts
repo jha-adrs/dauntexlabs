@@ -136,7 +136,7 @@ describe('jpegMetadataSummary', () => {
         seg(0xfe, ascii('hi')),
       ]),
     )
-    expect(s).toEqual({ exif: null, xmp: true, iptc: true, comment: true, other: false })
+    expect(s).toEqual({ exif: null, xmp: true, iptc: true, comment: true, other: false, trailer: false })
   })
 
   it('flags other application segments (e.g. maker APPn) as other', () => {
@@ -172,5 +172,62 @@ describe('stripJpegMetadata keepOrientation', () => {
     const out = stripJpegMetadata(noApp0, { keepOrientation: true })
     expect([out[2], out[3]]).toEqual([0xff, 0xe1])
     expect(jpegOrientation(out)).toBe(8)
+  })
+})
+
+describe('data after the primary image', () => {
+  const exifText = (txt: string) => seg(0xe1, [...ascii('Exif'), 0, 0, ...ascii('MM'), 0, 42, 0, 0, 0, 8, 0, 0, ...ascii(txt)])
+
+  it('cuts MPF images, maker trailers and motion-photo videos after the primary EOI', () => {
+    const primary = jpeg([exifText('PRIMARYGPS')])
+    const second = jpeg([exifText('TRAILERGPS')])
+    const motion = [0, 0, 0, 24, ...ascii('ftypmp42'), ...ascii('MOTIONGPS-SECRET')]
+    const input = Uint8Array.from([...primary, ...second, ...motion])
+    const out = stripJpegMetadata(input)
+    for (const s of ['PRIMARYGPS', 'TRAILERGPS', 'MOTIONGPS']) expect(has(out, s), s).toBe(false)
+    expect(Array.from(out)).toEqual(Array.from(jpeg([])))
+    expect(jpegMetadataSummary(input).trailer).toBe(true)
+    expect(jpegMetadataSummary(primary).trailer).toBe(false)
+  })
+
+  it('treats FF00 stuffing and RST markers as scan data, and drops APPn/COM between progressive scans', () => {
+    const scan = (n: number) => [...seg(0xda, [1, 1, 0, 0, 63, 0]), n, 0xff, 0x00, 7, 0xff, 0xd3, 8, 0xff, 0xff, 0xd4, 9]
+    const head = [0xff, 0xd8, ...seg(0xe0, [...ascii('JFIF'), 0, 1, 1, 0, 0, 1, 0, 1, 0, 0]), ...seg(0xc2, [8, 0, 2, 0, 3, 1, 1, 0x11, 0])]
+    const dht = seg(0xc4, [0, 1, 2, 3])
+    const input = Uint8Array.from([
+      ...head, ...scan(1),
+      ...exifText('MIDSECRET'), ...seg(0xfe, ascii('MIDCOMMENT')), ...dht,
+      ...scan(2), 0xff, 0xd9,
+    ])
+    const out = stripJpegMetadata(input)
+    expect(has(out, 'MIDSECRET')).toBe(false)
+    expect(has(out, 'MIDCOMMENT')).toBe(false)
+    expect(Array.from(out)).toEqual([...head, ...scan(1), ...dht, ...scan(2), 0xff, 0xd9])
+    expect(jpegMetadataSummary(input)).toMatchObject({ comment: true, trailer: false })
+    expect(jpegMetadataSummary(input).exif).not.toBeNull()
+  })
+
+  it('still copies a truncated file (no EOI) to its end', () => {
+    const cut = jpeg([]).subarray(0, -2)
+    expect(Array.from(stripJpegMetadata(cut))).toEqual(Array.from(cut))
+  })
+})
+
+describe('APP0', () => {
+  const jfif = (thumb: number[], tw = 0, th = 0) => seg(0xe0, [...ascii('JFIF'), 0, 1, 1, 0, 0, 1, 0, 1, tw, th, ...thumb])
+  const rest = [...seg(0xdb, [0, 1]), ...seg(0xda, [1, 1, 0, 0, 63, 0]), 5, 0xff, 0xd9]
+
+  it('drops the JFIF thumbnail and fixes the segment length', () => {
+    const input = Uint8Array.from([0xff, 0xd8, ...jfif(new Array(2 * 1 * 3).fill(0x77), 2, 1), ...rest])
+    const out = stripJpegMetadata(input)
+    expect(Array.from(out)).toEqual([0xff, 0xd8, ...jfif([]), ...rest])
+    expect(jpegMetadataSummary(input).other).toBe(true)
+  })
+
+  it('drops JFXX and other APP0 segments', () => {
+    const jfxx = seg(0xe0, [...ascii('JFXX'), 0, 0x10, 0xff, 0xd8, ...ascii('THUMB')])
+    const vendor = seg(0xe0, ascii('VENDORDATA'))
+    const out = stripJpegMetadata(Uint8Array.from([0xff, 0xd8, ...jfif([]), ...jfxx, ...vendor, ...rest]))
+    expect(Array.from(out)).toEqual([0xff, 0xd8, ...jfif([]), ...rest])
   })
 })

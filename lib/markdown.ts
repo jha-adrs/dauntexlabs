@@ -12,11 +12,18 @@ function escapeHtml(s: string): string {
     .replace(/"/g, '&quot;')
 }
 
+// No scheme (relative), or http(s)/mailto. Everything else (javascript:, data:, …) becomes '#'.
+const safeHref = (url: string) => (/^(https?:|mailto:)/i.test(url) || !/^[^/?#]*:/.test(url) ? url : '#')
+const safeSrc = (url: string) => (/^(https?:|data:image\/|blob:)/i.test(url) || !/^[^/?#]*:/.test(url) ? url : '')
+
 function inlineFmt(s: string): string {
   return s
     .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/!\[([^\]]*)\]\(([^)\s]+)[^)]*\)/g, '<img alt="$1" src="$2" />')
-    .replace(/\[([^\]]+)\]\(([^)\s]+)[^)]*\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+    .replace(/!\[([^\]]*)\]\(([^)\s]+)[^)]*\)/g, (_m, alt, url) => `<img alt="${alt}" src="${safeSrc(url)}" />`)
+    .replace(
+      /\[([^\]]+)\]\(([^)\s]+)[^)]*\)/g,
+      (_m, text, url) => `<a href="${safeHref(url)}" target="_blank" rel="noopener noreferrer">${text}</a>`,
+    )
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     .replace(/__([^_]+)__/g, '<strong>$1</strong>')
     .replace(/\*([^*]+)\*/g, '<em>$1</em>')

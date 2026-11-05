@@ -2,7 +2,7 @@
 // phones and cameras put GPS, device and software details (`udta` and `meta` inside
 // `moov` and each `trak`) plus top-level XMP `uuid` boxes. Audio/video samples are
 // copied byte-for-byte; every ancestor box size is recomputed, and absolute media
-// offsets (stco, co64, tfhd base_data_offset) are moved back by the number of bytes
+// offsets (stco, co64, tfhd base_data_offset, tfra moof_offset) are moved back by the number of bytes
 // removed in front of them. Pure byte logic, no DOM, no network.
 
 export type Mp4Metadata = {
@@ -21,7 +21,7 @@ type Box = { type: string; start: number; hdr: number; end: number; large: boole
 const XMP_UUID = [0xbe, 0x7a, 0xcf, 0xcb, 0x97, 0xa9, 0x42, 0xe8, 0x9c, 0x71, 0x99, 0x94, 0x91, 0xe3, 0xaf, 0xac]
 const TOP_TYPES = new Set(['ftyp', 'moov', 'mdat', 'free', 'skip', 'wide', 'pnot', 'uuid', 'styp', 'sidx'])
 /** Boxes we descend into: the path to stco/co64 and to fragment headers. */
-const CONTAINERS = new Set(['moov', 'trak', 'mdia', 'minf', 'stbl', 'moof', 'traf'])
+const CONTAINERS = new Set(['moov', 'trak', 'mdia', 'minf', 'stbl', 'moof', 'traf', 'mfra'])
 
 const u32 = (b: Uint8Array, i: number) => ((b[i] << 24) >>> 0) + (b[i + 1] << 16) + (b[i + 2] << 8) + b[i + 3]
 const u64 = (b: Uint8Array, i: number) => u32(b, i) * 2 ** 32 + u32(b, i + 4)
@@ -126,6 +126,19 @@ export function stripMp4Metadata(b: Uint8Array): Uint8Array {
       }
     } else if (x.type === 'tfhd' && out.length >= p + 16 && out[p + 3] & 0x01) {
       setU64(out, p + 8, shift(u64(out, p + 8)))
+    } else if (x.type === 'tfra' && out.length >= p + 16) {
+      // entries: time + moof_offset (32- or 64-bit by version), then traf/trun/sample numbers.
+      const v1 = out[p] === 1
+      const sizes = out[p + 11]
+      const tail = ((sizes >> 4) & 3) + ((sizes >> 2) & 3) + (sizes & 3) + 3
+      const w = v1 ? 8 : 4
+      const n = u32(out, p + 12)
+      if (p + 16 + n * (2 * w + tail) > out.length) throw new Error('Corrupt MP4')
+      for (let k = 0; k < n; k++) {
+        const at = p + 16 + k * (2 * w + tail) + w
+        if (v1) setU64(out, at, shift(u64(out, at)))
+        else setU32(out, at, shift(u32(out, at)))
+      }
     }
     return out
   }

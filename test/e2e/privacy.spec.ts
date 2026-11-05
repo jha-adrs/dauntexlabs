@@ -245,6 +245,17 @@ const fileCases: { slug: string; file: (c: string) => Promise<{ name: string; mi
   },
   { slug: 'aadhaar-masker', file: async (c) => ({ name: `${c}.png`, mimeType: 'image/png', buffer: makePng(320, 200) }) },
   { slug: 'photo-date-stamp', file: async (c) => ({ name: `${c}.png`, mimeType: 'image/png', buffer: makePng(200, 230) }) },
+  {
+    slug: 'metadata-remover',
+    file: async (c) => {
+      // A tEXt "Author" chunk carrying the canary, inserted before IEND (the last 12 bytes).
+      const png = makePng(64, 48)
+      const data = Buffer.from(`Author\0${c}`, 'latin1')
+      const text = Buffer.concat([Buffer.alloc(4), Buffer.from('tEXt'), data, Buffer.alloc(4)])
+      text.writeUInt32BE(data.length, 0)
+      return { name: `${c}.png`, mimeType: 'image/png', buffer: Buffer.concat([png.subarray(0, -12), text, png.subarray(-12)]) }
+    },
+  },
 ]
 
 for (const { slug, file } of fileCases) {

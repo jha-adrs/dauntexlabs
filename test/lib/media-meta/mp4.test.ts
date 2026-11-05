@@ -178,6 +178,28 @@ describe('stripMp4Metadata', () => {
     expect(Buffer.from(out.subarray(base, base + 4)).toString('latin1')).toBe('FRAG')
   })
 
+  it('shifts tfra moof offsets (v0 and v1) in the mfra random-access index', () => {
+    // tfra: track_ID, sizes byte (all 1-byte numbers), entry count, entries.
+    const tfra = (v: 0 | 1, moofAt: number) =>
+      box('tfra', [v, 0, 0, 0], u32(1), u32(0), u32(1), v ? [...u64(0), ...u64(moofAt)] : [...u32(0), ...u32(moofAt)], [1, 1, 1])
+    const make = (moofAt: number) => {
+      const body = [...FTYP, ...box('moov', MVHD, UDTA)]
+      const moof = box('moof', full('mfhd', u32(1)))
+      const rest = [...moof, ...box('mdat', ascii('FRAG'))]
+      const mfra = box('mfra', tfra(0, moofAt), tfra(1, moofAt), full('mfro', u32(0)))
+      return [...body, ...rest, ...mfra]
+    }
+    const probe = make(0)
+    const input = Uint8Array.from(make(Buffer.from(probe).indexOf('moof') - 4))
+    const out = stripMp4Metadata(input)
+    const moofAt = Buffer.from(out).indexOf('moof') - 4
+    const dv = new DataView(out.buffer)
+    const t0 = Buffer.from(out).indexOf('tfra') + 4
+    const t1 = Buffer.from(out).indexOf('tfra', t0) + 4
+    expect(dv.getUint32(t0 + 16 + 4)).toBe(moofAt) // v0: time u32, then moof_offset u32
+    expect(dv.getUint32(t1 + 16 + 8 + 4)).toBe(moofAt) // v1: time u64, then moof_offset u64 (low word)
+  })
+
   it('rejects input that is not an ISO BMFF file or has a broken box size', () => {
     expect(() => stripMp4Metadata(Uint8Array.from(ascii('hello world, not a video')))).toThrow(/MP4/)
     const bad = Uint8Array.from([...FTYP, ...u32(9999), ...ascii('moov'), 1, 2, 3])

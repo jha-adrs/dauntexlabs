@@ -58,9 +58,32 @@ describe('webpMetadata', () => {
     expect(webpMetadata(riff([vp8x(0x0c), VP8, EXIF, XMP]))).toEqual({
       exif: { gps: true, orientation: 1, model: 'CAM' },
       xmp: true,
+      c2pa: false,
     })
   })
   it('reports nothing for a simple file', () => {
-    expect(webpMetadata(riff([VP8]))).toEqual({ exif: null, xmp: false })
+    expect(webpMetadata(riff([VP8]))).toEqual({ exif: null, xmp: false, c2pa: false })
+  })
+})
+
+describe('C2PA and orientation', () => {
+  it('drops a C2PA chunk and reports it', () => {
+    const input = riff([vp8x(0x20), ICCP, VP8, chunk('C2PA', ascii('C2PA-SECRET'))])
+    expect(webpMetadata(input).c2pa).toBe(true)
+    expect(Array.from(stripWebpMetadata(input))).toEqual(Array.from(riff([vp8x(0x20), ICCP, VP8])))
+  })
+
+  it('keeps a non-default orientation as a minimal EXIF chunk and keeps the EXIF flag', () => {
+    const rotated = chunk('EXIF', [
+      ...ascii('II'), 42, 0, 8, 0, 0, 0, 2, 0,
+      0x12, 0x01, 3, 0, 1, 0, 0, 0, 8, 0, 0, 0,
+      0x25, 0x88, 4, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, ...ascii('GPS-SECRET'),
+    ])
+    const out = stripWebpMetadata(riff([vp8x(0x08 | 0x04), VP8, rotated, XMP]))
+    expect(has(out, 'GPS-SECRET')).toBe(false)
+    expect(out[20]).toBe(0x08)
+    expect(webpMetadata(out)).toEqual({ exif: { gps: false, orientation: 8 }, xmp: false, c2pa: false })
+    expect(riffSize(out)).toBe(out.length - 8)
   })
 })

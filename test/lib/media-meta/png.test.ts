@@ -60,9 +60,43 @@ describe('pngMetadata', () => {
       xmp: true,
       exif: { gps: true, orientation: 1, make: 'ACM' },
       time: true,
+      c2pa: false,
     })
   })
   it('reports nothing for a clean PNG', () => {
-    expect(pngMetadata(png([]))).toEqual({ text: [], xmp: false, exif: null, time: false })
+    expect(pngMetadata(png([]))).toEqual({ text: [], xmp: false, exif: null, time: false, c2pa: false })
+  })
+})
+
+const crc32 = (bytes: number[]) => {
+  let c = 0xffffffff
+  for (const x of bytes) {
+    c ^= x
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1
+  }
+  return (c ^ 0xffffffff) >>> 0
+}
+
+describe('C2PA and orientation', () => {
+  it('drops a caBX (C2PA content credentials) chunk and reports it', () => {
+    const input = png([chunk('caBX', ascii('C2PA-SECRET'))])
+    expect(pngMetadata(input).c2pa).toBe(true)
+    expect(Array.from(stripPngMetadata(input))).toEqual(Array.from(png([])))
+  })
+
+  it('keeps a non-default orientation as a minimal eXIf chunk with a valid CRC, before IDAT', () => {
+    const rotated = [...ascii('MM'), 0, 42, 0, 0, 0, 8, 0, 2,
+      0x01, 0x12, 0, 3, 0, 0, 0, 1, 0, 6, 0, 0,
+      0x88, 0x25, 0, 4, 0, 0, 0, 1, 0, 0, 0, 0,
+      0, 0, 0, 0, ...ascii('GPS-SECRET')]
+    const out = stripPngMetadata(png([chunk('eXIf', rotated)]))
+    expect(has(out, 'GPS-SECRET')).toBe(false)
+    expect(pngMetadata(out).exif).toEqual({ gps: false, orientation: 6 })
+    const at = Buffer.from(out).indexOf('eXIf') - 4
+    const len = Buffer.from(out).readUInt32BE(at)
+    expect(len).toBe(26)
+    const typeAndData = Array.from(out.subarray(at + 4, at + 8 + len))
+    expect(Buffer.from(out).readUInt32BE(at + 8 + len)).toBe(crc32(typeAndData))
+    expect(at).toBeLessThan(Buffer.from(out).indexOf('IDAT'))
   })
 })

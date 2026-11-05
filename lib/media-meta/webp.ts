@@ -1,13 +1,14 @@
 // Lossless WebP metadata removal. Only extended (VP8X) files can carry metadata:
-// their EXIF and "XMP " chunks are dropped, the matching VP8X flag bits cleared and
-// the RIFF size fixed. Image data and the ICC profile (ICCP) are copied as-is.
+// their EXIF, "XMP " and C2PA chunks are dropped, the matching VP8X flag bits cleared
+// and the RIFF size fixed. Image data and the ICC profile (ICCP) are copied as-is. A
+// non-default EXIF orientation is written back as a minimal EXIF chunk.
 
-import { readExif, type ExifSummary } from '@/lib/jpeg-meta'
+import { readExif, orientationTiff, type ExifSummary } from '@/lib/jpeg-meta'
 
 const FLAG_EXIF = 0x08
 const FLAG_XMP = 0x04
 
-export type WebpMetadata = { exif: ExifSummary | null; xmp: boolean }
+export type WebpMetadata = { exif: ExifSummary | null; xmp: boolean; c2pa: boolean }
 
 type Chunk = { id: string; start: number; data: number; size: number; end: number }
 
@@ -31,28 +32,46 @@ function chunks(b: Uint8Array): Chunk[] {
   return out
 }
 
+function exifOf(b: Uint8Array, c: Chunk) {
+  const t = isAscii(b, c.data, 'Exif\0\0') ? c.data + 6 : c.data
+  return readExif(b, t, c.data + c.size)
+}
+
 /** What metadata a WebP carries. Throws if the bytes are not a WebP. */
 export function webpMetadata(b: Uint8Array): WebpMetadata {
-  const m: WebpMetadata = { exif: null, xmp: false }
+  const m: WebpMetadata = { exif: null, xmp: false, c2pa: false }
   for (const c of chunks(b)) {
-    if (c.id === 'EXIF') {
-      const t = isAscii(b, c.data, 'Exif\0\0') ? c.data + 6 : c.data
-      m.exif = readExif(b, t, c.data + c.size) ?? { gps: false, orientation: 1 }
-    } else if (c.id === 'XMP ') m.xmp = true
+    if (c.id === 'EXIF') m.exif = exifOf(b, c) ?? { gps: false, orientation: 1 }
+    else if (c.id === 'XMP ') m.xmp = true
+    else if (c.id === 'C2PA') m.c2pa = true
   }
   return m
 }
 
-/** Copy of the WebP without EXIF/XMP. Throws if the bytes are not a WebP. */
+/** Copy of the WebP without EXIF/XMP/C2PA. Throws if the bytes are not a WebP. */
 export function stripWebpMetadata(b: Uint8Array): Uint8Array {
-  const kept = chunks(b).filter((c) => c.id !== 'EXIF' && c.id !== 'XMP ')
-  const out = new Uint8Array(12 + kept.reduce((n, c) => n + c.end - c.start, 0))
-  out.set(b.subarray(0, 12))
-  let o = 12
-  for (const c of kept) {
-    out.set(b.subarray(c.start, c.end), o)
-    if (c.id === 'VP8X' && c.size > 0) out[o + 8] &= ~(FLAG_EXIF | FLAG_XMP)
-    o += c.end - c.start
+  const parts: Uint8Array[] = [b.subarray(0, 12)]
+  let flags = -1 // index of the VP8X flags byte in parts, once copied
+  let keptOrientation = false
+  for (const c of chunks(b)) {
+    if (c.id === 'EXIF') {
+      const o = exifOf(b, c)?.orientation ?? 1
+      if (o === 1) continue
+      const head = Uint8Array.from([0x45, 0x58, 0x49, 0x46, 26, 0, 0, 0]) // "EXIF", size 26
+      parts.push(head, orientationTiff(o))
+      keptOrientation = true
+    } else if (c.id !== 'XMP ' && c.id !== 'C2PA') {
+      const copy = b.slice(c.start, c.end)
+      if (c.id === 'VP8X' && c.size > 0) flags = parts.length
+      parts.push(copy)
+    }
+  }
+  if (flags >= 0) parts[flags][8] &= ~(FLAG_XMP | (keptOrientation ? 0 : FLAG_EXIF))
+  const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0))
+  let o = 0
+  for (const p of parts) {
+    out.set(p, o)
+    o += p.length
   }
   const size = out.length - 8
   out.set([size & 0xff, (size >> 8) & 0xff, (size >> 16) & 0xff, size >>> 24], 4)

@@ -92,6 +92,18 @@ describe('FileViewer', () => {
     expect(rows.length).toBe(3)
   })
 
+  it('previews HTML in a sandboxed iframe that cannot load outside resources', () => {
+    render(<FileViewer />)
+    fireEvent.change(screen.getByPlaceholderText(SRC), {
+      target: { value: '<html><body><img src="https://tracker.example/p.gif"><p>Hi</p></body></html>' },
+    })
+    const frame = screen.getByTitle('html-preview') as HTMLIFrameElement
+    expect(frame.getAttribute('sandbox')).toBe('')
+    const doc = frame.getAttribute('srcdoc')!
+    expect(doc).toMatch(/http-equiv="Content-Security-Policy" content="default-src 'none'/)
+    expect(doc.indexOf('Content-Security-Policy')).toBeLessThan(doc.indexOf('tracker.example'))
+  })
+
   it('shows the info notice for empty input', () => {
     render(<FileViewer />)
     expect(screen.getByText(/Paste content on the left to preview it here/i)).toBeInTheDocument()

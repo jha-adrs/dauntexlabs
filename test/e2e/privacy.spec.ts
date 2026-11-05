@@ -283,6 +283,20 @@ test('eml-viewer: an email (and its tracking pixel) never reaches the network', 
   await assertNoLeak(page, cap, canary)
 })
 
+test('file-viewer: pasted HTML (and its tracking pixel) never reaches the network', async ({ page }) => {
+  const canary = canaryFor()
+  const cap = await watch(page)
+  await page.goto(STATIC + '/tools/file-viewer/', { waitUntil: 'networkidle' })
+  await page
+    .getByPlaceholder('Paste Markdown, HTML, JSON, XML, CSV or YAML…')
+    .fill(`<html><body><p>${canary} body</p><img src="https://tracker.example/${canary}.gif"></body></html>`)
+  await expect(page.frameLocator('iframe[title="html-preview"]').locator('p')).toHaveText(`${canary} body`)
+  await page.waitForTimeout(500)
+  const tracker = cap.requests.filter((r) => r.url().includes('tracker.example'))
+  expect(tracker.map((r) => r.failure()?.errorText ?? 'sent'), 'tracker requests').toEqual(tracker.map(() => 'csp'))
+  await assertNoLeak(page, cap, canary)
+})
+
 // QR designer: Wi-Fi password, contact name, UPI ID and logo stay on the page.
 test('qr-code-generator: Wi-Fi password, contact and logo never leave the page', async ({ page }) => {
   const canary = canaryFor()

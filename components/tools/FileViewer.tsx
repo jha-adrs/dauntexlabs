@@ -11,6 +11,7 @@ import {
   Panel,
   IO,
 } from '@/components/ui/kit'
+import { safeSrcdoc } from '@/lib/safe-srcdoc'
 
 type Format = 'auto' | 'markdown' | 'html' | 'json' | 'xml' | 'csv' | 'yaml'
 
@@ -347,7 +348,7 @@ export default function FileViewer() {
       return (
         <iframe
           title="html-preview"
-          srcDoc={input}
+          srcDoc={safeSrcdoc(input)}
           sandbox=""
           style={{ width: '100%', height: previewHeight, border: '1px solid var(--line)', background: '#fff' }}
         />

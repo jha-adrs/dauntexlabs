@@ -226,6 +226,17 @@ export const tools: Tool[] = [
     keywords: ['image', 'compress', 'compressor', 'optimize', 'jpg', 'png', 'webp'],
   },
   {
+    slug: 'metadata-remover',
+    name: 'Photo & Video Metadata Remover',
+    category: 'Image Tools',
+    blurb: 'See and remove GPS location, camera, date and software metadata from photos and videos, without re-encoding.',
+    keywords: [
+      'remove exif data', 'remove location from photo', 'remove metadata from video', 'exif remover',
+      'strip gps from photo', 'remove metadata from png', 'remove metadata from photo', 'exif viewer',
+      'remove gps from video', 'mp4 metadata remover', 'webp metadata', 'jpeg exif',
+    ],
+  },
+  {
     slug: 'image-converter',
     name: 'Image Converter',
     category: 'Image Tools',

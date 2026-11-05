@@ -58,8 +58,11 @@ function boxes(b: Uint8Array, start: number, end: number): Box[] {
   return out
 }
 
+/** True when the bytes start like an ISO BMFF (MP4, MOV, M4V, 3GP) file. */
+export const isMp4 = (b: Uint8Array) => b.length >= 8 && TOP_TYPES.has(type4(b, 4))
+
 function topBoxes(b: Uint8Array) {
-  if (b.length < 8 || !TOP_TYPES.has(type4(b, 4))) throw new Error('Not an MP4/MOV file')
+  if (!isMp4(b)) throw new Error('Not an MP4/MOV file')
   return boxes(b, 0, b.length)
 }
 

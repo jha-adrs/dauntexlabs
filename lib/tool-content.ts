@@ -17,6 +17,7 @@ import jsonPivot from './tool-content/json-pivot'
 import keywordDensity from './tool-content/keyword-density'
 import krutidevToUnicode from './tool-content/krutidev-to-unicode'
 import metaTagGenerator from './tool-content/meta-tag-generator'
+import metadataRemover from './tool-content/metadata-remover'
 import morseCode from './tool-content/morse-code'
 import pdfMetadataRemover from './tool-content/pdf-metadata-remover'
 import photoDateStamp from './tool-content/photo-date-stamp'
@@ -64,6 +65,7 @@ export const TOOL_CONTENT: Record<string, ToolContent> = {
   'keyword-density': keywordDensity,
   'krutidev-to-unicode': krutidevToUnicode,
   'meta-tag-generator': metaTagGenerator,
+  'metadata-remover': metadataRemover,
   'morse-code': morseCode,
   'pdf-metadata-remover': pdfMetadataRemover,
   'photo-date-stamp': photoDateStamp,

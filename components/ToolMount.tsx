@@ -39,6 +39,7 @@ const REGISTRY: Record<string, ComponentType> = {
   // Image Tools (native Canvas)
   'image-compressor': dynamic(() => import('@/components/tools/ImageCompressor'), { ssr: false, loading }),
   'image-converter': dynamic(() => import('@/components/tools/ImageConverter'), { ssr: false, loading }),
+  'metadata-remover': dynamic(() => import('@/components/tools/MetadataRemover'), { ssr: false, loading }),
   'image-resizer': dynamic(() => import('@/components/tools/ImageResizer'), { ssr: false, loading }),
   'image-to-base64': dynamic(() => import('@/components/tools/ImageToBase64'), { ssr: false, loading }),
   'favicon-generator': dynamic(() => import('@/components/tools/FaviconGenerator'), { ssr: false, loading }),

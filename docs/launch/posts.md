@@ -8,7 +8,7 @@ Date: 2026-11-06. Source: item 0 of `docs/superpowers/specs/2026-11-06-advisor-i
 
 - **Privacy wording stays hedged.** Say "designed to run in your browser" / "processed on your device". Do **not** say "nothing ever leaves your device", "100% private" or "zero tracking". The site runs Google Analytics (page views only, consent default denied, no tool input), and the privacy policy is deliberately hedged.
 - **True claims you can make:** static site, no backend for the tools, no sign-up; a Content-Security-Policy limits connections to the site itself and Google Analytics; Playwright tests feed a canary string into tools and fail if it shows up in any request, storage, URL, page title or console line; fonts are self-hosted; the three bundled libraries (OpenPGP.js, pdf-lib, qrcode-generator) are lazy-loaded and served from the site, not a CDN.
-- **Do not claim** it is open source unless the GitHub repo (`jha-adrs/dauntexlabs`) is public. Lines marked `[if repo public]` only go in if it is.
+- **The repo is public but unlicensed.** You may link to the source (`https://github.com/jha-adrs/dauntexlabs`), but do **not** call it open source: without a LICENSE nobody may reuse the code. Adding a LICENSE is the owner's decision; until then, skip any listing that requires an OSI licence.
 - **Disclose that you made it** in every post. Most communities below require it.
 - Subreddit rules below are from memory of each sidebar, not checked today. **Re-read the sidebar/wiki before posting**; rules change.
 - One community per day, not all at once: a burst of identical posts reads as spam and gets cross-banned.
@@ -21,7 +21,7 @@ Date: 2026-11-06. Source: item 0 of `docs/superpowers/specs/2026-11-06-advisor-i
 **Title** (80 char limit):
 
 ```
-Show HN: Dauntexlabs – 130+ dev and paperwork tools designed to run in your browser
+Show HN: Dauntexlabs – dev and paperwork tools designed to run in your browser
 ```
 
 **URL:** `https://dauntexlabs.com/`
@@ -41,7 +41,7 @@ The usual JSON/Base64/JWT/hash suspects are there, but the parts I'd actually li
 
 How the privacy side is enforced rather than just promised: a CSP limits connections to the site itself plus Google Analytics (page views only, consent defaults to denied, and the page path is sent without query or fragment). A Playwright suite feeds a canary string into the tools and fails if it appears in any network request, storage, URL, page title or console line, and it has a self-test that a planted leak is caught. The privacy page is deliberately hedged ("designed to run on your device") because I can't promise what your browser extensions do.
 
-Stack: Next.js static export, no runtime deps beyond three lazy-loaded libraries (OpenPGP.js, pdf-lib, qrcode-generator) served from the same origin. [if repo public] Source: https://github.com/jha-adrs/dauntexlabs
+Stack: Next.js static export, no runtime deps beyond three lazy-loaded libraries (OpenPGP.js, pdf-lib, qrcode-generator) served from the same origin. The source is on GitHub if you want to check the privacy tests: https://github.com/jha-adrs/dauntexlabs (public, but no licence yet).
 
 What's broken or missing? I'm especially interested in whether the HAR sanitizer misses anything you'd consider sensitive.
 ```
@@ -66,11 +66,11 @@ I made dauntexlabs.com, a static site of tools with no backend and no sign-up: w
 
 It started as the usual JSON/Base64/JWT set, but the bits that turned out more interesting were niches nobody had done client-side:
 - HAR sanitizer and EML viewer for debugging
-- a metadata remover for photos and MP4 (EXIF, GPS, C2PA)
+- a metadata remover for photos and MP4/MOV (EXIF, GPS, C2PA) that flags GoPro/DJI/iPhone telemetry tracks rather than removing them
 - aviation calculators and METAR/TAF decoders
 - Indian paperwork: GSTIN/Aadhaar validation, UPI QR codes, Kruti Dev/DevLys/Chanakya to Unicode
 
-Lessons: I had to enforce the privacy claim with tests (a canary string fed into each tool must never appear in a request, storage, URL or console), and a CSP that blocks any host other than the site and analytics. I also learnt commodity tools ("json formatter") are hopeless for a new domain on Google; the niche pages are the ones getting impressions.
+Lessons: I had to enforce the privacy claim with tests (a canary string fed into the tools fails the e2e tests if it shows up in a request, storage, URL or console), and a CSP that blocks any host other than the site and analytics. I also learnt commodity tools ("json formatter") are hopeless for a new domain on Google; the niche pages are the ones getting impressions.
 
 Feedback welcome, especially on which tools are broken on mobile.
 ```
@@ -81,7 +81,7 @@ Rules (re-check): self-promotion of your own projects only on **Saturdays**, wit
 
 **Title:**
 ```
-[Showoff Saturday] A static Next.js site of 130+ tools with a CSP + Playwright canary test so tool input never leaves the page
+[Showoff Saturday] A static Next.js site of 130+ tools with a CSP + Playwright canary test that checks tool input stays on the page
 ```
 **Body:**
 ```
@@ -96,9 +96,9 @@ The webdev-interesting part is how the "runs in your browser" claim is enforced:
 Tools worth a look: HAR sanitizer, EML viewer, metadata remover (JPEG/PNG/WebP/MP4), METAR decoder, GSTIN validator. Happy to answer questions about static export + per-tool code splitting.
 ```
 
-### r/InternetIsBeautiful
+### r/InternetIsBeautiful — likely removed, low priority
 
-Rules (re-check): the site must be usable without sign-up or paywall (true); no self-promotion of commercial products; titles describe the site, no clickbait; check whether self-submissions need disclosure in a comment.
+Self-submitted tool collections are often removed here; try it last, if at all. Rules (re-check): the site must be usable without sign-up or paywall (true); no self-promotion of commercial products; titles describe the site, no clickbait; check whether self-submissions need disclosure in a comment.
 
 **Title:**
 ```
@@ -108,7 +108,7 @@ A collection of free tools that run in your browser, from METAR weather decoders
 
 ### r/developersIndia
 
-Rules (re-check): project posts need the right flair ("I Made This" or equivalent) and may be limited to a weekly thread or specific days; no pure promotion, explain the build.
+Rules (re-check): self-promotion is restricted to specific days and/or a specific flair ("I Made This" or equivalent), sometimes a weekly thread only; posts outside that window are removed. Re-check the sidebar and pinned posts for the current day and flair before posting. No pure promotion, explain the build.
 
 **Title:**
 ```
@@ -192,7 +192,7 @@ Submit as a new application, then add it as an alternative to: **CyberChef**, **
 
 **Name:** dauntexlabs
 **Platforms:** Online / Web
-**License:** Free (mark "Open Source" only `[if repo public]`)
+**License:** Free (proprietary). Do not tick "Open Source": the repo is public but has no LICENSE.
 **Tags:** developer-tools, privacy-focused, no-registration, pdf-tools, image-tools, converter
 
 **Short description:**
@@ -213,9 +213,9 @@ A Content-Security-Policy limits connections to the site and its analytics, and 
 
 ## 5. Awesome-list PR blurbs
 
-Before opening each PR: confirm the list is still maintained (merged PRs in the last few months), read its `CONTRIBUTING.md`, match its entry format exactly, and check whether it only accepts open-source projects (several privacy lists do; skip those unless `[if repo public]`). One PR per list; do not batch.
+Before opening each PR: confirm the list is still maintained (merged PRs in the last few months), read its `CONTRIBUTING.md`, match its entry format exactly, and check whether it only accepts open-source projects (several privacy and self-hosted lists do). Those are **only after a LICENSE is added**: the repo is public but unlicensed, so it does not qualify yet. One PR per list; do not batch.
 
-### a. Lissy93/awesome-privacy — section closest to "Online tools" / "Utilities"
+### a. Lissy93/awesome-privacy — section closest to "Online tools" / "Utilities" (check its licence requirement first; if it wants open source, only after a LICENSE is added)
 
 ```markdown
 - [dauntexlabs](https://dauntexlabs.com/) - Static collection of developer, PDF, image and metadata tools designed to run in the browser, with a CSP that restricts connections and tests that check input never reaches a request, storage or URL. No sign-up.
@@ -241,7 +241,7 @@ PR description: "Adds a browser-side tool collection. The HAR sanitizer (strip c
 - [dauntexlabs India tools](https://dauntexlabs.com/category/india/) - Client-side GSTIN and Aadhaar (Verhoeff) validators, Aadhaar masker, UPI QR generator, amount in words (lakh/crore), Kruti Dev / DevLys / Chanakya to Unicode.
 ```
 
-### e. A self-hostable / static web tools list (e.g. a list of "online developer tools") — only `[if repo public]`
+### e. A self-hostable / static web tools list (e.g. a list of "online developer tools") — only after a LICENSE is added (these lists require an OSI licence)
 
 ```markdown
 - [dauntexlabs](https://github.com/jha-adrs/dauntexlabs) - 130+ developer and media tools as a static Next.js export; no backend, deployable to any static host.

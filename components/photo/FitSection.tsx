@@ -48,6 +48,8 @@ export default function FitSection({
   const [busy, setBusy] = useState(false)
   const previewRef = useRef<HTMLCanvasElement>(null)
   const urls = useRef(new Set<string>())
+  // Bumped whenever an in-flight make becomes stale (settings change, remove, unmount).
+  const gen = useRef(0)
 
   const isPhoto = upload.type === 'photo'
   const strip = isPhoto && stripOn
@@ -56,7 +58,9 @@ export default function FitSection({
 
   useEffect(() => {
     const set = urls.current
+    const g = gen
     return () => {
+      g.current++
       set.forEach((u) => URL.revokeObjectURL(u))
       set.clear()
     }
@@ -76,8 +80,9 @@ export default function FitSection({
 
   // Any change to the input or its settings makes the last result stale.
   useEffect(() => {
+    gen.current++
     clearResult()
-  }, [img, zoom, ox, oy, whiteOn, strength, strip, name, date, specKey]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [img, zoom, ox, oy, whiteOn, strength, strip, name, date, specKey, disabled]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function load(files: File[]) {
     const f = files[0]
@@ -107,6 +112,7 @@ export default function FitSection({
   }
 
   function remove() {
+    gen.current++
     if (img) drop(img.url)
     setImg(null)
     setError('')
@@ -174,6 +180,7 @@ export default function FitSection({
     setError('')
     clearResult()
     setBusy(true)
+    const myGen = gen.current
     const dpi = upload.dpi ?? DEFAULT_DPI
     try {
       const canvas = document.createElement('canvas')
@@ -184,6 +191,8 @@ export default function FitSection({
       }
       const fixedPx = !!(upload.px || upload.width)
       const r = await fitToBounds(render, size, byteBounds(upload.kb), { fixedPx, dpi })
+      // Settings changed, file removed or section unmounted while encoding: this result is stale.
+      if (gen.current !== myGen) return
       if (!r.ok) {
         setError(
           `This file can’t get under ${upload.kb[1]} KB at ${size[0]} × ${size[1]} px. Try a plainer background or zoom in closer.`,

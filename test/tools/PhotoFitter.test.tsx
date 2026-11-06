@@ -110,6 +110,30 @@ describe('PhotoFitter', () => {
     expect((section('Photo').querySelector('input[type="date"]') as HTMLInputElement).value).toMatch(/^\d{4}-\d{2}-\d{2}$/)
   })
 
+  it('drops a result whose settings changed while it was being made', async () => {
+    const fast = HTMLCanvasElement.prototype.toBlob
+    HTMLCanvasElement.prototype.toBlob = function (cb: BlobCallback, type?: string, q?: number) {
+      setTimeout(() => fast.call(this, cb, type, q), 30)
+    }
+    render(<PhotoFitter preset="ibps-photo-signature-size" />)
+    await load('Photo')
+    fireEvent.click(within(section('Photo')).getByRole('button', { name: 'Make file' }))
+    fireEvent.change(within(section('Photo')).getByLabelText('Zoom'), { target: { value: '1.5' } })
+    await new Promise((r) => setTimeout(r, 400))
+    expect(within(section('Photo')).queryByRole('button', { name: 'Download photo.jpg' })).toBeNull()
+    expect(within(section('Photo')).queryByRole('list', { name: 'Checks' })).toBeNull()
+  })
+
+  it('size pages hide the last result when the size inputs become invalid', async () => {
+    render(<PhotoFitter preset="resize-image-to-20kb" />)
+    await load('Photo')
+    fireEvent.click(screen.getByRole('button', { name: 'Make file' }))
+    await screen.findByRole('list', { name: 'Checks' })
+    const width = screen.getByText('Width (px)').parentElement!.querySelector('input')!
+    fireEvent.change(width, { target: { value: '300' } })
+    expect(screen.queryByRole('button', { name: 'Download photo.jpg' })).toBeNull()
+  })
+
   it('revokes the image URL when the file is removed', async () => {
     const revoke = vi.spyOn(URL, 'revokeObjectURL')
     render(<PhotoFitter preset="resize-image-to-20kb" />)

@@ -74,7 +74,7 @@ export default function ConversionRateCalculator() {
   const [solverRate, setSolverRate] = useState('')
 
   const rateResult = useMemo<Result<number> | null>(() => {
-    if (!conversions && !visits) return null
+    if (!conversions || !visits) return null
     return conversionRate(parseFloat(conversions), parseFloat(visits))
   }, [conversions, visits])
 
@@ -86,8 +86,8 @@ export default function ConversionRateCalculator() {
 
   const solverResult = useMemo<Result<number> | null>(() => {
     const amount = mode === 'visits' ? target : solverVisits
-    // Wait until this mode's own amount is typed: the rate field is shared between the two solvers.
-    if (mode === 'rate' || !amount) return null
+    // Wait until both of this mode's fields are typed (the rate field is shared between the two solvers).
+    if (mode === 'rate' || !amount || !solverRate) return null
     const a = parseFloat(amount)
     const r = parseFloat(solverRate)
     return mode === 'visits' ? visitsNeeded(a, r) : conversionsNeeded(a, r)

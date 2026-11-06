@@ -81,6 +81,25 @@ describe('ConversionRateCalculator upgrades', () => {
     expect(screen.queryByText('Enter valid numbers.')).not.toBeInTheDocument()
     expect(screen.getByText(/Enter visits and a conversion rate/)).toBeInTheDocument()
   })
+  it('a zero target renders 0 visits, not -0', () => {
+    render(<ConversionRateCalculator />)
+    fireEvent.click(screen.getByRole('tab', { name: 'Visits needed' }))
+    type('e.g. 50', '0'); type('e.g. 2.5', '2.5')
+    expect(screen.getByText('0')).toBeInTheDocument()
+    expect(screen.queryByText('-0')).not.toBeInTheDocument()
+  })
+  it('rate mode waits for both fields before showing an error', () => {
+    render(<ConversionRateCalculator />)
+    type('e.g. 25', '25')
+    expect(screen.queryByText(/Enter valid numbers/)).not.toBeInTheDocument()
+    expect(screen.getByText(/Enter conversions and total visits/)).toBeInTheDocument()
+  })
+  it('solver waits for the rate before showing an error', () => {
+    render(<ConversionRateCalculator />)
+    fireEvent.click(screen.getByRole('tab', { name: 'Visits needed' }))
+    type('e.g. 50', '50')
+    expect(screen.queryByText(/Enter valid numbers/)).not.toBeInTheDocument()
+  })
   it('solver shows the rate error', () => {
     render(<ConversionRateCalculator />)
     fireEvent.click(screen.getByRole('tab', { name: 'Visits needed' }))

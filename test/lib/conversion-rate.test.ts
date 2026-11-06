@@ -23,6 +23,16 @@ describe('conversion-rate', () => {
     expect(conversionsNeeded(1000, 3.33)).toEqual({ ok: true, value: 34 })
     expect(conversionsNeeded(-1, 3)).toEqual({ ok: false, error: 'Values cannot be negative.' })
   })
+  it('a zero target gives +0, never -0', () => {
+    const v = visitsNeeded(0, 2.5)
+    expect(v.ok && Object.is(v.value, 0)).toBe(true)
+    const c = conversionsNeeded(0, 2.5)
+    expect(c.ok && Object.is(c.value, 0)).toBe(true)
+  })
+  it('rejects infinite inputs instead of returning NaN%', () => {
+    expect(conversionRate(Infinity, Infinity)).toEqual({ ok: false, error: 'Enter valid numbers for conversions and visits.' })
+    expect(conversionRate(1, Number('1e400'))).toEqual({ ok: false, error: 'Enter valid numbers for conversions and visits.' })
+  })
   it('revenue and revenue per visitor', () => expect(revenue(25, 500, 40)).toEqual({ revenue: 1000, perVisitor: 2 }))
   it('formats money per currency', () => {
     expect(formatMoney(1000, 'USD')).toBe('$1,000.00')

@@ -6,6 +6,7 @@ import Footer from '@/components/Footer'
 import JsonLd from '@/components/JsonLd'
 import ConvertWidget from '@/components/convert/ConvertWidget'
 import ConvertImage from '@/components/convert/ConvertImage'
+import { OG_IMAGES } from '@/lib/og'
 import {
   PAIRS,
   getPair,
@@ -62,7 +63,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     alternates: { canonical: path },
     // Commodity unit pairs stay reachable but out of the index (see isIndexedPair).
     robots: isIndexedPair(pair) ? undefined : { index: false, follow: true },
-    openGraph: { type: 'website', title: `${title} — dauntexlabs`, description: desc, url: path },
+    openGraph: { type: 'website', title: `${title} — dauntexlabs`, description: desc, url: path, images: OG_IMAGES },
   }
 }
 

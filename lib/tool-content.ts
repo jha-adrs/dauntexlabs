@@ -21,6 +21,7 @@ import metadataRemover from './tool-content/metadata-remover'
 import morseCode from './tool-content/morse-code'
 import pdfMetadataRemover from './tool-content/pdf-metadata-remover'
 import photoDateStamp from './tool-content/photo-date-stamp'
+import examPhotoResizer from './tool-content/exam-photo-resizer'
 import randomNumberGenerator from './tool-content/random-number-generator'
 import sqlToCsv from './tool-content/sql-to-csv'
 import trueAirspeedCalculator from './tool-content/true-airspeed-calculator'
@@ -99,6 +100,7 @@ export const TOOL_CONTENT: Record<string, ToolContent> = {
   'morse-code': morseCode,
   'pdf-metadata-remover': pdfMetadataRemover,
   'photo-date-stamp': photoDateStamp,
+  'exam-photo-resizer': examPhotoResizer,
   'random-number-generator': randomNumberGenerator,
   'sql-to-csv': sqlToCsv,
   'true-airspeed-calculator': trueAirspeedCalculator,

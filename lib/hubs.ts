@@ -21,7 +21,7 @@ export const HUBS: Hub[] = [
       'Free browser tools for Indian paperwork and languages: GSTIN and Aadhaar checks, UPI QR codes, amounts in words in lakh and crore, and Kruti Dev to Unicode.',
     intro: [
       'Everyday work in India comes with its own formats. Invoices need the amount written in words using lakh and crore. Government offices still share documents typed in legacy Hindi fonts such as Kruti Dev and Chanakya. Shops collect payments through UPI QR codes. Businesses quote GST numbers that should be checked before an invoice goes out.',
-      'This page collects the tools on dauntexlabs built for these jobs. You can convert legacy Hindi and Marathi text to Unicode so it can be searched and pasted anywhere. You can type Hindi on an English keyboard using the Remington (Gail) or InScript layout. You can make a free UPI payment QR code with your own colours and logo. You can check that a GSTIN or Aadhaar number has the right format and check digit, mask an Aadhaar card photo before sharing it, and add a name and date strip to an exam photo.',
+      'This page collects the tools on dauntexlabs built for these jobs. You can convert legacy Hindi and Marathi text to Unicode so it can be searched and pasted anywhere. You can type Hindi on an English keyboard using the Remington (Gail) or InScript layout. You can make a free UPI payment QR code with your own colours and logo. You can check that a GSTIN or Aadhaar number has the right format and check digit, mask an Aadhaar card photo before sharing it, add a name and date strip to an exam photo, and resize an exam photo or signature to the exact pixels and KB range a form asks for.',
       'Every tool is free, needs no sign-up and is designed to run in your browser, so the numbers and documents you work with are processed on your device. The format checkers only confirm that a number is well formed. They cannot tell you whether it was issued or is still active, so use the official portals for that.',
     ],
     faq: [
@@ -40,6 +40,10 @@ export const HUBS: Hub[] = [
       {
         q: 'Do I need to install anything?',
         a: 'No. Every tool runs in a modern web browser on a phone or computer. Nothing needs to be installed and there is no account to create.',
+      },
+      {
+        q: 'Which exam photo and signature sizes are covered?',
+        a: 'IBPS, SBI, SSC, RRB, UPSC, NEET, JEE Main, CUET, CTET and TNPSC, plus PAN, passport and Indian visa photos, each checked against the official notice. Always confirm on the current notice before you submit.',
       },
     ],
   },

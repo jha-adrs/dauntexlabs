@@ -912,6 +912,13 @@ export const tools: Tool[] = [
     keywords: ['photo with name and date', 'add name and date on photo', 'exam photo with name and date', 'photo signature joiner', 'ssc photo resize', 'photo resize 200x230', 'signature resize 140x60', 'name and date on photo online'],
   },
   {
+    slug: 'exam-photo-resizer',
+    name: 'Exam Photo & Signature Resizer',
+    category: 'India',
+    blurb: 'Resize a photo or signature to the exact pixels and KB range an exam form asks for: IBPS, SBI, SSC, UPSC, NEET and more. Runs in your browser.',
+    keywords: ['photo resizer in kb', 'resize image to 20kb', 'exam photo resizer', 'signature resize 10 to 20 kb', 'ibps photo size', 'ssc signature size', 'neet photo size', 'increase image size in kb', 'pan card photo resize'],
+  },
+  {
     slug: 'vcf-to-csv',
     name: 'VCF to CSV Converter',
     category: 'Data Tools',

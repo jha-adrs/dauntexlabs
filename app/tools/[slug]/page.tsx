@@ -11,6 +11,7 @@ import JsonLd from '@/components/JsonLd'
 import { tools, type Category } from '@/lib/tools'
 import { PAIRS } from '@/lib/conversions'
 import { categoryHref } from '@/lib/hub-links'
+import { OG_IMAGES } from '@/lib/og'
 
 // Tools that have a companion family of /convert long-tail pages.
 const CONVERT_PARENT: Record<string, 'unit' | 'base' | 'image'> = {
@@ -70,6 +71,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       title: `${tool.name} — dauntexlabs`,
       description: tool.blurb,
       url: path,
+      images: OG_IMAGES,
     },
   }
 }

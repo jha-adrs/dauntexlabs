@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Bricolage_Grotesque, Instrument_Sans, IBM_Plex_Mono } from 'next/font/google'
 import ConsentBanner from '@/components/ConsentBanner'
 import Analytics from '@/components/Analytics'
+import { OG_IMAGES, OG_IMAGE } from '@/lib/og'
 import './globals.css'
 
 const SITE = 'https://dauntexlabs.com'
@@ -63,12 +64,14 @@ export const metadata: Metadata = {
     description:
       '100+ free tools designed to run in your browser — for developers, marketers, students and everyday tasks. No sign-up.',
     url: SITE,
+    images: OG_IMAGES,
   },
   twitter: {
     card: 'summary_large_image',
     title: 'dauntexlabs — 100+ free, on-device tools',
     description:
       '100+ free tools designed to run in your browser. No sign-up.',
+    images: [OG_IMAGE.url],
   },
   robots: { index: true, follow: true },
 }

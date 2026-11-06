@@ -328,6 +328,68 @@ export function tableRows(pair: Pair): { in: string; out: string }[] {
   return []
 }
 
+/* ---- worked examples ----------------------------------------------- */
+// Values people actually type for a source unit (seen in GSC, e.g.
+// "1.49 billion in million", "128 oz in gallons", "100 nautical miles in km").
+// Rendered as sentences on indexed pages (plus Volume, which GSC shows ranking).
+// Non-number-scale values avoid 1 so the plural unit label always reads right.
+const WORKED_VALUES: Record<string, number[]> = {
+  'Number scale:thousand': [500, 1500, 10_000, 50_000],
+  'Number scale:lakh': [1, 2.5, 10, 50, 100],
+  'Number scale:million': [1, 1.5, 10, 100, 500],
+  'Number scale:crore': [1, 1.5, 10, 100],
+  'Number scale:billion': [1, 1.49, 2.5, 10],
+  'Length:nmi': [10, 100, 500, 1000],
+  'Length:km': [100, 500, 1000],
+  'Length:mi': [100, 500, 1000],
+  'Length:yd': [1000, 2000, 5000],
+  'Speed:knot': [10, 30, 100, 250],
+  'Speed:kmh': [100, 500, 900],
+  'Speed:mph': [100, 200, 500],
+  'Volume:floz': [8, 16, 32, 64, 128],
+  'Volume:gal': [0.5, 2, 5, 10],
+}
+const WORKED_EXTRA_CATEGORIES = new Set(['Volume'])
+// Symbols that are plain words read wrong unpluralised ("= 160 cup").
+const WORD_SYMBOL_PLURALS: Record<string, string> = { cup: 'cups' }
+
+// Sentences are read, not computed with: big values get digit grouping, never e-notation.
+function workedNum(n: number): string {
+  return Math.abs(n) >= 1e7 ? Math.round(n).toLocaleString('en-US') : formatNum(n)
+}
+
+// Number-scale words read singular in queries ("1.49 billion in million").
+function queryWord(pair: Pair, u: UnitDef): string {
+  const w = u.label.toLowerCase()
+  return pair.category === 'Number scale' ? w.replace(/s$/, '') : w
+}
+
+/** Section heading phrased the way the query is typed: "Billion in million: common values". */
+export function workedHeading(pair: Pair): string {
+  const w = `${queryWord(pair, unitDef(pair.fromKey).unit)} in ${queryWord(pair, unitDef(pair.toKey).unit)}`
+  return `${w[0].toUpperCase()}${w.slice(1)}: common values`
+}
+
+export function workedExamples(pair: Pair): { in: string; out: string; text: string }[] {
+  if (pair.family !== 'unit') return []
+  if (!isIndexedPair(pair) && !WORKED_EXTRA_CATEGORIES.has(pair.category)) return []
+  const values = WORKED_VALUES[pair.fromKey]
+  if (!values) return []
+  const { unit: from } = unitDef(pair.fromKey)
+  const { unit: to } = unitDef(pair.toKey)
+  const scale = pair.category === 'Number scale'
+  const word = (u: UnitDef) => queryWord(pair, u)
+  return values.slice(0, 6).map((v) => {
+    const out = workedNum(convertUnit(pair, v))
+    const unit = scale ? word(to) : out !== '1' && WORD_SYMBOL_PLURALS[to.symbol] ? WORD_SYMBOL_PLURALS[to.symbol] : to.symbol
+    return {
+      in: String(v),
+      out,
+      text: `${v} ${word(from)} in ${word(to)} = ${out} ${unit}`,
+    }
+  })
+}
+
 /* ---- indexing ------------------------------------------------------ */
 // Commodity unit pairs ("km to miles") are answered in-SERP by Google and
 // earned ~0 clicks, so they are noindexed and left out of the sitemap.

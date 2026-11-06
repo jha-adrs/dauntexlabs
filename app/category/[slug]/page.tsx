@@ -8,6 +8,7 @@ import ToolCard from '@/components/ToolCard'
 import JsonLd from '@/components/JsonLd'
 import { HUBS, hubHref } from '@/lib/hubs'
 import { tools } from '@/lib/tools'
+import { OG_IMAGES } from '@/lib/og'
 
 const SITE = 'https://dauntexlabs.com'
 
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     title: hub.title,
     description: hub.description,
     alternates: { canonical: hubHref(hub) },
-    openGraph: { type: 'website', title: `${hub.title} — dauntexlabs`, description: hub.description, url: hubHref(hub) },
+    openGraph: { type: 'website', title: `${hub.title} — dauntexlabs`, description: hub.description, url: hubHref(hub), images: OG_IMAGES },
   }
 }
 

@@ -6,6 +6,7 @@ import Footer from '@/components/Footer'
 import JsonLd from '@/components/JsonLd'
 import ConvertWidget from '@/components/convert/ConvertWidget'
 import ConvertImage from '@/components/convert/ConvertImage'
+import { OG_IMAGES } from '@/lib/og'
 import {
   PAIRS,
   getPair,
@@ -17,6 +18,8 @@ import {
   imageMime,
   type Pair,
   isIndexedPair,
+  workedExamples,
+  workedHeading,
 } from '@/lib/conversions'
 
 const SITE = 'https://dauntexlabs.com'
@@ -60,7 +63,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     alternates: { canonical: path },
     // Commodity unit pairs stay reachable but out of the index (see isIndexedPair).
     robots: isIndexedPair(pair) ? undefined : { index: false, follow: true },
-    openGraph: { type: 'website', title: `${title} — dauntexlabs`, description: desc, url: path },
+    openGraph: { type: 'website', title: `${title} — dauntexlabs`, description: desc, url: path, images: OG_IMAGES },
   }
 }
 
@@ -73,6 +76,7 @@ export default async function ConvertPage({ params }: Params) {
   const rev = reverseSlug(pair)
   const parent = PARENT[pair.family]
   const rows = tableRows(pair)
+  const worked = workedExamples(pair)
   const siblings = PAIRS.filter(
     (p) => p.family === pair.family && p.category === pair.category && p.slug !== pair.slug && p.slug !== rev,
   ).slice(0, 6)
@@ -194,6 +198,19 @@ export default async function ConvertPage({ params }: Params) {
                 ))}
               </div>
             </section>
+
+            {worked.length > 0 && (
+              <section className="block">
+                <div className="sec-head">
+                  <h2>{workedHeading(pair)}</h2>
+                </div>
+                <div className="prose">
+                  {worked.map((w) => (
+                    <p key={w.in}>{w.text}</p>
+                  ))}
+                </div>
+              </section>
+            )}
           </>
         )}
 

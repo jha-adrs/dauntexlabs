@@ -1,10 +1,16 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Field, Select, Segmented, Toolbar, Notice, CopyButton } from '@/components/ui/kit'
-import { TextInput } from '@/components/ui/kit'
-
-const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+import { Button, Field, Select, Segmented, TextArea, TextInput, Toolbar, Notice, CopyButton } from '@/components/ui/kit'
+import {
+  addBusinessDays,
+  addCalendar,
+  describeDate,
+  parseHolidays,
+  type Result,
+  type Unit,
+  type Weekend,
+} from '@/lib/date-calc'
 
 const UNIT_OPTIONS = [
   { value: 'days', label: 'Days' },
@@ -18,108 +24,109 @@ const OP_OPTIONS = [
   { value: 'subtract', label: 'Subtract' },
 ]
 
-function addDate(
-  startStr: string,
-  op: 'add' | 'subtract',
-  amount: number,
-  unit: string,
-): { result?: { dateStr: string; formatted: string; weekday: string }; error?: string } {
-  if (!startStr) return { error: 'Enter a start date.' }
-  if (isNaN(amount) || amount < 0) return { error: 'Enter a valid non-negative amount.' }
+const MODE_OPTIONS = [
+  { value: 'calendar', label: 'Calendar' },
+  { value: 'business', label: 'Business days' },
+]
 
-  const start = new Date(startStr + 'T00:00:00')
-  if (isNaN(start.getTime())) return { error: 'Invalid start date.' }
+const WEEKEND_OPTIONS = [
+  { value: 'sat-sun', label: 'Saturday and Sunday' },
+  { value: 'fri-sat', label: 'Friday and Saturday' },
+  { value: 'sun', label: 'Sunday only' },
+]
 
-  const sign = op === 'add' ? 1 : -1
-  let result: Date
-
-  if (unit === 'days') {
-    result = new Date(start)
-    result.setDate(result.getDate() + sign * amount)
-  } else if (unit === 'weeks') {
-    result = new Date(start)
-    result.setDate(result.getDate() + sign * amount * 7)
-  } else if (unit === 'months') {
-    // End-of-month clamp: e.g. Jan 31 + 1 month → Feb 28/29
-    // Use UTC-based arithmetic to avoid DST surprises
-    const rawMonth = start.getMonth() + sign * amount
-    const targetYear = start.getFullYear() + Math.floor(rawMonth / 12)
-    const targetMonth = ((rawMonth % 12) + 12) % 12
-    // Days in target month
-    const daysInTarget = new Date(targetYear, targetMonth + 1, 0).getDate()
-    const targetDay = Math.min(start.getDate(), daysInTarget)
-    result = new Date(targetYear, targetMonth, targetDay)
-  } else {
-    // years — build from scratch to avoid JS month overflow on Feb 29
-    const targetYear = start.getFullYear() + sign * amount
-    const targetMonth = start.getMonth()
-    const daysInTarget = new Date(targetYear, targetMonth + 1, 0).getDate()
-    const targetDay = Math.min(start.getDate(), daysInTarget)
-    result = new Date(targetYear, targetMonth, targetDay)
-  }
-
-  const y = result.getFullYear()
-  const m = String(result.getMonth() + 1).padStart(2, '0')
-  const d = String(result.getDate()).padStart(2, '0')
-  const dateStr = `${y}-${m}-${d}`
-  const formatted = result.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-  const weekday = WEEKDAYS[result.getDay()]
-
-  return { result: { dateStr, formatted, weekday } }
+/** Today's date on the user's own calendar (not UTC), as YYYY-MM-DD. */
+function localToday(): string {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
 export default function DateCalculator() {
   const [start, setStart] = useState('')
   const [op, setOp] = useState<'add' | 'subtract'>('add')
+  const [mode, setMode] = useState<'calendar' | 'business'>('calendar')
   const [amount, setAmount] = useState('1')
-  const [unit, setUnit] = useState('days')
+  const [unit, setUnit] = useState<Unit>('days')
+  const [businessDays, setBusinessDays] = useState('')
+  const [weekend, setWeekend] = useState<Weekend>('sat-sun')
+  const [holidayText, setHolidayText] = useState('')
 
-  const numAmount = parseInt(amount, 10)
+  const sign = op === 'add' ? 1 : -1
+  const holidays = useMemo(() => parseHolidays(holidayText), [holidayText])
 
-  const { result, error } = useMemo(
-    () => addDate(start, op, numAmount, unit),
-    [start, op, numAmount, unit],
-  )
+  const outcome = useMemo<Result<string> | null>(() => {
+    if (mode === 'calendar') return addCalendar(start, parseInt(amount, 10), unit, sign)
+    if (start && businessDays.trim() === '') return null
+    return addBusinessDays(start, Number(businessDays), sign, weekend, new Set(holidays.dates))
+  }, [mode, start, amount, unit, sign, businessDays, weekend, holidays])
 
+  const result = outcome?.ok ? { dateStr: outcome.value, ...describeDate(outcome.value) } : null
+  const error = outcome && !outcome.ok ? outcome.error : null
   const copyText = result ? `${result.dateStr} (${result.weekday})` : ''
+  const holidayCount = holidays.dates.length
 
   return (
     <>
       <Toolbar>
-        <Segmented
-          value={op}
-          onChange={(v) => setOp(v as 'add' | 'subtract')}
-          options={OP_OPTIONS}
-        />
+        <Segmented value={op} onChange={(v) => setOp(v as 'add' | 'subtract')} options={OP_OPTIONS} />
+        <Segmented value={mode} onChange={(v) => setMode(v as 'calendar' | 'business')} options={MODE_OPTIONS} />
       </Toolbar>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginTop: '1rem' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '1rem', alignItems: 'end' }}>
-          <Field label="Start date">
-            <input
-              type="date"
-              className="inp"
-              value={start}
-              onChange={(e) => setStart(e.target.value)}
-              aria-label="Start date"
-            />
-          </Field>
-          <Field label="Amount">
-            <TextInput
-              type="number"
-              value={amount}
-              onChange={setAmount}
-              placeholder="1"
-            />
-          </Field>
-          <Field label="Unit">
-            <Select value={unit} onChange={setUnit} options={UNIT_OPTIONS} />
-          </Field>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'end' }}>
+            <Field label="Start date">
+              <input
+                type="date"
+                className="inp"
+                value={start}
+                onChange={(e) => setStart(e.target.value)}
+                aria-label="Start date"
+              />
+            </Field>
+            <Button onClick={() => setStart(localToday())}>Today</Button>
+          </div>
+          {mode === 'calendar' ? (
+            <>
+              <Field label="Amount">
+                <TextInput type="number" value={amount} onChange={setAmount} placeholder="1" />
+              </Field>
+              <Field label="Unit">
+                <Select value={unit} onChange={(v) => setUnit(v as Unit)} options={UNIT_OPTIONS} />
+              </Field>
+            </>
+          ) : (
+            <>
+              <Field label="Business days">
+                <TextInput type="number" value={businessDays} onChange={setBusinessDays} placeholder="e.g. 10" />
+              </Field>
+              <Field label="Weekend">
+                <Select value={weekend} onChange={(v) => setWeekend(v as Weekend)} options={WEEKEND_OPTIONS} />
+              </Field>
+            </>
+          )}
         </div>
+
+        {mode === 'business' && (
+          <div>
+            <Field label="Holidays (optional)">
+              <TextArea
+                value={holidayText}
+                onChange={setHolidayText}
+                rows={4}
+                placeholder="One date per line, e.g. 2026-01-26 Republic Day"
+              />
+            </Field>
+            {holidayText.trim() && (
+              <div style={{ color: 'var(--mute)', fontSize: '0.85rem', marginTop: '0.4rem' }}>
+                <div>{`${holidayCount} ${holidayCount === 1 ? 'holiday' : 'holidays'} read`}</div>
+                {holidays.invalid.length > 0 && (
+                  <div style={{ color: 'var(--warn)' }}>{`Could not read: ${holidays.invalid.join(', ')}`}</div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {error && <Notice kind="error">{error}</Notice>}
 
@@ -134,44 +141,18 @@ export default function DateCalculator() {
             <div className="panel-body">
               <div
                 style={{
-                  background: 'var(--ink-800)',
+                  background: 'var(--surface-soft)',
                   border: '1px solid var(--line)',
-                  borderRadius: '0.375rem',
+                  borderRadius: '8px',
                   padding: '1.5rem',
                   textAlign: 'center',
                 }}
               >
-                <div
-                  style={{
-                    fontSize: '2rem',
-                    fontFamily: 'var(--ff-mono)',
-                    color: 'var(--acid)',
-                    lineHeight: 1.2,
-                  }}
-                >
+                <div style={{ fontSize: '2rem', fontFamily: 'var(--font-mono)', color: 'var(--accent)', lineHeight: 1.2 }}>
                   {result.dateStr}
                 </div>
-                <div
-                  style={{
-                    fontSize: '1rem',
-                    color: 'var(--bone)',
-                    marginTop: '0.4rem',
-                  }}
-                >
-                  {result.formatted}
-                </div>
-                <div
-                  style={{
-                    fontSize: '0.75rem',
-                    color: 'var(--ink-400)',
-                    fontFamily: 'var(--ff-mono)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
-                    marginTop: '0.5rem',
-                  }}
-                >
-                  {result.weekday}
-                </div>
+                <div style={{ fontSize: '1rem', color: 'var(--fg)', marginTop: '0.4rem' }}>{result.long}</div>
+                <div style={{ fontSize: '0.875rem', color: 'var(--mute)', marginTop: '0.5rem' }}>{result.weekday}</div>
               </div>
             </div>
           </section>

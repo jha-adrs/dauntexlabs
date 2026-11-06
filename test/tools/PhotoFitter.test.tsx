@@ -134,6 +134,54 @@ describe('PhotoFitter', () => {
     expect(screen.queryByRole('button', { name: 'Download photo.jpg' })).toBeNull()
   })
 
+  it('rejects absurd KB values before making anything', async () => {
+    render(<PhotoFitter preset="resize-image-to-20kb" />)
+    await load('Photo')
+    const kb = (label: string) => screen.getByText(label).parentElement!.querySelector('input')!
+    fireEvent.change(kb('Max KB'), { target: { value: '600000' } })
+    fireEvent.change(kb('Min KB'), { target: { value: '500000' } })
+    expect(screen.getByText(/at most 5000 KB/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Make file' })).toBeDisabled()
+  })
+
+  it('accepts a file with an empty MIME type (Android / WhatsApp pickers)', async () => {
+    render(<PhotoFitter preset="resize-image-to-20kb" />)
+    await load('Photo', new File([new Uint8Array([0xff, 0xd8, 0xff])], 'IMG-20261106-WA0001.jpg', { type: '' }))
+    expect(screen.queryByText(/Please choose an image file/)).toBeNull()
+  })
+
+  it('downscales a huge photo once on load to at most 2000 px', async () => {
+    const Real = globalThis.Image
+    globalThis.Image = class {
+      onload: (() => void) | null = null
+      onerror: (() => void) | null = null
+      naturalWidth = 8000
+      naturalHeight = 6000
+      set src(_v: string) { setTimeout(() => this.onload?.(), 0) }
+    } as unknown as typeof Image
+    const sizes: string[] = []
+    const getContext = HTMLCanvasElement.prototype.getContext
+    HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, ...a: unknown[]) {
+      sizes.push(`${this.width}x${this.height}`)
+      return (getContext as (...x: unknown[]) => unknown).apply(this, a)
+    } as typeof HTMLCanvasElement.prototype.getContext
+    try {
+      render(<PhotoFitter preset="resize-image-to-20kb" />)
+      await load('Photo')
+      expect(sizes).toContain('2000x1500')
+      expect(screen.getByText('8000×6000')).toBeInTheDocument()
+    } finally {
+      globalThis.Image = Real
+      HTMLCanvasElement.prototype.getContext = getContext
+    }
+  })
+
+  it('warns that strong whitening can erase faint signatures', async () => {
+    render(<PhotoFitter preset="rrb-signature-size" />)
+    await load('Signature')
+    expect(within(section('Signature')).getByText(/Faint signatures: lower the strength/)).toBeInTheDocument()
+  })
+
   it('revokes the image URL when the file is removed', async () => {
     const revoke = vi.spyOn(URL, 'revokeObjectURL')
     render(<PhotoFitter preset="resize-image-to-20kb" />)

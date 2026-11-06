@@ -9,20 +9,22 @@ import { getPreset, uploadFileName, uploadLabel, type Upload } from '@/lib/photo
 import FitSection from './FitSection'
 
 const DEFAULT_PRESET = 'resize-image-to-50kb'
+const MAX_KB = 5000
+const MAX_PX = 2000 // FitSection keeps the decoded source at ≤ 2000 px
 
 /** Parse the size-page inputs; null when invalid. Width and height are both set or both blank. */
 function parseOverrides(w: string, h: string, min: string, max: string): Pick<Upload, 'px' | 'kb'> | null {
   const num = (s: string) => (s.trim() === '' ? NaN : Number(s))
   const mn = num(min)
   const mx = num(max)
-  if (!Number.isFinite(mn) || !Number.isFinite(mx) || mn < 0 || mn >= mx) return null
+  if (!Number.isFinite(mn) || !Number.isFinite(mx) || mn < 0 || mn >= mx || mx > MAX_KB) return null
   const bw = w.trim() === ''
   const bh = h.trim() === ''
   if (bw && bh) return { kb: [mn, mx] }
   if (bw !== bh) return null
   const pw = num(w)
   const ph = num(h)
-  const ok = (n: number) => Number.isInteger(n) && n >= 20 && n <= 4000
+  const ok = (n: number) => Number.isInteger(n) && n >= 20 && n <= MAX_PX
   if (!ok(pw) || !ok(ph)) return null
   return { kb: [mn, mx], px: [pw, ph] }
 }
@@ -66,7 +68,7 @@ export default function PhotoFitter({ preset = DEFAULT_PRESET }: { preset?: stri
             </Field>
           </div>
           {invalid && (
-            <Notice kind="error">Check the sizes: minimum KB must be below maximum KB, and pixels 20–4000.</Notice>
+            <Notice kind="error">{`Check the sizes: minimum KB must be below maximum KB (at most ${MAX_KB} KB), and pixels 20–${MAX_PX}.`}</Notice>
           )}
         </>
       )}

@@ -10,11 +10,28 @@ import { byteBounds, checkOutput, cropRect, fitToBounds, targetSize, whiten, DEF
 import { fitText, formatDateIN, layoutStamp } from '@/lib/stamp'
 import type { Upload } from '@/lib/photo-presets'
 
-type Loaded = { name: string; url: string; el: HTMLImageElement; w: number; h: number }
+/** el is the decoded image, or a ≤ 2000 px canvas copy of it; w × h are el's size, ow × oh the original. */
+type Loaded = { name: string; url: string; el: CanvasImageSource; w: number; h: number; ow: number; oh: number }
 type Result = { bytes: Uint8Array; url: string; width: number; height: number; padded: boolean; scaled: boolean; checks: Check[] }
 
 const FONT = 'sans-serif'
 const DEFAULT_STRIP_PCT = 18
+/** Long side the decoded source is reduced to once, so slider repaints stay cheap on 48 MP photos. */
+const MAX_SOURCE = 2000
+
+/** Downscale a decoded image once to ≤ MAX_SOURCE px; returns the image itself when small enough. */
+function shrink(el: HTMLImageElement): { el: CanvasImageSource; w: number; h: number } {
+  const [w, h] = targetSize({}, el.naturalWidth, el.naturalHeight, MAX_SOURCE)
+  if (w === el.naturalWidth && h === el.naturalHeight) return { el, w, h }
+  const c = document.createElement('canvas')
+  c.width = w
+  c.height = h
+  const ctx = c.getContext('2d')
+  if (!ctx) return { el, w: el.naturalWidth, h: el.naturalHeight }
+  ctx.imageSmoothingQuality = 'high'
+  ctx.drawImage(el, 0, 0, w, h)
+  return { el: c, w, h }
+}
 
 function todayISO(): string {
   const d = new Date()
@@ -88,7 +105,8 @@ export default function FitSection({
     const f = files[0]
     if (!f) return
     setError('')
-    if (!f.type.startsWith('image/')) {
+    // Some pickers (Android, WhatsApp) give no MIME type; let the decoder decide.
+    if (f.type && !f.type.startsWith('image/')) {
       setError('Please choose an image file (JPG, PNG or WebP).')
       return
     }
@@ -96,9 +114,10 @@ export default function FitSection({
     urls.current.add(url)
     const el = new Image()
     el.onload = () => {
+      const small = shrink(el)
       setImg((prev) => {
         if (prev) drop(prev.url)
-        return { name: f.name, url, el, w: el.naturalWidth, h: el.naturalHeight }
+        return { name: f.name, url, ...small, ow: el.naturalWidth, oh: el.naturalHeight }
       })
       setZoom(1)
       setOx(0)
@@ -231,7 +250,7 @@ export default function FitSection({
         />
       ) : (
         <>
-          <FilePreview name={img.name} meta={`${img.w}×${img.h}`} thumbUrl={img.url} onRemove={remove} />
+          <FilePreview name={img.name} meta={`${img.ow}×${img.oh}`} thumbUrl={img.url} onRemove={remove} />
 
           <div style={{ marginTop: 12 }}>
             <span className="field-label">Output preview{size ? ` — ${size[0]} × ${size[1]} px` : ''}</span>
@@ -266,7 +285,7 @@ export default function FitSection({
           <div className="toolbar" style={{ marginTop: 8 }}>
             <Toggle checked={whiteOn} onChange={setWhiteOn} label="Whiten background" />
             {whiteOn && (
-              <Field label="Whitening strength">
+              <Field label="Whitening strength" hint="Faint signatures: lower the strength.">
                 <input type="range" min={0} max={100} value={strength} onChange={(e) => setStrength(+e.target.value)} style={rangeStyle} />
               </Field>
             )}

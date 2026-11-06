@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest'
+import { targetSize, checkOutput, setJfifDensity } from '@/lib/photo-fit'
+import { fakeJpeg } from './fake-jpeg'
 import { PHOTO_PRESETS, getPreset, cmToPx, uploadLabel, uploadFileName, specRow, type Upload } from '@/lib/photo-presets'
 
 const ABSOLUTE = /never (upload|leave|sent)|nothing (is |ever )?(uploaded|leaves)|no uploads?\b|no telemetry|ever leaves|runs entirely/i
@@ -23,7 +25,7 @@ const EXPECT: Record<string, Partial<Upload>[]> = {
   'rrb-signature-size': [{ type: 'signature', px: [276, 157], kb: [30, 49], dpi: 200, whiteBg: true }],
   'upsc-photo-signature-size': [
     { type: 'photo', kb: [20, 200], whiteBg: true },
-    { type: 'signature', width: 450, kb: [20, 100] },
+    { type: 'signature', px: [450, 500], kb: [20, 100] },
   ],
   'neet-photo-signature-size': [
     { type: 'photo', kb: [10, 200], whiteBg: true },
@@ -84,13 +86,30 @@ describe('PHOTO_PRESETS', () => {
     const p = getPreset('passport-photo-size')!
     expect(p.uploads[0].whiteBg).toBeFalsy()
     const text = JSON.stringify(p)
-    expect(text).toMatch(/no file-size limit/i)
+    expect(text).toMatch(/does not state a file-size limit/i)
+    expect(text).not.toMatch(/sets no file-size limit/i)
     expect(text).toMatch(/unaltered by (computer )?software/i)
   })
   it('SSC page carries the signature-to-20kb wording and the 4 × 2 cm annexure note', () => {
     const p = getPreset('ssc-signature-size')!
     expect(p.keywords).toEqual(expect.arrayContaining(['resize signature to 20kb', 'signature resize 10 to 20 kb', 'signature resize 6cm x 2cm']))
     expect(p.uploads[0].note).toMatch(/4\.0 × 2\.0 cm/)
+  })
+  it('UPSC three-signature sheet stays inside 350–500 px both ways, even from a portrait photo', () => {
+    const sig = getPreset('upsc-photo-signature-size')!.uploads[1]
+    const [w, h] = targetSize(sig, 3024, 4032)
+    for (const n of [w, h]) {
+      expect(n).toBeGreaterThanOrEqual(350)
+      expect(n).toBeLessThanOrEqual(500)
+    }
+    const bytes = setJfifDensity(fakeJpeg(60000), 200)
+    expect(checkOutput(bytes, 450, 600, sig).find((c) => c.key === 'px')!.ok).toBe(false)
+    expect(JSON.stringify(getPreset('upsc-photo-signature-size'))).not.toMatch(/350–500 px wide/)
+  })
+  it('hedges what the notices say instead of claiming what portals enforce', () => {
+    const all = JSON.stringify(PHOTO_PRESETS)
+    expect(all).not.toMatch(/the portal enforces/i)
+    expect(all).not.toMatch(/which the portal checks/i)
   })
   it('explains live photo capture on the SSC and RRB pages', () => {
     for (const s of ['ssc-signature-size', 'rrb-signature-size']) expect(JSON.stringify(getPreset(s))).toMatch(/live/i)

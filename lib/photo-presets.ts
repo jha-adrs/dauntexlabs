@@ -60,7 +60,7 @@ export const PHOTO_PRESETS: PhotoPreset[] = [
     keywords: ['resize image to 20kb', 'compress image to 20kb', 'photo resizer in kb', 'reduce photo size to 20kb', 'image 20kb'],
     intro: [
       'Many government and bank forms cap a photo at 20 KB. A modern phone photo is often 3–5 MB at 4000 × 3000 px, so getting it that small takes two things at once: fewer pixels and stronger JPEG compression.',
-      'Worked example: a 3.2 MB, 4032 × 3024 phone photo is first capped at 1000 px wide. At 1000 × 750 even the lowest quality the tool will use (30%) is usually well above 20 KB, so it steps the size down by 15% at a time — typically ending somewhere near 450–550 px wide — and keeps the highest quality that lands near 15 KB, the middle of the 10–20 KB range. If your form also fixes the pixels, type them in and the tool only searches quality.',
+      'Worked example: a 3.2 MB, 4032 × 3024 phone photo is first capped at 1000 px wide. At 1000 × 750 even the lowest quality the tool will use (30%) is usually well above 20 KB, so it steps the size down by 15% at a time — typically ending somewhere near 450–550 px wide — and keeps the highest quality that lands around 18 KB, a little under the 20 KB ceiling. If your form also fixes the pixels, type them in and the tool only searches quality.',
     ],
     uploads: [{ type: 'photo', kb: [10, 20] }],
     faq: [
@@ -79,11 +79,11 @@ export const PHOTO_PRESETS: PhotoPreset[] = [
     keywords: ['resize image to 50kb', 'compress image to 50kb', 'reduce image size to 50kb', 'jpg 50kb', 'photo size 50kb'],
     intro: [
       'A 50 KB ceiling is the most common limit on exam and job forms for photos, thumb impressions and small scanned documents. At 50 KB a face photo can stay sharp, so the aim is to use the space well rather than crush the file.',
-      'Worked example: a scanned 1240 × 1754 px page (an A4 scan at 150 DPI) of about 600 KB is capped at 1000 px on its long side, giving 707 × 1000 px. Text on white compresses well, so a quality around 50–70% usually lands near 40 KB — the middle of the 30–50 KB range — without any scaling. A busy colour photo at the same size may need lower quality or a step down in pixels; the result line shows exactly what happened.',
+      'Worked example: a scanned 1240 × 1754 px page (an A4 scan at 150 DPI) of about 600 KB is capped at 1000 px on its long side, giving 707 × 1000 px. Text on white compresses well, so a fairly high quality usually lands around 45 KB, a little under the 50 KB ceiling, without any scaling. A busy colour photo at the same size may need lower quality or a step down in pixels; the result line shows exactly what happened.',
     ],
     uploads: [{ type: 'photo', kb: [30, 50] }],
     faq: [
-      { q: 'Why aim for 40 KB instead of exactly 50 KB?', a: 'Landing in the middle of the range leaves a margin if the portal counts KB as 1024 bytes or adds a few bytes of its own. The result still shows the exact size.' },
+      { q: 'Why does the file land a little under 50 KB?', a: 'When the top-quality file is too big, the tool aims about 85% of the way up the range. That keeps quality high while leaving a small margin under the ceiling. The result shows the exact size.' },
       { q: 'My form says "maximum 50 KB" with no minimum. Is 30 KB fine?', a: 'Yes. Set Min KB to 0 if you want the tool to go as small as it likes; the default 30 KB floor just keeps quality reasonable.' },
       { q: 'Can I compress a PNG or screenshot?', a: 'Yes. Any image the browser can open is redrawn and saved as a JPG, which is what most forms ask for. Transparent areas become white.' },
       PRIVACY_FAQ,
@@ -98,7 +98,7 @@ export const PHOTO_PRESETS: PhotoPreset[] = [
     keywords: ['resize image to 100kb', 'compress image to 100kb', 'photo compressor in kb', 'reduce photo size 100kb', 'image size 100kb'],
     intro: [
       'A 100 KB limit appears on handwritten-declaration uploads, university forms and many scholarship portals. It is generous enough that a 1000 px photo usually fits at high quality, so most of the work is choosing the right quality rather than shrinking pixels.',
-      'Worked example: a 2.4 MB portrait from a camera at 3000 × 4000 px is capped to 750 × 1000 px. At that size a quality around 75–90% typically lands near 80 KB, the middle of the 60–100 KB range, with no scaling at all. A plain-background photo might fit even at 95%, in which case the tool stops after one encode. Check the result line for the exact KB and pixels before you download.',
+      'Worked example: a 2.4 MB portrait from a camera at 3000 × 4000 px is capped to 750 × 1000 px. At that size a high quality typically lands around 90 KB, a little under the 100 KB ceiling, with no scaling at all. A plain-background photo might fit even at 95%, in which case the tool stops after one encode. Check the result line for the exact KB and pixels before you download.',
     ],
     uploads: [{ type: 'photo', kb: [60, 100] }],
     faq: [
@@ -138,7 +138,7 @@ export const PHOTO_PRESETS: PhotoPreset[] = [
     keywords: ['ibps photo size', 'ibps signature size', 'ibps photo resize', 'ibps thumb impression size', 'handwritten declaration for ibps', 'ibps po clerk photo size'],
     intro: [
       'IBPS PO, Clerk and RRB applications ask for four scanned files, each with its own pixel size and KB range, plus a live photo taken during the application. A file outside its range stops the form.',
-      'Worked example: a 3 MB phone photo becomes a 200 × 230 px JPG of about 35 KB, the middle of 20–50 KB. A signature photographed on white paper becomes 140 × 60 px at about 15 KB. The handwritten declaration — written in English, not in capitals — is photographed and saved at 800 × 400 px and 200 DPI, between 50 and 100 KB; if a short declaration compresses below 50 KB the tool pads it so it still passes.',
+      'Worked example: a 3 MB phone photo becomes a 200 × 230 px JPG at the highest quality that stays under 50 KB — often 95% at that small size. A signature photographed on white paper becomes 140 × 60 px, padded up to 10 KB if it compresses smaller. The handwritten declaration — written in English, not in capitals — is photographed and saved at 800 × 400 px and 200 DPI, between 50 and 100 KB; if a short declaration compresses below 50 KB the tool pads it so it still passes.',
     ],
     uploads: IBPS_UPLOADS(
       'Write in English, not in capitals: "I, ____ (Name of the candidate), hereby declare that all the information submitted by me in the application form is correct, true and valid. I will present the supporting documents as and when required."',
@@ -190,7 +190,7 @@ export const PHOTO_PRESETS: PhotoPreset[] = [
     keywords: ['ssc signature size', 'resize signature to 20kb', 'signature resize 10 to 20 kb', 'signature resize 6cm x 2cm', 'ssc cgl signature size', 'signature compressor 20kb'],
     intro: [
       'On the SSC one-time registration the photo is captured live by webcam or phone, and capturing a photo of an existing photo is grounds for rejection. The only image you prepare is your signature: a JPG between 10 and 20 KB.',
-      'Worked example: sign twice on plain white paper with a dark pen, photograph the better one, and drop it here. The tool crops it to 472 × 157 px — 6.0 × 2.0 cm at 200 DPI — and searches JPEG quality until it lands near 15 KB. A faint signature may compress below 10 KB; the tool then pads the file so it still clears the minimum. The same steps work for any form that asks for a signature resized to 20 KB.',
+      'Worked example: sign twice on plain white paper with a dark pen, photograph the better one, and drop it here. The tool crops it to 472 × 157 px — 6.0 × 2.0 cm at 200 DPI — and keeps the highest JPEG quality that stays under 20 KB. A faint signature may compress below 10 KB; the tool then pads the file so it still clears the minimum. The same steps work for any form that asks for a signature resized to 20 KB.',
     ],
     uploads: [
       {
@@ -206,7 +206,7 @@ export const PHOTO_PRESETS: PhotoPreset[] = [
       checked: CHECKED,
     },
     faq: [
-      { q: 'What size should the SSC signature be?', a: 'JPG, 10–20 KB, about 6.0 × 2.0 cm. The annexure of the same notice says 4.0 × 2.0 cm; the portal enforces the format and the KB range, so either width passes those checks.' },
+      { q: 'What size should the SSC signature be?', a: 'The notice asks for a JPG of 10–20 KB, about 6.0 × 2.0 cm in its body, while its annexure says 4.0 × 2.0 cm. This page uses 6.0 × 2.0 cm (472 × 157 px at 200 DPI). Confirm on the official notice before you submit.' },
       { q: 'Do I need to upload a photo for SSC?', a: 'No. The photo is captured live during registration. Do not hold up a printed photo — the notice treats that as grounds for rejection.' },
       { q: 'Can I use this to resize a signature to 20 KB for other forms?', a: 'Yes. The output is a standard 10–20 KB JPG. If your form fixes different pixels, use the 20 KB page and type them in.' },
       PRIVACY_FAQ,
@@ -250,18 +250,18 @@ export const PHOTO_PRESETS: PhotoPreset[] = [
     kind: 'exam',
     title: 'UPSC photo and signature size 2026 (three signatures)',
     description:
-      'Prepare the UPSC CSE 2026 uploads: photo 20–200 KB with the face covering at least 75%, and one image holding three signatures, 350–500 px wide and 20–100 KB.',
+      'Prepare the UPSC CSE 2026 uploads: photo 20–200 KB with the face covering at least 75%, and one image holding three signatures, 350–500 px and 20–100 KB.',
     keywords: ['upsc photo size', 'upsc signature size', 'upsc three signature', 'upsc photo resize', 'upsc cse 2026 photo size'],
     intro: [
       'UPSC’s new portal asks for an uploaded photo and also takes a live photo, which is face-matched against the upload. The signature upload is unusual: the same signature three times, one under another, in a single image.',
-      'Worked example: sign three times on one plain white sheet, photograph it, and drop it in the signature box. The tool crops it to 450 px wide — inside the 350–500 px rule — with the height following your crop, and settles around 60 KB in the 20–100 KB range. For the photo, zoom in until your face fills at least three quarters of the frame; on a white background it usually lands near 110 KB.',
+      'Worked example: sign three times on one plain white sheet, photograph it, and drop it in the signature box. The tool crops it to a 450 × 500 px frame — inside the 350–500 px rule both ways, even from a tall portrait photo — and keeps the highest quality under 100 KB. For the photo, zoom in until your face fills at least three quarters of the frame.',
     ],
     uploads: [
       { type: 'photo', kb: [20, 200], whiteBg: true, note: 'Face should cover at least 75% of the photo.' },
       {
         type: 'signature',
         label: 'Signature (three on one sheet)',
-        width: 450,
+        px: [450, 500],
         kb: [20, 100],
         note: 'Sign three times, one under another, on plain white paper and photograph the sheet. UPSC also takes a live photo at the exam centre and matches it with this one.',
       },
@@ -287,7 +287,7 @@ export const PHOTO_PRESETS: PhotoPreset[] = [
     keywords: ['neet photo size', 'neet signature size', 'neet thumb impression size', 'neet ug 2026 photo size', 'neet left hand right hand impression'],
     intro: [
       'NEET UG 2026 asks for four images: a photo, a signature and two impressions — the fingers and thumb of the left hand, and of the right hand. The postcard-size photo is a physical print you carry, not an upload, whatever older guides say.',
-      'Worked example: press all four fingers and the thumb of your left hand on white paper, photograph it, and drop it in the left-hand box; then the same for the right hand. Each keeps its proportions, is capped at 1000 px and lands near 105 KB, the middle of 10–200 KB. The photo, with your face filling about 80% and both ears visible, goes through the same search with whitening on.',
+      'Worked example: press all four fingers and the thumb of your left hand on white paper, photograph it, and drop it in the left-hand box; then the same for the right hand. Each keeps its proportions, is capped at 1000 px and saved at the highest quality that stays under 200 KB. The photo, with your face filling about 80% and both ears visible, goes through the same search with whitening on.',
     ],
     uploads: [
       { type: 'photo', kb: [10, 200], whiteBg: true, note: 'Face should cover about 80% of the photo with both ears visible.' },
@@ -316,7 +316,7 @@ export const PHOTO_PRESETS: PhotoPreset[] = [
     keywords: ['jee main photo size', 'jee main signature size', 'jee mains photo resize', 'jee main 2026 photo size', 'nta photo size'],
     intro: [
       'JEE Main is run by NTA and asks for two images in the application: a recent photo and your signature. Both are JPGs with generous ranges, so the usual problem is a phone photo that is several megabytes too big, not one that is too small.',
-      'Worked example: a 4 MB selfie taken against a white wall is zoomed until the face fills about 80% of the frame, capped at 1000 px and saved near 105 KB, the middle of 10–200 KB. The signature, signed on white paper, keeps its proportions and lands near 55 KB in the 10–100 KB range. Both files keep 200 DPI.',
+      'Worked example: a 4 MB selfie taken against a white wall is zoomed until the face fills about 80% of the frame, capped at 1000 px and saved at the highest quality that stays under 200 KB. The signature, signed on white paper, keeps its proportions and stays under 100 KB. Both files keep 200 DPI.',
     ],
     uploads: [
       { type: 'photo', kb: [10, 200], whiteBg: true, note: 'Face should cover about 80% of the photo with both ears visible.' },
@@ -343,7 +343,7 @@ export const PHOTO_PRESETS: PhotoPreset[] = [
     keywords: ['cuet photo size', 'cuet signature size', 'cuet ug 2026 photo size', 'cuet photo resize', 'cuet signature 50kb'],
     intro: [
       'CUET UG takes a live photo during the application and also asks you to upload one. The signature has a tighter ceiling than JEE or NEET: 50 KB, not 100 KB.',
-      'Worked example: a signature photographed in daylight at 3000 × 1200 px is capped at 1000 × 400 px. With a dark pen on white paper it usually lands near 30 KB, the middle of the 10–50 KB range, at a high JPEG quality. A faint signature on grey paper compresses less well; turn on whitening to clean the background before making the file.',
+      'Worked example: a signature photographed in daylight at 3000 × 1200 px is capped at 1000 × 400 px. With a dark pen on white paper it usually fits under the 50 KB ceiling at a high JPEG quality. A faint signature on grey paper compresses less well; turn on whitening to clean the background before making the file.',
     ],
     uploads: [
       { type: 'photo', kb: [10, 200] },
@@ -370,7 +370,7 @@ export const PHOTO_PRESETS: PhotoPreset[] = [
     keywords: ['ctet photo size', 'ctet signature size', 'ctet photo resize', 'ctet 3.5 x 4.5 cm', 'ctet signature 3.5 x 1.5 cm'],
     intro: [
       'The CTET bulletin gives sizes in centimetres rather than pixels. At the usual 200 DPI scanning resolution a 3.5 × 4.5 cm photo is 276 × 354 px and a 3.5 × 1.5 cm signature is 276 × 118 px, which is what the tool produces.',
-      'Worked example: the photo, cropped to 276 × 354 px from a phone shot, lands near 55 KB in the 10–100 KB range. The signature has a very low floor — 3 KB — and a 30 KB ceiling, so at 276 × 118 px a clean signature usually lands near 16 KB at a high quality without any scaling or padding.',
+      'Worked example: the photo, cropped to 276 × 354 px from a phone shot, usually fits under 100 KB at a high quality. The signature has a very low floor — 3 KB — and a 30 KB ceiling, so at 276 × 118 px a clean signature usually fits at a high quality without any scaling or padding.',
     ],
     uploads: [
       { type: 'photo', px: [cmToPx(3.5), cmToPx(4.5)], kb: [10, 100] },
@@ -383,7 +383,7 @@ export const PHOTO_PRESETS: PhotoPreset[] = [
     },
     faq: [
       { q: 'How many pixels is 3.5 × 4.5 cm?', a: 'At 200 DPI it is 276 × 354 px. The tool also writes 200 DPI into the file so it prints at 3.5 × 4.5 cm.' },
-      { q: 'Is a 5 KB signature acceptable?', a: 'Yes — the CTET range is 3–30 KB. The tool aims for the middle of the range unless your signature is very plain.' },
+      { q: 'Is a 5 KB signature acceptable?', a: 'The CTET bulletin gives a 3–30 KB range, so a 5 KB file is inside it. The tool keeps the highest quality that stays under 30 KB.' },
       { q: 'Does CTET need a white background?', a: 'The bulletin checked here does not say so. A plain, light background is still the safe choice.' },
       PRIVACY_FAQ,
     ],
@@ -397,7 +397,7 @@ export const PHOTO_PRESETS: PhotoPreset[] = [
     keywords: ['tnpsc photo size', 'tnpsc photo with name and date', 'tnpsc signature size', 'tnpsc photo resize', 'photo with name and date online'],
     intro: [
       'TNPSC asks for a studio-style photo with your name and the date of photography printed on a strip at the bottom: 130 × 170 px in total, of which the bottom 55 px is the strip. The date must be on or after the notification date.',
-      'Worked example: drop a recent photo against a white wall, type your name as on the form, and keep today’s date. The tool draws the photo into the top 115 px, prints the name and date in the 55 px strip, whitens the background and saves near 35 KB at 200 DPI, inside 20–50 KB. The signature keeps its proportions and lands near 15 KB in the 10–20 KB range.',
+      'Worked example: drop a recent photo against a white wall, type your name as on the form, and keep today’s date. The tool draws the photo into the top 115 px, prints the name and date in the 55 px strip, whitens the background and saves it at 200 DPI inside 20–50 KB. The signature keeps its proportions and is saved inside 10–20 KB.',
     ],
     uploads: [
       {
@@ -418,7 +418,7 @@ export const PHOTO_PRESETS: PhotoPreset[] = [
     },
     faq: [
       { q: 'Which date should be on the TNPSC photo?', a: 'The date the photo was taken, on or after the notification date. The tool defaults to today; change it if the photo is older.' },
-      { q: 'Why does 3.5 × 4.5 cm not match 130 × 170 px?', a: 'At 200 DPI, 3.5 × 4.5 cm would be 276 × 354 px. The notice gives both; the tool uses the pixel values, which the portal checks.' },
+      { q: 'Why does 3.5 × 4.5 cm not match 130 × 170 px?', a: 'At 200 DPI, 3.5 × 4.5 cm would be 276 × 354 px. The notice gives both figures; this page uses the pixel values (130 × 170 px). Confirm on the official notice before you submit.' },
       { q: 'Can I use a selfie?', a: 'The notice asks for a studio-style photo and rules out selfies.' },
       PRIVACY_FAQ,
     ],
@@ -428,10 +428,10 @@ export const PHOTO_PRESETS: PhotoPreset[] = [
     kind: 'exam',
     title: 'Passport photo size online (630 × 810 px)',
     description:
-      'Crop a photo to the Passport Seva size, 630 × 810 px, saved as a high-quality JPG under 1 MB. The ICAO guideline sets no file-size limit and asks for an unaltered photo.',
+      'Crop a photo to the Passport Seva size, 630 × 810 px, saved as a high-quality JPG under 1 MB. The ICAO guideline does not state a file-size limit and asks for an unaltered photo.',
     keywords: ['passport photo size', 'passport photo size in pixels', 'passport seva photo size', '630 x 810 photo', 'passport photo online india'],
     intro: [
-      'Passport Seva’s ICAO photo guideline asks for a colour photo of 630 × 810 px with a white background and the face filling 80–85% of the frame. It sets no file-size limit, and it asks for a photo "unaltered by computer software" — so the tool only crops and re-saves, without whitening or padding.',
+      'Passport Seva’s ICAO photo guideline asks for a colour photo of 630 × 810 px with a white background and the face filling 80–85% of the frame. It does not state a file-size limit, and it asks for a photo "unaltered by computer software" — so the tool only crops and re-saves, without whitening or padding.',
       'Worked example: a 12-megapixel photo taken against a white wall is cropped so the face fills about 80% of the frame and resized to 630 × 810 px. Saved at 95% JPEG quality it typically weighs around 150–300 KB, well under 1 MB. If your background is not white, retake the photo rather than editing it.',
     ],
     uploads: [
@@ -439,7 +439,7 @@ export const PHOTO_PRESETS: PhotoPreset[] = [
         type: 'photo',
         px: [630, 810],
         kb: [0, 1000],
-        note: 'Passport Seva’s ICAO guideline sets no file-size limit and asks for a photo unaltered by computer software. This keeps quality high (up to 95%) and the file under 1 MB, without whitening or padding. Shoot against a plain white wall.',
+        note: 'Passport Seva’s ICAO guideline does not state a file-size limit and asks for a photo unaltered by computer software. This keeps quality high (up to 95%) and the file under 1 MB, without whitening or padding. Shoot against a plain white wall.',
       },
     ],
     source: {
@@ -463,7 +463,7 @@ export const PHOTO_PRESETS: PhotoPreset[] = [
     keywords: ['pan card photo size', 'pan card signature size', 'photo resizer for pan card', 'nsdl pan photo size', 'pan card photo 20kb'],
     intro: [
       'Protean (NSDL) writes its sizes as height × width: the photo is 3.5 cm tall and 2.5 cm wide, the signature 2 cm tall and 4.5 cm wide. At 200 DPI that is a portrait 197 × 276 px photo and a landscape 354 × 157 px signature. Only a maximum file size is set.',
-      'Worked example: a phone photo cropped to 197 × 276 px typically lands near 10 KB, the middle of the allowed 0–20 KB. The signature at 354 × 157 px aims for about 5 KB under its 10 KB cap; a busy background may push it higher, so sign on plain white paper and turn whitening on if needed.',
+      'Worked example: a phone photo cropped to 197 × 276 px is saved at the highest quality that stays under 20 KB. The signature at 354 × 157 px stays under its 10 KB cap; a busy background may push it higher, so sign on plain white paper and turn whitening on if needed.',
     ],
     uploads: [
       { type: 'photo', px: [cmToPx(2.5), cmToPx(3.5)], kb: [0, 20], dpi: 200, note: 'Only a maximum is set.' },
@@ -490,7 +490,7 @@ export const PHOTO_PRESETS: PhotoPreset[] = [
     keywords: ['indian visa photo size', 'india visa photo resize', 'indian visa photo 350x350', 'visa photo square jpg', 'indian visa photo kb'],
     intro: [
       'The regular Indian visa application requires a square JPEG between 350 × 350 and 1000 × 1000 px and between 10 and 300 KB; the guideline says an application with a photo outside this will not be accepted.',
-      'Worked example: a portrait phone photo of 3024 × 4032 px is cropped to a square around the face and resized to 600 × 600 px, comfortably inside the pixel rule. At 95% quality a 600 px photo is usually under 155 KB, the middle of the range, so it saves in a single pass with no scaling or padding.',
+      'Worked example: a portrait phone photo of 3024 × 4032 px is cropped to a square around the face and resized to 600 × 600 px, comfortably inside the pixel rule. At 95% quality a 600 px photo is usually well under 300 KB, so it saves in a single pass with no scaling or padding.',
     ],
     uploads: [{ type: 'photo', px: [600, 600], kb: [10, 300], note: 'Must be square, 350–1000 px.' }],
     source: {

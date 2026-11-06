@@ -16,7 +16,7 @@ const content: ToolContent = {
   faq: [
     {
       q: 'How does the tool hit a KB range exactly?',
-      a: 'It saves the photo at several JPEG qualities and keeps the highest one that lands near the middle of the range. If the file is still too small at the highest quality, it adds blank padding bytes inside the JPEG so it clears the minimum without changing the picture.',
+      a: 'It saves the photo at several JPEG qualities and keeps the top quality if it already fits; otherwise the highest quality that lands a little under the ceiling. If the file is still too small at the highest quality, it adds blank padding bytes inside the JPEG so it clears the minimum without changing the picture.',
     },
     {
       q: 'Does 50 KB mean 50,000 or 51,200 bytes?',

@@ -73,6 +73,14 @@ describe('ConversionRateCalculator upgrades', () => {
     expect(screen.getByText('50')).toBeInTheDocument()
     expect(screen.getByText('conversions needed')).toBeInTheDocument()
   })
+  it('switching solver modes with only the rate filled shows the prompt, not an error', () => {
+    render(<ConversionRateCalculator />)
+    fireEvent.click(screen.getByRole('tab', { name: 'Visits needed' }))
+    type('e.g. 50', '50'); type('e.g. 2.5', '2.5')
+    fireEvent.click(screen.getByRole('tab', { name: 'Conversions needed' }))
+    expect(screen.queryByText('Enter valid numbers.')).not.toBeInTheDocument()
+    expect(screen.getByText(/Enter visits and a conversion rate/)).toBeInTheDocument()
+  })
   it('solver shows the rate error', () => {
     render(<ConversionRateCalculator />)
     fireEvent.click(screen.getByRole('tab', { name: 'Visits needed' }))

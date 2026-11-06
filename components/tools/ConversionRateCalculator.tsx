@@ -86,7 +86,8 @@ export default function ConversionRateCalculator() {
 
   const solverResult = useMemo<Result<number> | null>(() => {
     const amount = mode === 'visits' ? target : solverVisits
-    if (mode === 'rate' || (!amount && !solverRate)) return null
+    // Wait until this mode's own amount is typed: the rate field is shared between the two solvers.
+    if (mode === 'rate' || !amount) return null
     const a = parseFloat(amount)
     const r = parseFloat(solverRate)
     return mode === 'visits' ? visitsNeeded(a, r) : conversionsNeeded(a, r)
@@ -181,7 +182,7 @@ export default function ConversionRateCalculator() {
                 <Notice kind="info">
                   {mode === 'visits'
                     ? 'Enter target conversions and a conversion rate to see the visits you need.'
-                    : 'Enter visits and a conversion rate to see the conversions to expect.'}
+                    : 'Enter visits and a conversion rate to see how many conversions that rate gives, rounded up.'}
                 </Notice>
               )}
               {solverResult && !solverResult.ok && <Notice kind="error">{solverResult.error}</Notice>}

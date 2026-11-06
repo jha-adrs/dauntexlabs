@@ -24,7 +24,7 @@ const content: ToolContent = {
     },
     {
       q: 'Will beautifying HTML change my page?',
-      a: 'It re-indents tags based on nesting and keeps the contents of pre, script, style and textarea elements as they were. Because whitespace between tags is normalised, inline elements that relied on that whitespace can render slightly differently, so check the result. Minifying HTML also removes comments.',
+      a: 'It re-indents tags based on nesting and collapses whitespace between tags. That also applies inside pre, script, style and textarea elements: their contents are re-indented, and inline script containing a less-than sign can be split apart, so check those blocks by hand. Inline elements that relied on whitespace between tags can render slightly differently too. Minifying HTML also removes comments.',
     },
     {
       q: 'Why does JSON mode show an error?',

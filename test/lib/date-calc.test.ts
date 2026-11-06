@@ -48,6 +48,15 @@ describe('parseHolidays', () => {
       invalid: ['not a date', '2026-02-30'],
     }))
   it('empty text', () => expect(parseHolidays('  \n')).toEqual({ dates: [], invalid: [] }))
+  it('reads every date on a line, not just the first', () =>
+    expect(parseHolidays('2026-12-24 2026-12-25\n2026-01-26; 2026-01-27')).toEqual({
+      dates: ['2026-12-24', '2026-12-25', '2026-01-26', '2026-01-27'],
+      invalid: [],
+    }))
+  it('ignores digit runs longer than a date', () =>
+    expect(parseHolidays('12026-01-266')).toEqual({ dates: [], invalid: ['12026-01-266'] }))
+  it('reports a line whose second date is impossible', () =>
+    expect(parseHolidays('2026-12-24 2026-02-30')).toEqual({ dates: ['2026-12-24'], invalid: ['2026-12-24 2026-02-30'] }))
 })
 
 describe('describeDate', () => {

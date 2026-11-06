@@ -81,10 +81,10 @@ export function parseHolidays(text: string): { dates: string[]; invalid: string[
   for (const raw of text.split(/[\n,]/)) {
     const piece = raw.trim()
     if (!piece) continue
-    const m = /\d{4}-\d{2}-\d{2}/.exec(piece)
-    const d = m ? parseIso(m[0]) : null
-    if (!d) invalid.push(piece)
-    else if (!dates.includes(m![0])) dates.push(m![0])
+    const found = [...piece.matchAll(/(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)/g)].map((m) => m[0])
+    const valid = found.filter((s) => parseIso(s))
+    if (found.length === 0 || valid.length < found.length) invalid.push(piece)
+    for (const s of valid) if (!dates.includes(s)) dates.push(s)
   }
   return { dates, invalid }
 }

@@ -3,7 +3,7 @@ import type { ToolContent } from './types'
 const content: ToolContent = {
   intro: [
     'This conversion rate calculator works out what share of your visitors took the action you care about: a sale, a sign-up, a download or a booked call. Enter conversions and total visits and it shows the rate to two decimal places. The formula is simple: conversions ÷ visits × 100. For example, 25 sales from 500 visits is a 5.00% conversion rate.',
-    'It also answers the planning questions that come straight after. Switch to Visits needed to find out how much traffic a target takes at a given rate, or to Conversions needed to estimate the results a traffic forecast should bring. Add an average order value and it turns the rate into revenue and revenue per visitor in US dollars, euros, pounds or Indian rupees. All the maths runs in your browser.',
+    'It also answers the planning questions that come straight after. Switch to Visits needed to find out how much traffic a target takes at a given rate, or to Conversions needed to see how many conversions a traffic forecast gives at that rate, rounded up to a whole number. Add an average order value and it turns the rate into revenue and revenue per visitor in US dollars, euros, pounds or Indian rupees. All the maths runs in your browser.',
   ],
   steps: [
     'Pick a mode at the top: Conversion rate, Visits needed or Conversions needed.',

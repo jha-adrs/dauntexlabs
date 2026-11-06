@@ -15,7 +15,7 @@ function parseIso(iso: string): Date | null {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso.trim())
   if (!m) return null
   const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])]
-  const date = new Date(Date.UTC(y, mo - 1, d))
+  const date = utcDate(y, mo - 1, d)
   if (date.getUTCFullYear() !== y || date.getUTCMonth() !== mo - 1 || date.getUTCDate() !== d) return null
   return date
 }
@@ -27,9 +27,18 @@ function toIso(d: Date): string {
   return `${y}-${m}-${day}`
 }
 
-function daysInMonth(year: number, month: number): number {
-  return new Date(Date.UTC(year, month + 1, 0)).getUTCDate()
+/** Date.UTC maps years 0–99 to 1900–1999; setUTCFullYear does not. */
+function utcDate(year: number, month: number, day: number): Date {
+  const d = new Date(0)
+  d.setUTCFullYear(year, month, day)
+  return d
 }
+
+function daysInMonth(year: number, month: number): number {
+  return utcDate(year, month + 1, 0).getUTCDate()
+}
+
+const OUT_OF_RANGE = { ok: false as const, error: 'Result is out of range.' }
 
 export function addCalendar(startIso: string, amount: number, unit: Unit, sign: 1 | -1): Result<string> {
   if (!startIso) return { ok: false, error: 'Enter a start date.' }
@@ -40,14 +49,15 @@ export function addCalendar(startIso: string, amount: number, unit: Unit, sign: 
   if (unit === 'days' || unit === 'weeks') {
     const out = new Date(start)
     out.setUTCDate(out.getUTCDate() + sign * amount * (unit === 'weeks' ? 7 : 1))
-    return { ok: true, value: toIso(out) }
+    return Number.isNaN(out.getTime()) ? OUT_OF_RANGE : { ok: true, value: toIso(out) }
   }
   // Months/years clamp to the end of a shorter target month: Jan 31 + 1 month → Feb 28/29.
   const rawMonth = start.getUTCMonth() + sign * amount * (unit === 'years' ? 12 : 1)
   const year = start.getUTCFullYear() + Math.floor(rawMonth / 12)
   const month = ((rawMonth % 12) + 12) % 12
   const day = Math.min(start.getUTCDate(), daysInMonth(year, month))
-  return { ok: true, value: toIso(new Date(Date.UTC(year, month, day))) }
+  const out = utcDate(year, month, day)
+  return Number.isNaN(out.getTime()) ? OUT_OF_RANGE : { ok: true, value: toIso(out) }
 }
 
 /** Walks working days from the start (the start itself is not counted). */

@@ -15,6 +15,16 @@ describe('addCalendar', () => {
   it('clamps Feb 29 + 1 year', () => expect(v(addCalendar('2020-02-29', 1, 'years', 1))).toBe('2021-02-28'))
   it('subtracts a day across a year', () => expect(v(addCalendar('2020-01-01', 1, 'days', -1))).toBe('2019-12-31'))
   it('crosses a US DST change without drifting', () => expect(v(addCalendar('2026-03-07', 1, 'days', 1))).toBe('2026-03-08'))
+  it('keeps years 0–99 instead of mapping them to the 1900s', () => {
+    expect(v(addCalendar('2026-01-01', 1950, 'years', -1))).toBe('0076-01-01')
+    expect(v(addCalendar('2026-03-31', 1950 * 12 + 1, 'months', -1))).toBe('0076-02-29')
+  })
+  it('accepts a start date in years 0–99', () => expect(v(addCalendar('0076-01-01', 1, 'days', 1))).toBe('0076-01-02'))
+  it('returns an out-of-range error instead of a NaN date', () => {
+    const err = { ok: false, error: 'Result is out of range.' }
+    expect(addCalendar('2026-01-01', 99999999, 'years', 1)).toEqual(err)
+    expect(addCalendar('2026-01-01', 1e12, 'days', 1)).toEqual(err)
+  })
   it('rejects an empty start', () => expect(addCalendar('', 1, 'days', 1)).toEqual({ ok: false, error: 'Enter a start date.' }))
   it('rejects a bad date', () => expect(addCalendar('2020-13-01', 1, 'days', 1).ok).toBe(false))
   it('rejects a negative amount', () =>

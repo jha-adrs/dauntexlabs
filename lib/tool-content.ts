@@ -41,6 +41,36 @@ import emlViewer from './tool-content/eml-viewer'
 import qrCodeGenerator from './tool-content/qr-code-generator'
 import upiQrCodeGenerator from './tool-content/upi-qr-code-generator'
 import walkmanChanakyaToUnicode from './tool-content/walkman-chanakya-to-unicode'
+// tool upgrades batch 1 + content batch 2 (2026-11-06)
+import borderRadiusGenerator from './tool-content/border-radius-generator'
+import boxShadowGenerator from './tool-content/box-shadow-generator'
+import codeFormatter from './tool-content/code-formatter'
+import colorConverter from './tool-content/color-converter'
+import contrastChecker from './tool-content/contrast-checker'
+import conversionRateCalculator from './tool-content/conversion-rate-calculator'
+import cssGradient from './tool-content/css-gradient'
+import csvToJson from './tool-content/csv-to-json'
+import dataPicker from './tool-content/data-picker'
+import emailSignatureGenerator from './tool-content/email-signature-generator'
+import envToJson from './tool-content/env-to-json'
+import htmlEntities from './tool-content/html-entities'
+import imageCompressor from './tool-content/image-compressor'
+import imageResizer from './tool-content/image-resizer'
+import jsonFormatter from './tool-content/json-formatter'
+import jsonObjectToCsv from './tool-content/json-object-to-csv'
+import jsonToCsv from './tool-content/json-to-csv'
+import jsonToGo from './tool-content/json-to-go'
+import jsonToTypescript from './tool-content/json-to-typescript'
+import mergePdf from './tool-content/merge-pdf'
+import numberBaseConverter from './tool-content/number-base-converter'
+import numberToWords from './tool-content/number-to-words'
+import queryStringToJson from './tool-content/query-string-to-json'
+import robotsTxtGenerator from './tool-content/robots-txt-generator'
+import romanNumerals from './tool-content/roman-numerals'
+import sqlFormatter from './tool-content/sql-formatter'
+import textToCsv from './tool-content/text-to-csv'
+import timezoneConverter from './tool-content/timezone-converter'
+import unitConverter from './tool-content/unit-converter'
 
 export type { ToolContent } from './tool-content/types'
 
@@ -89,4 +119,34 @@ export const TOOL_CONTENT: Record<string, ToolContent> = {
   'qr-code-generator': qrCodeGenerator,
   'upi-qr-code-generator': upiQrCodeGenerator,
   'walkman-chanakya-to-unicode': walkmanChanakyaToUnicode,
+  // tool upgrades batch 1 + content batch 2 (2026-11-06)
+  'border-radius-generator': borderRadiusGenerator,
+  'box-shadow-generator': boxShadowGenerator,
+  'code-formatter': codeFormatter,
+  'color-converter': colorConverter,
+  'contrast-checker': contrastChecker,
+  'conversion-rate-calculator': conversionRateCalculator,
+  'css-gradient': cssGradient,
+  'csv-to-json': csvToJson,
+  'data-picker': dataPicker,
+  'email-signature-generator': emailSignatureGenerator,
+  'env-to-json': envToJson,
+  'html-entities': htmlEntities,
+  'image-compressor': imageCompressor,
+  'image-resizer': imageResizer,
+  'json-formatter': jsonFormatter,
+  'json-object-to-csv': jsonObjectToCsv,
+  'json-to-csv': jsonToCsv,
+  'json-to-go': jsonToGo,
+  'json-to-typescript': jsonToTypescript,
+  'merge-pdf': mergePdf,
+  'number-base-converter': numberBaseConverter,
+  'number-to-words': numberToWords,
+  'query-string-to-json': queryStringToJson,
+  'robots-txt-generator': robotsTxtGenerator,
+  'roman-numerals': romanNumerals,
+  'sql-formatter': sqlFormatter,
+  'text-to-csv': textToCsv,
+  'timezone-converter': timezoneConverter,
+  'unit-converter': unitConverter,
 }

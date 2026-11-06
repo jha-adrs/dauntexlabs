@@ -109,6 +109,17 @@ test('image-compressor: an uploaded image (and its name) never leaves the page',
   await assertNoLeak(page, cap, canary)
 })
 
+// tool upgrades batch 1 (2026-11-06): the business-days Holidays box is free text, hidden until that mode is picked
+test('date-calculator: pasted holiday text never leaves the page', async ({ page }) => {
+  const canary = canaryFor()
+  const cap = await watch(page)
+  await page.goto(STATIC + '/tools/date-calculator/', { waitUntil: 'networkidle' })
+  await page.getByRole('tab', { name: 'Business days', exact: true }).click()
+  await page.getByLabel('Holidays (optional)').fill(`2026-11-06 ${canary}\n${canary}`)
+  await page.waitForTimeout(400)
+  await assertNoLeak(page, cap, canary)
+})
+
 test('merge-pdf: PDF contents and names never leave the page', async ({ page }) => {
   const canary = canaryFor()
   const pdf = async () => {

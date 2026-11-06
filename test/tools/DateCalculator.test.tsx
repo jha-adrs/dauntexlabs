@@ -97,3 +97,57 @@ describe('DateCalculator', () => {
     expect(screen.getByText('Thursday')).toBeInTheDocument()
   })
 })
+
+describe('DateCalculator upgrades', () => {
+  const businessMode = () => fireEvent.click(screen.getByRole('tab', { name: 'Business days' }))
+  const setBusinessDays = (value: string) =>
+    fireEvent.change(screen.getByPlaceholderText('e.g. 10'), { target: { value } })
+
+  it('business days skip the weekend', () => {
+    render(<DateCalculator />)
+    businessMode()
+    setStart('2026-11-05')
+    setBusinessDays('2')
+    expect(screen.getByText('2026-11-09')).toBeInTheDocument()
+    expect(screen.getByText('Monday')).toBeInTheDocument()
+  })
+
+  it('business days subtract', () => {
+    render(<DateCalculator />)
+    businessMode()
+    clickOp('Subtract')
+    setStart('2026-11-09')
+    setBusinessDays('1')
+    expect(screen.getByText('2026-11-06')).toBeInTheDocument()
+  })
+
+  it('weekend choice and holidays', () => {
+    render(<DateCalculator />)
+    businessMode()
+    setStart('2026-11-05')
+    setBusinessDays('1')
+    fireEvent.change(screen.getByLabelText('Weekend'), { target: { value: 'fri-sat' } })
+    expect(screen.getByText('2026-11-08')).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Weekend'), { target: { value: 'sat-sun' } })
+    fireEvent.change(screen.getByLabelText('Holidays (optional)'), { target: { value: '2026-11-06\nsoon' } })
+    expect(screen.getByText('2026-11-09')).toBeInTheDocument()
+    expect(screen.getByText('1 holiday read')).toBeInTheDocument()
+    expect(screen.getByText('Could not read: soon')).toBeInTheDocument()
+  })
+
+  it('rejects a fractional business-day count', () => {
+    render(<DateCalculator />)
+    businessMode()
+    setStart('2026-11-05')
+    setBusinessDays('1.5')
+    expect(screen.getByText(/whole number of business days/)).toBeInTheDocument()
+  })
+
+  it('Today fills the start date with the local date', () => {
+    render(<DateCalculator />)
+    fireEvent.click(screen.getByRole('button', { name: 'Today' }))
+    const now = new Date()
+    const local = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+    expect((screen.getByLabelText('Start date') as HTMLInputElement).value).toBe(local)
+  })
+})

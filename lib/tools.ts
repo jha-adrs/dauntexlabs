@@ -132,7 +132,7 @@ export const tools: Tool[] = [
     slug: 'code-formatter',
     name: 'Code Formatter',
     category: 'Formatters',
-    blurb: 'Format, minify and prettify code with live syntax highlighting.',
+    blurb: 'Format and minify JSON, CSS, HTML and JavaScript.',
     keywords: ['format', 'minify', 'prettify', 'beautify', 'highlight'],
   },
   {
@@ -472,7 +472,7 @@ export const tools: Tool[] = [
     slug: 'number-to-words',
     name: 'Number to Words',
     category: 'Converters',
-    blurb: 'Spell out numbers as English words, including currency style.',
+    blurb: 'Spell out whole numbers as English words.',
     keywords: ['number', 'words', 'spell', 'cardinal', 'amount'],
   },
 

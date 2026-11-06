@@ -11,6 +11,8 @@ const Q_MAX = 0.95
 const Q_MIN = 0.3
 const SCALE_STEP = 0.85
 const MAX_SCALE_STEPS = 6
+/** Where in the KB range the quality search aims (0 = floor, 1 = ceiling). */
+const TARGET_SHARE = 0.85
 
 export type ByteBounds = { min: number; max: number; target: number }
 export type Encode = (quality: number) => Promise<Blob>
@@ -54,19 +56,20 @@ export function byteBounds(kb: [number, number]): ByteBounds {
     min = kb[0] * 1000
     max = kb[1] * 1000
   }
-  return { min, max, target: Math.round((min + max) / 2) }
+  return { min, max, target: Math.round(min + TARGET_SHARE * (max - min)) }
 }
 
 /**
- * Highest JPEG quality whose size is ≤ the target (the middle of the range).
- * If even the lowest quality is above the target but still ≤ max, accept it.
+ * Top quality when it already fits under max. Otherwise the highest quality whose
+ * size is ≤ the target (85% of the way up the range, a margin under the ceiling);
+ * if even the lowest quality is above the target but still ≤ max, accept it.
  */
 export async function fitQuality(
   encode: Encode,
   bounds: ByteBounds,
 ): Promise<{ blob: Blob; quality: number } | { tooBig: true }> {
   const top = await encode(Q_MAX)
-  if (top.size <= bounds.target) return { blob: top, quality: Q_MAX }
+  if (top.size <= bounds.max) return { blob: top, quality: Q_MAX }
   const bottom = await encode(Q_MIN)
   if (bottom.size > bounds.max) return { tooBig: true }
   if (bottom.size > bounds.target) return { blob: bottom, quality: Q_MIN }
@@ -191,9 +194,15 @@ export async function fitToBounds(
     const k = Math.pow(SCALE_STEP, step)
     const w = Math.max(1, Math.round(size[0] * k))
     const h = Math.max(1, Math.round(size[1] * k))
-    const r = await fitQuality(render(w, h), bounds)
+    const encode = render(w, h)
+    // Write the DPI before measuring, so an inserted APP0 counts against the maximum.
+    const withDpi: Encode = async (q) =>
+      new Blob([setJfifDensity(new Uint8Array(await (await encode(q)).arrayBuffer()), opts.dpi) as BlobPart], {
+        type: 'image/jpeg',
+      })
+    const r = await fitQuality(withDpi, bounds)
     if ('tooBig' in r) continue
-    let bytes = setJfifDensity(new Uint8Array(await r.blob.arrayBuffer()), opts.dpi)
+    let bytes: Uint8Array = new Uint8Array(await r.blob.arrayBuffer())
     const padded = bytes.length < bounds.min
     if (padded) bytes = padJpeg(bytes, bounds.min)
     return { ok: true, bytes, quality: r.quality, width: w, height: h, padded, scaled: step > 0 }

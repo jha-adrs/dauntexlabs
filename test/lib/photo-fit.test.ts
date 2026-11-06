@@ -40,24 +40,31 @@ describe('cropRect', () => {
 
 describe('byteBounds', () => {
   it('uses 1024 for the floor and 1000 for the ceiling', () => {
-    expect(byteBounds([20, 50])).toEqual({ min: 20480, max: 50000, target: 35240 })
+    // target = min + 0.85 × (max − min): high quality, still a margin under the ceiling.
+    expect(byteBounds([20, 50])).toEqual({ min: 20480, max: 50000, target: 45572 })
   })
   it('falls back to 1000 both ways when the range collapses', () => {
     expect(byteBounds([30, 30])).toEqual({ min: 30000, max: 30000, target: 30000 })
   })
   it('handles a max-only limit', () => {
-    expect(byteBounds([0, 20])).toEqual({ min: 0, max: 20000, target: 10000 })
+    expect(byteBounds([0, 20])).toEqual({ min: 0, max: 20000, target: 17000 })
   })
 })
 
 describe('fitQuality', () => {
-  it('finds the highest quality at or under the midpoint in ≤ 8 encodes', async () => {
+  it('finds the highest quality at or under the target in ≤ 8 encodes', async () => {
     const enc = encoder((q) => 1000 + 100000 * q)
     const r = await fitQuality(enc, byteBounds([20, 50]))
     if ('tooBig' in r) throw new Error('expected a fit')
-    expect(r.blob.size).toBeLessThanOrEqual(35240)
-    expect(r.quality).toBeGreaterThanOrEqual(0.33)
+    expect(r.blob.size).toBeLessThanOrEqual(45572)
+    expect(r.quality).toBeGreaterThanOrEqual(0.42)
     expect(enc.mock.calls.length).toBeLessThanOrEqual(8)
+  })
+  it('keeps q 0.95 when the top-quality file already fits under max, even above the target', async () => {
+    const enc = encoder(() => 48000)
+    const r = await fitQuality(enc, byteBounds([20, 50]))
+    expect(r).toMatchObject({ quality: 0.95 })
+    expect(enc).toHaveBeenCalledTimes(1)
   })
   it('returns q 0.95 at once when the file is already small', async () => {
     const enc = encoder(() => 3000)
@@ -65,8 +72,8 @@ describe('fitQuality', () => {
     expect(r).toMatchObject({ quality: 0.95 })
     expect(enc).toHaveBeenCalledTimes(1)
   })
-  it('accepts q 0.30 above the midpoint when it is still under max', async () => {
-    const r = await fitQuality(encoder((q) => 40000 + 10000 * q), byteBounds([20, 50]))
+  it('accepts q 0.30 above the target when it is still under max', async () => {
+    const r = await fitQuality(encoder((q) => 45000 + 10000 * q), byteBounds([20, 50]))
     expect(r).toMatchObject({ quality: 0.3 })
   })
   it('reports too big when q 0.30 is over max', async () => {
@@ -176,6 +183,21 @@ describe('fitToBounds', () => {
     expect(r.width).toBeLessThan(1000)
     expect(r.width / r.height).toBeCloseTo(4 / 3, 1)
     expect(r.bytes.length).toBeLessThanOrEqual(10000)
+  })
+  it('counts the inserted JFIF header against the maximum', async () => {
+    // Encoder output without APP0: setJfifDensity adds 18 bytes, which must not push it over max.
+    const noApp0 = (n: number) => {
+      const b = new Uint8Array(n)
+      b.set([0xff, 0xd8, 0xff, 0xda, 0x00, 0x02])
+      b.fill(0x55, 6, n - 2)
+      b.set([0xff, 0xd9], n - 2)
+      return new Blob([b], { type: 'image/jpeg' })
+    }
+    const rd = vi.fn(() => async (q: number) => noApp0(q >= 0.9 ? 9995 : 5000))
+    const r = await fitToBounds(rd, [200, 230], byteBounds([0, 10]), { fixedPx: true, dpi: 200 })
+    if (!r.ok) throw new Error('expected ok')
+    expect(r.bytes.length).toBeLessThanOrEqual(10000)
+    expect(jfifDensity(r.bytes)).toBe(200)
   })
   it('gives up after 6 scale steps', async () => {
     const rd = render(() => 1e7)

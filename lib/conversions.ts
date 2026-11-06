@@ -350,6 +350,13 @@ const WORKED_VALUES: Record<string, number[]> = {
   'Volume:gal': [0.5, 2, 5, 10],
 }
 const WORKED_EXTRA_CATEGORIES = new Set(['Volume'])
+// Symbols that are plain words read wrong unpluralised ("= 160 cup").
+const WORD_SYMBOL_PLURALS: Record<string, string> = { cup: 'cups' }
+
+// Sentences are read, not computed with: big values get digit grouping, never e-notation.
+function workedNum(n: number): string {
+  return Math.abs(n) >= 1e7 ? Math.round(n).toLocaleString('en-US') : formatNum(n)
+}
 
 // Number-scale words read singular in queries ("1.49 billion in million").
 function queryWord(pair: Pair, u: UnitDef): string {
@@ -373,11 +380,12 @@ export function workedExamples(pair: Pair): { in: string; out: string; text: str
   const scale = pair.category === 'Number scale'
   const word = (u: UnitDef) => queryWord(pair, u)
   return values.slice(0, 6).map((v) => {
-    const out = formatNum(convertUnit(pair, v))
+    const out = workedNum(convertUnit(pair, v))
+    const unit = scale ? word(to) : out !== '1' && WORD_SYMBOL_PLURALS[to.symbol] ? WORD_SYMBOL_PLURALS[to.symbol] : to.symbol
     return {
       in: String(v),
       out,
-      text: `${v} ${word(from)} in ${word(to)} = ${out} ${scale ? word(to) : to.symbol}`,
+      text: `${v} ${word(from)} in ${word(to)} = ${out} ${unit}`,
     }
   })
 }

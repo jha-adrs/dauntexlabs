@@ -41,6 +41,23 @@ describe('workedExamples', () => {
     for (const e of workedExamples(pair)) expect(e.out).toBe(formatNum(convertUnit(pair, Number(e.in))))
   })
 
+  it('never prints scientific notation', () => {
+    for (const pair of PAIRS)
+      for (const e of workedExamples(pair)) expect(e.text, pair.slug).not.toMatch(/e[+-]\d/)
+    expect(sentences('nautical-miles-to-millimeters')).toContain(
+      '10 nautical miles in millimeters = 18,520,000 mm',
+    )
+    expect(sentences('billions-to-thousands')).toContain('10 billion in thousand = 10,000,000 thousand')
+  })
+
+  it('pluralises unit symbols that are plain words', () => {
+    expect(sentences('gallons-to-cups')).toContain('10 gallons in cups = 160 cups')
+    expect(sentences('fluid-ounces-to-cups')).toContain('8 fluid ounces in cups = 1 cup')
+    for (const pair of PAIRS)
+      for (const e of workedExamples(pair))
+        if (e.out !== '1') expect(e.text, pair.slug).not.toMatch(/ cup$/)
+  })
+
   it('stays modest: at most 6 examples per page', () => {
     for (const pair of PAIRS) expect(workedExamples(pair).length).toBeLessThanOrEqual(6)
   })

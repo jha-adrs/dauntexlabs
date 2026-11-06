@@ -17,6 +17,9 @@ export default function Footer() {
           <Link href="/category/india/" className="foot-link">
             India tools
           </Link>
+          <Link href="/photo/" className="foot-link">
+            Exam photo sizes
+          </Link>
           <Link href="/category/aviation/" className="foot-link">
             Aviation tools
           </Link>

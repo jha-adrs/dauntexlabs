@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next'
 import { tools } from '@/lib/tools'
 import { PAIRS, isIndexedPair } from '@/lib/conversions'
 import { HUBS, hubHref } from '@/lib/hubs'
+import { PHOTO_PRESETS } from '@/lib/photo-presets'
 
 const SITE = 'https://dauntexlabs.com'
 
@@ -14,6 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE}/`, changeFrequency: 'weekly', priority: 1 },
     { url: `${SITE}/privacy/`, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${SITE}/convert/`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${SITE}/photo/`, changeFrequency: 'weekly', priority: 0.8 },
     ...HUBS.map((h) => ({ url: `${SITE}${hubHref(h)}`, changeFrequency: 'weekly' as const, priority: 0.8 })),
     // Only index live tools — the under-maintenance page is noindex + excluded.
     ...tools
@@ -28,6 +30,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${SITE}/convert/${p.slug}/`,
       changeFrequency: 'monthly' as const,
       priority: 0.6,
+    })),
+    // Exam / form photo pages.
+    ...PHOTO_PRESETS.map((p) => ({
+      url: `${SITE}/photo/${p.slug}/`,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
     })),
   ]
 }

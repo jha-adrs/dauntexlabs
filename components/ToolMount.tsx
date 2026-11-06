@@ -145,6 +145,7 @@ const REGISTRY: Record<string, ComponentType> = {
   'crosswind-component': dynamic(() => import('@/components/tools/CrosswindComponent'), { ssr: false, loading }),
   'aadhaar-masker': dynamic(() => import('@/components/tools/AadhaarMasker'), { ssr: false, loading }),
   'photo-date-stamp': dynamic(() => import('@/components/tools/PhotoDateStamp'), { ssr: false, loading }),
+  'exam-photo-resizer': dynamic(() => import('@/components/tools/ExamPhotoResizer'), { ssr: false, loading }),
   'vcf-to-csv': dynamic(() => import('@/components/tools/VcfToCsv'), { ssr: false, loading }),
   'ics-viewer': dynamic(() => import('@/components/tools/IcsViewer'), { ssr: false, loading }),
   'amount-in-words-rupees': dynamic(() => import('@/components/tools/AmountInWordsRupees'), { ssr: false, loading }),

@@ -43,3 +43,40 @@ describe('ConversionRateCalculator', () => {
     expect(screen.getByText('100.00%')).toBeInTheDocument()
   })
 })
+
+describe('ConversionRateCalculator upgrades', () => {
+  const type = (ph: string, v: string) => fireEvent.change(screen.getByPlaceholderText(ph), { target: { value: v } })
+  it('AOV gives revenue and revenue per visitor in the chosen currency', () => {
+    render(<ConversionRateCalculator />)
+    type('e.g. 25', '25'); type('e.g. 500', '500'); type('e.g. 40', '40')
+    expect(screen.getByText('$1,000.00')).toBeInTheDocument()
+    expect(screen.getByText('$2.00')).toBeInTheDocument()
+    fireEvent.change(screen.getByDisplayValue('USD ($)'), { target: { value: 'INR' } })
+    expect(screen.getByText('₹1,000.00')).toBeInTheDocument()
+  })
+  it('hides revenue cards without an AOV', () => {
+    render(<ConversionRateCalculator />)
+    type('e.g. 25', '25'); type('e.g. 500', '500')
+    expect(screen.queryByText('Revenue per visitor')).not.toBeInTheDocument()
+  })
+  it('visits needed mode', () => {
+    render(<ConversionRateCalculator />)
+    fireEvent.click(screen.getByRole('tab', { name: 'Visits needed' }))
+    type('e.g. 50', '50'); type('e.g. 2.5', '2.5')
+    expect(screen.getByText('2,000')).toBeInTheDocument()
+    expect(screen.getByText('visits needed')).toBeInTheDocument()
+  })
+  it('conversions needed mode', () => {
+    render(<ConversionRateCalculator />)
+    fireEvent.click(screen.getByRole('tab', { name: 'Conversions needed' }))
+    type('e.g. 2000', '2000'); type('e.g. 2.5', '2.5')
+    expect(screen.getByText('50')).toBeInTheDocument()
+    expect(screen.getByText('conversions needed')).toBeInTheDocument()
+  })
+  it('solver shows the rate error', () => {
+    render(<ConversionRateCalculator />)
+    fireEvent.click(screen.getByRole('tab', { name: 'Visits needed' }))
+    type('e.g. 50', '50'); type('e.g. 2.5', '0')
+    expect(screen.getByText(/greater than 0% and at most 100%/)).toBeInTheDocument()
+  })
+})

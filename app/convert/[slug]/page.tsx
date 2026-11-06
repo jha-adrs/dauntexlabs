@@ -17,6 +17,8 @@ import {
   imageMime,
   type Pair,
   isIndexedPair,
+  workedExamples,
+  workedHeading,
 } from '@/lib/conversions'
 
 const SITE = 'https://dauntexlabs.com'
@@ -73,6 +75,7 @@ export default async function ConvertPage({ params }: Params) {
   const rev = reverseSlug(pair)
   const parent = PARENT[pair.family]
   const rows = tableRows(pair)
+  const worked = workedExamples(pair)
   const siblings = PAIRS.filter(
     (p) => p.family === pair.family && p.category === pair.category && p.slug !== pair.slug && p.slug !== rev,
   ).slice(0, 6)
@@ -194,6 +197,19 @@ export default async function ConvertPage({ params }: Params) {
                 ))}
               </div>
             </section>
+
+            {worked.length > 0 && (
+              <section className="block">
+                <div className="sec-head">
+                  <h2>{workedHeading(pair)}</h2>
+                </div>
+                <div className="prose">
+                  {worked.map((w) => (
+                    <p key={w.in}>{w.text}</p>
+                  ))}
+                </div>
+              </section>
+            )}
           </>
         )}
 

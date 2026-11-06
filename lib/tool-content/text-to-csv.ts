@@ -27,7 +27,7 @@ const content: ToolContent = {
     },
     {
       q: 'What happens to blank lines?',
-      a: 'Blank lines at the end of the input are dropped. Blank lines in the middle are kept as empty rows, so you may want to remove them first if your import does not expect them.',
+      a: 'Blank lines at the end of the input are dropped, unless Quote all fields is on, in which case they become empty quoted rows. Blank lines in the middle are kept as empty rows, so you may want to remove them first if your import does not expect them.',
     },
     {
       q: 'Can I output tab- or semicolon-separated values instead?',

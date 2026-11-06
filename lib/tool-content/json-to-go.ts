@@ -3,7 +3,7 @@ import type { ToolContent } from './types'
 const content: ToolContent = {
   intro: [
     'This JSON to Go converter turns a sample JSON document into Go struct definitions with json tags, ready to use with encoding/json. Paste an API response or config file and get a typed starting point instead of writing structs field by field.',
-    'Field names are converted to exported PascalCase and follow the usual Go initialism style, so user_id becomes UserID and image_url becomes ImageURL. Each field keeps its original JSON key in a tag such as json:"user_id". Nested objects become their own named structs, and the Root struct is listed first so the output reads top-down. The conversion is processed on your device as you type.',
+    'Field names are converted to exported PascalCase and follow the usual Go initialism style, so user_id becomes UserID and image_url becomes ImageURL. Each field keeps its original JSON key in a tag such as json:"user_id". Nested objects become their own named structs, and the Root type is listed first so the output reads top-down. The conversion is processed on your device as you type.',
   ],
   steps: [
     'Paste a JSON object or array into the JSON input box.',

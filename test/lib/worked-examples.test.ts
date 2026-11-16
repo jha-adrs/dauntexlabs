@@ -26,6 +26,7 @@ describe('workedExamples', () => {
     expect(workedExamples(p('billions-to-crores')).map((e) => e.in)).toEqual(['1', '1.49', '2', '2.5', '3.8', '7.5'])
     expect(workedExamples(p('thousands-to-lakhs')).map((e) => e.in)).toEqual(['100', '1500', '5000', '10000', '50000'])
     expect(sentences('crores-to-billions')).toContain('4000 crore in billion = 40 billion')
+    expect(sentences('crores-to-lakhs')).toContain('1000 crore in lakh = 100,000 lakh')
   })
 
   it('every new trillion / lakh crore / arab pair has 1-6 examples', () => {

@@ -17,6 +17,21 @@ describe('ConvertWidget', () => {
     expect(screen.getByText('0.0000001')).toBeInTheDocument()
   })
 
+  it('accepts pasted values with international or Indian commas', () => {
+    render(<ConvertWidget pair={getPair('crores-to-millions')!} />)
+    const input = screen.getByLabelText('Value in Crores')
+    fireEvent.change(input, { target: { value: '10,000,000' } })
+    expect(screen.getByText('100,000,000')).toBeInTheDocument()
+    fireEvent.change(input, { target: { value: '1,00,000' } })
+    expect(screen.getByText('1,000,000')).toBeInTheDocument()
+  })
+
+  it('omits a caption symbol that repeats the unit name', () => {
+    render(<ConvertWidget pair={getPair('arab-to-crores')!} />)
+    expect(screen.getByText('Arab')).toBeInTheDocument()
+    expect(screen.getByText('Crores · Cr')).toBeInTheDocument()
+  })
+
   it('converts a number-base pair (binary → decimal)', () => {
     render(<ConvertWidget pair={getPair('binary-to-decimal')!} />)
     // default value '10' (binary) → 2 (decimal)

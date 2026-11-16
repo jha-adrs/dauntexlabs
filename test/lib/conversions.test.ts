@@ -8,6 +8,7 @@ import {
   tableRows,
   formatNum,
   formatScaleValue,
+  shownSymbols,
   formula,
   exampleText,
 } from '@/lib/conversions'
@@ -97,7 +98,7 @@ describe('number scale: trillion, lakh crore, arab (4A)', () => {
 
   it('lakh crore and trillion', () => {
     expect(out('lakh-crores-to-trillions', 1)).toBe('1')
-    expect(out('trillions-to-crores', 1)).toBe('100000')
+    expect(out('trillions-to-crores', 1)).toBe('100,000')
     expect(out('trillions-to-billions', 1)).toBe('1000')
     expect(out('trillions-to-lakhs', 1)).toBe('10,000,000')
     expect(out('lakh-crores-to-arab', 1)).toBe('1000')
@@ -120,6 +121,9 @@ describe('number scale: trillion, lakh crore, arab (4A)', () => {
   it('never uses e-notation', () => {
     expect(out('lakhs-to-trillions', 1)).toBe('0.0000001')
     expect(out('trillions-to-lakhs', 100)).toBe('1,000,000,000')
+    // rounding must happen before the format choice (no 1.000000e+7 at the 1e7 boundary)
+    expect(out('crores-to-millions', 999999.95)).toBe('10,000,000')
+    expect(out('crores-to-millions', 999999.99)).not.toMatch(/e[+-]\d/)
     expect(tableRows(p('lakhs-to-trillions'))[0].out).toBe('0.0000001')
     expect(formula(p('lakhs-to-trillions'))).not.toMatch(/e[+-]\d/)
     for (const pair of PAIRS.filter((x) => x.category === 'Number scale')) {
@@ -140,5 +144,19 @@ describe('number scale: trillion, lakh crore, arab (4A)', () => {
   it('exampleText reads singular with a full stop', () => {
     expect(exampleText(p('crores-to-billions'))).toBe('1 crore = 0.01 billion.')
     expect(exampleText(p('lakh-crores-to-trillions'))).toBe('1 lakh crore = 1 trillion.')
+  })
+
+  it('groups number-scale values from 10,000 up (en-US commas)', () => {
+    expect(exampleText(p('lakh-crores-to-millions'))).toBe('1 lakh crore = 1,000,000 million.')
+    expect(exampleText(p('trillions-to-crores'))).toBe('1 trillion = 100,000 crore.')
+    expect(out('crores-to-thousands', 1)).toBe('10,000')
+    expect(out('arab-to-millions', 1)).toBe('1000')
+    expect(formula(p('trillions-to-crores'))).toBe('crores = trillions × 100,000')
+  })
+
+  it('shownSymbols hides a symbol that just repeats the unit name', () => {
+    expect(shownSymbols(p('lakhs-to-arab'))).toEqual({ from: '', to: '' })
+    expect(shownSymbols(p('crores-to-billions'))).toEqual({ from: 'Cr', to: 'Bn' })
+    expect(shownSymbols(p('kilograms-to-pounds'))).toEqual({ from: 'kg', to: 'lb' })
   })
 })

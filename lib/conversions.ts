@@ -238,14 +238,14 @@ export function formatNum(n: number): string {
 }
 
 // Number-scale answers are read, not computed with: never e-notation, and
-// big values get digit grouping ("1,000,000,000").
+// values from 10,000 up get en-US digit grouping ("100,000"). Same significant
+// digits as formatNum (7 from 1 up, 6 below); rounded before the grouping check.
 function scaleNum(n: number): string {
   if (!Number.isFinite(n)) return '—'
-  const abs = Math.abs(n)
-  if (abs >= 1e7) return Math.round(n).toLocaleString('en-US')
-  if (abs !== 0 && abs < 1e-4)
-    return n.toLocaleString('en-US', { maximumSignificantDigits: 6, useGrouping: false })
-  return formatNum(n)
+  if (n === 0) return '0'
+  const sig = Math.abs(n) >= 1 ? 7 : 6
+  const r = Number(n.toPrecision(sig))
+  return r.toLocaleString('en-US', { maximumSignificantDigits: sig, useGrouping: Math.abs(r) >= 1e4 })
 }
 
 /** Format a converted value for display; number-scale pairs never use e-notation. */
@@ -287,6 +287,16 @@ export function unitSymbols(pair: Pair): { from: string; to: string } {
   const { unit: from } = unitDef(pair.fromKey)
   const { unit: to } = unitDef(pair.toKey)
   return { from: from.symbol, to: to.symbol }
+}
+
+// A symbol that just repeats the unit name ("Arab", "Lakh") adds nothing to a caption.
+const repeatsName = (u: UnitDef) => u.symbol.toLowerCase() === u.label.toLowerCase().replace(/s$/, '')
+
+/** Symbols for captions and table headers: '' where the symbol repeats the unit name. */
+export function shownSymbols(pair: Pair): { from: string; to: string } {
+  const { unit: from } = unitDef(pair.fromKey)
+  const { unit: to } = unitDef(pair.toKey)
+  return { from: repeatsName(from) ? '' : from.symbol, to: repeatsName(to) ? '' : to.symbol }
 }
 
 /** Human "how it works" line. */

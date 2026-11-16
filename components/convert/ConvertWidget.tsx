@@ -3,18 +3,19 @@
 // Instant converter for a single unit/number-base pair, pre-set from the page.
 import { useMemo, useState } from 'react'
 import { CopyButton } from '@/components/ui/kit'
-import { convertUnit, convertBase, formatScaleValue, unitSymbols, type Pair } from '@/lib/conversions'
+import { convertUnit, convertBase, formatScaleValue, shownSymbols, type Pair } from '@/lib/conversions'
 
 export default function ConvertWidget({ pair }: { pair: Pair }) {
   const isUnit = pair.family === 'unit'
   const [val, setVal] = useState(isUnit ? '1' : '10')
-  const sym = isUnit ? unitSymbols(pair) : { from: '', to: '' }
+  const sym = isUnit ? shownSymbols(pair) : { from: '', to: '' }
 
   const { out, error } = useMemo(() => {
     if (val.trim() === '') return { out: '', error: '' }
     try {
       if (isUnit) {
-        const n = parseFloat(val)
+        // Pasted values may carry international or Indian commas ("10,000,000", "1,00,000").
+        const n = parseFloat(val.replace(/,/g, ''))
         if (!Number.isFinite(n)) return { out: '', error: 'Enter a number.' }
         return { out: formatScaleValue(pair, convertUnit(pair, n)), error: '' }
       }
@@ -30,7 +31,7 @@ export default function ConvertWidget({ pair }: { pair: Pair }) {
         <label className="cw-field">
           <span className="cw-cap">
             {pair.fromLabel}
-            {isUnit ? ` · ${sym.from}` : ''}
+            {sym.from ? ` · ${sym.from}` : ''}
           </span>
           <input
             className="cw-input"
@@ -48,7 +49,7 @@ export default function ConvertWidget({ pair }: { pair: Pair }) {
         <div className="cw-field">
           <span className="cw-cap">
             {pair.toLabel}
-            {isUnit ? ` · ${sym.to}` : ''}
+            {sym.to ? ` · ${sym.to}` : ''}
           </span>
           <div className={`cw-out ${error ? 'err' : ''}`} aria-live="polite">
             {error ? error : out || '—'}

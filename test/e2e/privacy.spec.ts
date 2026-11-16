@@ -205,6 +205,16 @@ const fileCases: { slug: string; file: (c: string) => Promise<{ name: string; mi
     }),
   },
   {
+    slug: 'whatsapp-chat-viewer',
+    file: async (c) => ({
+      name: `WhatsApp Chat with ${c}.txt`,
+      mimeType: 'text/plain',
+      buffer: Buffer.from(
+        `31/12/2023, 22:15 - ${c} Person: Hello ${c}\nsecond line ${c}\n[31/12/23, 10:16:32\u202fPM] +91 98765 43210: =HYPERLINK("${c}")\n`,
+      ),
+    }),
+  },
+  {
     slug: 'gpx-converter',
     file: async (c) => ({
       name: `${c}.gpx`,

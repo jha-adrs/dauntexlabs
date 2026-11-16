@@ -1080,6 +1080,13 @@ export const tools: Tool[] = [
     blurb: 'Convert Walkman-Chanakya 901/905 Hindi text (used in government documents) to Unicode Devanagari, and back. Runs in your browser.',
     keywords: ['walkman chanakya to unicode', 'walkman chanakya 901 to unicode', 'chanakya 905 to unicode', 'walkman chanakya converter', 'unicode to walkman chanakya', 'hindi font converter government'],
   },
+  {
+    slug: 'attendance-calculator',
+    name: 'Attendance Calculator (75% rule)',
+    category: 'India',
+    blurb: 'Check your attendance percentage, how many classes you can miss and stay at 75% (or any target), or how many you must attend to get back.',
+    keywords: ['attendance calculator', '75 attendance calculator', 'how many classes can i bunk', 'bunk calculator', 'attendance percentage calculator', 'classes to attend for 75 percent', 'college attendance calculator'],
+  },
 ]
 
 export const toolsByCategory = (category: Category): Tool[] =>

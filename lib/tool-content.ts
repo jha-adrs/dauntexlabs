@@ -73,6 +73,7 @@ import textToCsv from './tool-content/text-to-csv'
 import timezoneConverter from './tool-content/timezone-converter'
 import unitConverter from './tool-content/unit-converter'
 import attendanceCalculator from './tool-content/attendance-calculator'
+import indianNumberFormat from './tool-content/indian-number-format'
 
 export type { ToolContent } from './tool-content/types'
 
@@ -153,4 +154,5 @@ export const TOOL_CONTENT: Record<string, ToolContent> = {
   'timezone-converter': timezoneConverter,
   'unit-converter': unitConverter,
   'attendance-calculator': attendanceCalculator,
+  'indian-number-format': indianNumberFormat,
 }

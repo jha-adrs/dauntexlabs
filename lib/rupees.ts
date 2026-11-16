@@ -47,7 +47,7 @@ const WORDS = {
 }
 
 /** Words for a positive integer (no "zero"), Indian grouping, recursive above 99 crore. */
-function intWords(n: number, lang: RupeeLang): string {
+export function intWords(n: number, lang: RupeeLang): string {
   const w = WORDS[lang]
   const parts: string[] = []
   const crore = Math.floor(n / 1e7)

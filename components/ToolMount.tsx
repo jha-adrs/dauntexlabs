@@ -148,6 +148,7 @@ const REGISTRY: Record<string, ComponentType> = {
   'exam-photo-resizer': dynamic(() => import('@/components/tools/ExamPhotoResizer'), { ssr: false, loading }),
   'vcf-to-csv': dynamic(() => import('@/components/tools/VcfToCsv'), { ssr: false, loading }),
   'ics-viewer': dynamic(() => import('@/components/tools/IcsViewer'), { ssr: false, loading }),
+  'whatsapp-chat-viewer': dynamic(() => import('@/components/tools/WhatsappChatViewer'), { ssr: false, loading }),
   'amount-in-words-rupees': dynamic(() => import('@/components/tools/AmountInWordsRupees'), { ssr: false, loading }),
   'pdf-metadata-remover': dynamic(() => import('@/components/tools/PdfMetadataRemover'), { ssr: false, loading }),
   'homoglyph-detector': dynamic(() => import('@/components/tools/HomoglyphDetector'), { ssr: false, loading }),

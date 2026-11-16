@@ -933,6 +933,13 @@ export const tools: Tool[] = [
     keywords: ['ics viewer', 'open ics file', 'ics to csv', 'ics file reader', 'view ics online', 'ical viewer', 'convert ics to excel', 'calendar file viewer'],
   },
   {
+    slug: 'whatsapp-chat-viewer',
+    name: 'WhatsApp Chat Viewer & CSV Export',
+    category: 'Data Tools',
+    blurb: 'Open an exported WhatsApp chat (.txt) as a searchable table and download it as CSV or JSON. Processed on your device.',
+    keywords: ['whatsapp chat viewer', 'whatsapp chat to csv', 'whatsapp chat export txt to csv', 'whatsapp chat to excel', 'open whatsapp chat txt', 'whatsapp chat reader', 'whatsapp chat to json', 'whatsapp message counter'],
+  },
+  {
     slug: 'amount-in-words-rupees',
     name: 'Amount in Words (Rupees)',
     category: 'India',

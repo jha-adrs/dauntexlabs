@@ -39,6 +39,16 @@ describe('attendance — must attend', () => {
   })
 })
 
+describe('attendance — target and attendance extremes', () => {
+  it('p = 1, 42 of 50 → can miss 4150', () => expect(ok(50, 42, 1).canMiss).toBe(4150))
+  it('p = 99, 30 of 50 → attend 1950', () => expect(ok(50, 30, 99).mustAttend).toBe(1950))
+  it('a = 0, 0 of 10 at 75 → 0%, attend 30', () => {
+    const r = ok(10, 0, 75)
+    expect(formatPct(r.percent)).toBe('0')
+    expect(r.mustAttend).toBe(30)
+  })
+})
+
 describe('attendance — with remaining classes', () => {
   it('30 of 50, 20 remaining, 75 → needs 23, not reachable, best 71.43%', () => {
     const r = ok(50, 30, 75, 20)

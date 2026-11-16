@@ -5,7 +5,9 @@ import { Field, TextInput, IO, Panel, Notice } from '@/components/ui/kit'
 import { attendance, formatPct } from '@/lib/attendance'
 
 const num = (s: string) => (s.trim() === '' ? NaN : Number(s))
-const classes = (n: number) => `${n} ${n === 1 ? 'class' : 'classes'}`
+const noun = (n: number) => (n === 1 ? 'class' : 'classes')
+const classes = (n: number) => `${n} ${noun(n)}`
+const remainingClasses = (n: number) => `${n} remaining ${noun(n)}`
 
 export default function AttendanceCalculator() {
   const [held, setHeld] = useState('')
@@ -23,7 +25,9 @@ export default function AttendanceCalculator() {
     })
   }, [held, attended, target, remaining])
 
-  const p = target.trim()
+  const p = String(num(target))
+  const plan = r && r.ok && r.plan && r.plan.remaining > 0 ? r.plan : null
+  const hideStatus = !!(r && r.ok && plan && r.mustAttend === 0 && r.canMiss > plan.remaining)
 
   return (
     <IO>
@@ -52,19 +56,23 @@ export default function AttendanceCalculator() {
                 {formatPct(r.percent)}%
               </dd>
             </dl>
-            <p style={{ margin: '12px 0 0' }}>
-              {r.mustAttend === 0 &&
-                `You can miss ${classes(r.canMiss)} in a row and stay at or above ${p}%.`}
-              {r.mustAttend !== null &&
-                r.mustAttend > 0 &&
-                `You are below ${p}%. You need to attend the next ${classes(r.mustAttend)} in a row to reach it.`}
-              {r.mustAttend === null && `You have missed at least one class, so ${p}% can no longer be reached.`}
-            </p>
-            {r.plan && (
+            {!hideStatus && (
               <p style={{ margin: '12px 0 0' }}>
-                {r.plan.reachable
-                  ? `You need to attend at least ${r.plan.needed} of the ${r.plan.remaining} remaining classes; you can miss up to ${r.plan.canMiss} and finish at or above ${p}%.`
-                  : `${p}% is not reachable in the ${r.plan.remaining} remaining classes; the best possible is ${formatPct(r.plan.best)}% if you attend all of them.`}
+                {r.mustAttend === 0 &&
+                  `You can miss ${classes(r.canMiss)} in a row and stay at or above ${p}%.`}
+                {r.mustAttend !== null &&
+                  r.mustAttend > 0 &&
+                  `You are below ${p}%. You need to attend the next ${classes(r.mustAttend)} in a row to reach it.`}
+                {r.mustAttend === null && `You have missed at least one class, so ${p}% can no longer be reached.`}
+              </p>
+            )}
+            {plan && (
+              <p style={{ margin: '12px 0 0' }}>
+                {!plan.reachable
+                  ? `${p}% is not reachable in the ${remainingClasses(plan.remaining)}; the best possible is ${formatPct(plan.best)}% if you attend all of them.`
+                  : plan.needed === 0
+                    ? `You can miss all ${remainingClasses(plan.remaining)} and still finish at or above ${p}%.`
+                    : `You need to attend at least ${plan.needed} of the ${remainingClasses(plan.remaining)}; you can miss up to ${plan.canMiss} and finish at or above ${p}%.`}
               </p>
             )}
           </>

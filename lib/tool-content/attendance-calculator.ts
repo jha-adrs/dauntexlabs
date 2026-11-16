@@ -22,6 +22,10 @@ const content: ToolContent = {
       a: 'Every class you miss still counts as held, so the number is found from (100 × attended − 75 × held) ÷ 75, rounded down. With 42 of 50 attended you can miss 6 classes: 42 out of 56 is exactly 75%. Missing a seventh would drop you to about 73.7%.',
     },
     {
+      q: 'How many classes can I bunk and still keep 75%?',
+      a: 'Say 70 classes have been held and you attended 60, which is about 85.7%. (100 × 60 − 75 × 70) ÷ 75 = 750 ÷ 75 = 10, so you can bunk 10 more classes: 60 out of 80 is exactly 75%. Bunking an eleventh leaves 60 out of 81, about 74.1%, which is below the line.',
+    },
+    {
       q: 'How many classes do I need to attend to get back to 75%?',
       a: 'If you are below the target, each class you attend raises both the attended and held totals. The count is (75 × held − 100 × attended) ÷ 25, rounded up. With 30 of 50 attended (60%) you need 30 more in a row: 60 out of 80 is 75%.',
     },

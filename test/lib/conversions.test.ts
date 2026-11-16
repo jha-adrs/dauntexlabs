@@ -7,6 +7,9 @@ import {
   convertBase,
   tableRows,
   formatNum,
+  formatScaleValue,
+  formula,
+  exampleText,
 } from '@/lib/conversions'
 
 const p = (slug: string) => {
@@ -86,5 +89,56 @@ describe('helpers', () => {
   it('formatNum trims trailing zeros', () => {
     expect(formatNum(2.5)).toBe('2.5')
     expect(formatNum(100)).toBe('100')
+  })
+})
+
+describe('number scale: trillion, lakh crore, arab (4A)', () => {
+  const out = (slug: string, v: number) => formatScaleValue(p(slug), convertUnit(p(slug), v))
+
+  it('lakh crore and trillion', () => {
+    expect(out('lakh-crores-to-trillions', 1)).toBe('1')
+    expect(out('trillions-to-crores', 1)).toBe('100000')
+    expect(out('trillions-to-billions', 1)).toBe('1000')
+    expect(out('trillions-to-lakhs', 1)).toBe('10,000,000')
+    expect(out('lakh-crores-to-arab', 1)).toBe('1000')
+    expect(out('lakh-crores-to-trillions', 50)).toBe('50')
+  })
+
+  it('arab', () => {
+    expect(out('arab-to-crores', 1)).toBe('100')
+    expect(out('arab-to-billions', 1)).toBe('1')
+    expect(out('arab-to-millions', 1)).toBe('1000')
+  })
+
+  it('crore values seen in queries', () => {
+    expect(out('crores-to-billions', 150)).toBe('1.5')
+    expect(out('crores-to-billions', 4000)).toBe('40')
+    expect(out('crores-to-billions', 60000)).toBe('600')
+    expect(out('crores-to-trillions', 60000)).toBe('0.6')
+  })
+
+  it('never uses e-notation', () => {
+    expect(out('lakhs-to-trillions', 1)).toBe('0.0000001')
+    expect(out('trillions-to-lakhs', 100)).toBe('1,000,000,000')
+    expect(tableRows(p('lakhs-to-trillions'))[0].out).toBe('0.0000001')
+    expect(formula(p('lakhs-to-trillions'))).not.toMatch(/e[+-]\d/)
+    for (const pair of PAIRS.filter((x) => x.category === 'Number scale')) {
+      for (const r of tableRows(pair)) expect(r.out, pair.slug).not.toMatch(/e[+-]\d/)
+      expect(exampleText(pair), pair.slug).not.toMatch(/e[+-]\d/)
+    }
+  })
+
+  it('skips pairs whose factor ratio exceeds 1e7', () => {
+    expect(getPair('thousands-to-trillions')).toBeUndefined()
+    expect(getPair('trillions-to-thousands')).toBeUndefined()
+    expect(getPair('thousands-to-lakh-crores')).toBeUndefined()
+    expect(getPair('lakh-crores-to-thousands')).toBeUndefined()
+    expect(getPair('lakhs-to-trillions')).toBeDefined()
+    expect(PAIRS.filter((x) => x.category === 'Number scale')).toHaveLength(52)
+  })
+
+  it('exampleText reads singular with a full stop', () => {
+    expect(exampleText(p('crores-to-billions'))).toBe('1 crore = 0.01 billion.')
+    expect(exampleText(p('lakh-crores-to-trillions'))).toBe('1 lakh crore = 1 trillion.')
   })
 })

@@ -1,8 +1,46 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import ConvertPage from '@/app/convert/[slug]/page'
+import ConvertPage, { generateMetadata } from '@/app/convert/[slug]/page'
 
 const params = (slug: string) => ({ params: Promise.resolve({ slug }) })
+
+describe('number-scale metadata (quick win #1)', () => {
+  it('titles number-scale pages as a singular converter with abbreviations', async () => {
+    const m = await generateMetadata(params('crores-to-billions'))
+    expect(m.title).toBe('Crore to Billion Converter (Cr to Bn)')
+    expect(m.openGraph?.title).toBe('Crore to Billion Converter (Cr to Bn) — dauntexlabs')
+    expect(m.description).toBe(
+      'Convert crores to billions instantly and free. 1 crore = 0.01 billion. Designed to run in your browser.',
+    )
+    expect((await generateMetadata(params('thousands-to-millions'))).title).toBe(
+      'Thousand to Million Converter (K to Mn)',
+    )
+    expect((await generateMetadata(params('lakh-crores-to-trillions'))).title).toBe(
+      'Lakh Crore to Trillion Converter (L Cr to Tn)',
+    )
+  })
+
+  it('mentions the "lac" spelling on lakh pages only', async () => {
+    const lakh = await generateMetadata(params('lakhs-to-crores'))
+    expect(lakh.title).toBe('Lakh to Crore Converter (Lakh to Cr)')
+    expect(lakh.description).toContain('lakhs (also written lac)')
+    expect((await generateMetadata(params('lakh-crores-to-trillions'))).description).toMatch(
+      /^Convert lakh crores \(also written lac\) to trillions/,
+    )
+    expect((await generateMetadata(params('crores-to-billions'))).description).not.toContain('lac')
+  })
+
+  it('leaves other pairs unchanged', async () => {
+    const m = await generateMetadata(params('kilograms-to-pounds'))
+    expect(m.title).toBe('Kilograms to Pounds')
+  })
+
+  it('keeps the H1 and lede readable', async () => {
+    const { container } = render(await ConvertPage(params('crores-to-billions')))
+    expect(screen.getByRole('heading', { level: 1, name: 'Convert Crores to Billions' })).toBeTruthy()
+    expect(container.textContent).toContain('1 crore = 0.01 billion — convert any value')
+  })
+})
 
 describe('convert page worked examples', () => {
   it('renders query-phrased worked examples in the static HTML', async () => {

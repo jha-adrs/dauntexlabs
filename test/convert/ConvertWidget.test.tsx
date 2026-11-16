@@ -12,6 +12,11 @@ describe('ConvertWidget', () => {
     expect(screen.getByText(/22\.046/)).toBeInTheDocument()
   })
 
+  it('never shows e-notation for number-scale pairs', () => {
+    render(<ConvertWidget pair={getPair('lakhs-to-trillions')!} />)
+    expect(screen.getByText('0.0000001')).toBeInTheDocument()
+  })
+
   it('converts a number-base pair (binary → decimal)', () => {
     render(<ConvertWidget pair={getPair('binary-to-decimal')!} />)
     // default value '10' (binary) → 2 (decimal)

@@ -3,7 +3,7 @@
 // Instant converter for a single unit/number-base pair, pre-set from the page.
 import { useMemo, useState } from 'react'
 import { CopyButton } from '@/components/ui/kit'
-import { convertUnit, convertBase, formatNum, unitSymbols, type Pair } from '@/lib/conversions'
+import { convertUnit, convertBase, formatScaleValue, unitSymbols, type Pair } from '@/lib/conversions'
 
 export default function ConvertWidget({ pair }: { pair: Pair }) {
   const isUnit = pair.family === 'unit'
@@ -16,7 +16,7 @@ export default function ConvertWidget({ pair }: { pair: Pair }) {
       if (isUnit) {
         const n = parseFloat(val)
         if (!Number.isFinite(n)) return { out: '', error: 'Enter a number.' }
-        return { out: formatNum(convertUnit(pair, n)), error: '' }
+        return { out: formatScaleValue(pair, convertUnit(pair, n)), error: '' }
       }
       return { out: convertBase(pair, val), error: '' }
     } catch (e) {

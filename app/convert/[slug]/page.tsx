@@ -47,11 +47,18 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const pair = getPair(slug)
   if (!pair) return {}
   const path = `/convert/${pair.slug}/`
-  const title = `${pair.fromLabel} to ${pair.toLabel}`
+  const scale = pair.category === 'Number scale'
+  // Number-scale titles match the query wording: "Crore to Billion Converter (Cr to Bn)".
+  const singular = (label: string) => label.replace(/s$/, '').replace(/\b\w/g, (c) => c.toUpperCase())
+  const title = scale
+    ? `${singular(pair.fromLabel)} to ${singular(pair.toLabel)} Converter (${unitSymbols(pair).from} to ${unitSymbols(pair).to})`
+    : `${pair.fromLabel} to ${pair.toLabel}`
+  let convertPhrase = `Convert ${pair.fromLabel.toLowerCase()} to ${pair.toLabel.toLowerCase()}`
+  if (scale) convertPhrase = convertPhrase.replace(/\blakhs?( crores)?\b/,'$& (also written lac)')
   const desc =
     pair.family === 'image'
       ? `Convert ${pair.fromLabel} images to ${pair.toLabel} free, right in your browser — no sign-up.`
-      : `Convert ${pair.fromLabel.toLowerCase()} to ${pair.toLabel.toLowerCase()} instantly and free. ${exampleText(pair)} Designed to run in your browser.`
+      : `${convertPhrase} instantly and free. ${exampleText(pair)} Designed to run in your browser.`
   return {
     title,
     description: desc,
@@ -140,7 +147,7 @@ export default async function ConvertPage({ params }: Params) {
         <p className="lede">
           {pair.family === 'image'
             ? `Convert ${pair.fromLabel} images to ${pair.toLabel} in your browser — free, instant, and processed on your device.`
-            : `${exampleText(pair)} — convert any value instantly, on your device.`}
+            : `${exampleText(pair).replace(/\.$/, '')} — convert any value instantly, on your device.`}
         </p>
         <div className="tool-meta">
           <span className="pill accent">Runs on your device</span>

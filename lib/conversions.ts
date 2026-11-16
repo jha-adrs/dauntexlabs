@@ -104,15 +104,20 @@ const CATEGORIES: Record<string, UnitCategory> = {
       week: { key: 'week', label: 'Weeks', symbol: 'wk', factor: 604_800 },
     },
   },
-  // Indian number scale ↔ international: 1 lakh = 100,000; 1 crore = 10 million.
+  // Indian number scale ↔ international: 1 lakh = 100,000; 1 crore = 10 million;
+  // 1 arab = 100 crore = 1 billion; 1 lakh crore = 1 trillion.
+  // Symbols double as the abbreviations in page titles ("Crore to Billion Converter (Cr to Bn)").
   'Number scale': {
     name: 'Number scale',
     units: {
       thousand: { key: 'thousand', label: 'Thousands', symbol: 'K', factor: 1e3 },
-      lakh: { key: 'lakh', label: 'Lakhs', symbol: 'L', factor: 1e5 },
-      million: { key: 'million', label: 'Millions', symbol: 'M', factor: 1e6 },
+      lakh: { key: 'lakh', label: 'Lakhs', symbol: 'Lakh', factor: 1e5 },
+      million: { key: 'million', label: 'Millions', symbol: 'Mn', factor: 1e6 },
       crore: { key: 'crore', label: 'Crores', symbol: 'Cr', factor: 1e7 },
-      billion: { key: 'billion', label: 'Billions', symbol: 'B', factor: 1e9 },
+      billion: { key: 'billion', label: 'Billions', symbol: 'Bn', factor: 1e9 },
+      arab: { key: 'arab', label: 'Arab', symbol: 'Arab', factor: 1e9 },
+      lakhcrore: { key: 'lakhcrore', label: 'Lakh crores', symbol: 'L Cr', factor: 1e12 },
+      trillion: { key: 'trillion', label: 'Trillions', symbol: 'Tn', factor: 1e12 },
     },
   },
 }
@@ -163,6 +168,8 @@ function buildPairs(): Pair[] {
         if (a !== b) {
           const from = cat.units[a]
           const to = cat.units[b]
+          // Number scale: skip pairs (thousand ↔ trillion) whose answer is mostly zero padding.
+          if (cat.name === 'Number scale' && Math.max(from.factor / to.factor, to.factor / from.factor) > 1e7) continue
           pairs.push({
             slug: `${kebab(from.label)}-to-${kebab(to.label)}`,
             family: 'unit',
@@ -230,6 +237,22 @@ export function formatNum(n: number): string {
   return s
 }
 
+// Number-scale answers are read, not computed with: never e-notation, and
+// values from 10,000 up get en-US digit grouping ("100,000"). Same significant
+// digits as formatNum (7 from 1 up, 6 below); rounded before the grouping check.
+function scaleNum(n: number): string {
+  if (!Number.isFinite(n)) return '—'
+  if (n === 0) return '0'
+  const sig = Math.abs(n) >= 1 ? 7 : 6
+  const r = Number(n.toPrecision(sig))
+  return r.toLocaleString('en-US', { maximumSignificantDigits: sig, useGrouping: Math.abs(r) >= 1e4 })
+}
+
+/** Format a converted value for display; number-scale pairs never use e-notation. */
+export function formatScaleValue(pair: Pair, n: number): string {
+  return pair.category === 'Number scale' ? scaleNum(n) : formatNum(n)
+}
+
 function tempTo(from: string, v: number, to: string): number {
   const c = from === 'c' ? v : from === 'f' ? ((v - 32) * 5) / 9 : v - 273.15
   return to === 'c' ? c : to === 'f' ? (c * 9) / 5 + 32 : c + 273.15
@@ -266,6 +289,16 @@ export function unitSymbols(pair: Pair): { from: string; to: string } {
   return { from: from.symbol, to: to.symbol }
 }
 
+// A symbol that just repeats the unit name ("Arab", "Lakh") adds nothing to a caption.
+const repeatsName = (u: UnitDef) => u.symbol.toLowerCase() === u.label.toLowerCase().replace(/s$/, '')
+
+/** Symbols for captions and table headers: '' where the symbol repeats the unit name. */
+export function shownSymbols(pair: Pair): { from: string; to: string } {
+  const { unit: from } = unitDef(pair.fromKey)
+  const { unit: to } = unitDef(pair.toKey)
+  return { from: repeatsName(from) ? '' : from.symbol, to: repeatsName(to) ? '' : to.symbol }
+}
+
 /** Human "how it works" line. */
 export function formula(pair: Pair): string {
   if (pair.family === 'base') {
@@ -290,13 +323,15 @@ export function formula(pair: Pair): string {
     return map[`${from.key}-${to.key}`] ?? ''
   }
   const mult = from.factor / to.factor
-  return `${tl} = ${fl} × ${formatNum(mult)}`
+  return `${tl} = ${fl} × ${formatScaleValue(pair, mult)}`
 }
 
 export function exampleText(pair: Pair): string {
   if (pair.family === 'unit') {
     const { unit: from } = unitDef(pair.fromKey)
     const { unit: to } = unitDef(pair.toKey)
+    if (pair.category === 'Number scale')
+      return `1 ${queryWord(pair, from)} = ${scaleNum(convertUnit(pair, 1))} ${queryWord(pair, to)}.`
     return `1 ${from.label.toLowerCase()} = ${formatNum(convertUnit(pair, 1))} ${to.label.toLowerCase()} (${to.symbol})`
   }
   if (pair.family === 'base') {
@@ -318,7 +353,7 @@ export function tableRows(pair: Pair): { in: string; out: string }[] {
   if (pair.family === 'unit') {
     const { cat } = unitDef(pair.fromKey)
     const seeds = cat.special === 'temperature' ? TEMP_SEEDS : UNIT_SEEDS
-    return seeds.map((v) => ({ in: String(v), out: formatNum(convertUnit(pair, v)) }))
+    return seeds.map((v) => ({ in: String(v), out: formatScaleValue(pair, convertUnit(pair, v)) }))
   }
   if (pair.family === 'base') {
     const from = BASES[pair.fromKey].radix
@@ -334,11 +369,14 @@ export function tableRows(pair: Pair): { in: string; out: string }[] {
 // Rendered as sentences on indexed pages (plus Volume, which GSC shows ranking).
 // Non-number-scale values avoid 1 so the plural unit label always reads right.
 const WORKED_VALUES: Record<string, number[]> = {
-  'Number scale:thousand': [500, 1500, 10_000, 50_000],
-  'Number scale:lakh': [1, 2.5, 10, 50, 100],
-  'Number scale:million': [1, 1.5, 10, 100, 500],
-  'Number scale:crore': [1, 1.5, 10, 100],
-  'Number scale:billion': [1, 1.49, 2.5, 10],
+  'Number scale:thousand': [100, 1500, 5000, 10_000, 50_000],
+  'Number scale:lakh': [1, 2.5, 10, 25, 40, 100],
+  'Number scale:million': [0.05, 0.5, 1.5, 10, 100, 3800],
+  'Number scale:crore': [1, 2.5, 100, 250, 1000, 4000],
+  'Number scale:billion': [1, 1.49, 2, 2.5, 3.8, 7.5],
+  'Number scale:arab': [1, 2.5, 10, 50, 100],
+  'Number scale:lakhcrore': [1, 2.5, 10, 25, 50, 100],
+  'Number scale:trillion': [0.5, 1, 2.5, 4, 5, 10],
   'Length:nmi': [10, 100, 500, 1000],
   'Length:km': [100, 500, 1000],
   'Length:mi': [100, 500, 1000],
@@ -380,7 +418,7 @@ export function workedExamples(pair: Pair): { in: string; out: string; text: str
   const scale = pair.category === 'Number scale'
   const word = (u: UnitDef) => queryWord(pair, u)
   return values.slice(0, 6).map((v) => {
-    const out = workedNum(convertUnit(pair, v))
+    const out = scale ? scaleNum(convertUnit(pair, v)) : workedNum(convertUnit(pair, v))
     const unit = scale ? word(to) : out !== '1' && WORD_SYMBOL_PLURALS[to.symbol] ? WORD_SYMBOL_PLURALS[to.symbol] : to.symbol
     return {
       in: String(v),

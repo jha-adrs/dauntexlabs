@@ -24,6 +24,8 @@ export interface Tool {
   /** url segment: /tools/<slug> */
   slug: string
   name: string
+  /** optional search-facing <title>/OG title; the card and H1 keep `name` */
+  title?: string
   category: Category
   /** one-line description shown on the card + used as the page meta description */
   blurb: string
@@ -619,8 +621,9 @@ export const tools: Tool[] = [
   {
     slug: 'tip-calculator',
     name: 'Tip & Bill Split Calculator',
+    title: 'Tip Calculator with Bill Split (Tip per Person)',
     category: 'Business & Finance',
-    blurb: 'Split a bill and calculate the tip per person.',
+    blurb: "Enter the bill, tip percentage and number of people to get the tip, the total and each person's share.",
     keywords: ['tip', 'gratuity', 'bill split', 'restaurant'],
   },
 
@@ -730,8 +733,10 @@ export const tools: Tool[] = [
   {
     slug: 'date-calculator',
     name: 'Date Add / Subtract',
+    title: 'Date Calculator: Add or Subtract Days, Weeks, Months or Years',
     category: 'Everyday',
-    blurb: 'Add or subtract days, weeks or months from a date.',
+    blurb:
+      'Add or subtract days, weeks, months, years or business days from any date, for example 30 days before today or 90 days after a date.',
     keywords: ['date', 'add days', 'subtract days', 'future date'],
   },
   {

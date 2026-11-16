@@ -59,8 +59,9 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const tool = tools.find((t) => t.slug === slug)
   if (!tool) return {}
   const path = `/tools/${tool.slug}/`
+  const title = tool.title ?? tool.name
   return {
-    title: tool.name,
+    title,
     description: tool.blurb,
     keywords: tool.keywords,
     alternates: { canonical: path },
@@ -68,7 +69,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     robots: tool.status === 'maintenance' ? { index: false, follow: true } : undefined,
     openGraph: {
       type: 'website',
-      title: `${tool.name} — dauntexlabs`,
+      title: `${title} — dauntexlabs`,
       description: tool.blurb,
       url: path,
       images: OG_IMAGES,

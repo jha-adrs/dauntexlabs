@@ -15,6 +15,7 @@ import {
   exampleText,
   tableRows,
   unitSymbols,
+  shownSymbols,
   imageMime,
   type Pair,
   isIndexedPair,
@@ -47,11 +48,26 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const pair = getPair(slug)
   if (!pair) return {}
   const path = `/convert/${pair.slug}/`
-  const title = `${pair.fromLabel} to ${pair.toLabel}`
+  const scale = pair.category === 'Number scale'
+  // Number-scale titles match the query wording: "Crore to Billion Converter (Cr to Bn)".
+  const singular = (label: string) => label.replace(/s$/, '').replace(/\b\w/g, (c) => c.toUpperCase())
+  // The abbreviations are dropped when both only repeat the unit names ("Lakh to Arab Converter").
+  let title = `${pair.fromLabel} to ${pair.toLabel}`
+  if (scale) {
+    const sym = unitSymbols(pair)
+    const shown = shownSymbols(pair)
+    const abbr = shown.from || shown.to ? ` (${sym.from} to ${sym.to})` : ''
+    title = `${singular(pair.fromLabel)} to ${singular(pair.toLabel)} Converter${abbr}`
+  }
+  let convertPhrase = `Convert ${pair.fromLabel.toLowerCase()} to ${pair.toLabel.toLowerCase()}`
+  if (scale)
+    convertPhrase = convertPhrase.replace(/\blakhs?( crores)?\b/, (m, cr) =>
+      cr ? `${m} (also written lac crore)` : `${m} (also written lac)`,
+    )
   const desc =
     pair.family === 'image'
       ? `Convert ${pair.fromLabel} images to ${pair.toLabel} free, right in your browser — no sign-up.`
-      : `Convert ${pair.fromLabel.toLowerCase()} to ${pair.toLabel.toLowerCase()} instantly and free. ${exampleText(pair)} Designed to run in your browser.`
+      : `${convertPhrase} instantly and free. ${exampleText(pair)} Designed to run in your browser.`
   return {
     title,
     description: desc,
@@ -77,10 +93,14 @@ export default async function ConvertPage({ params }: Params) {
   const parent = PARENT[pair.family]
   const rows = tableRows(pair)
   const worked = workedExamples(pair)
+  // Pairs sharing a unit with this one come first (stable sort keeps registry order otherwise).
+  const shares = (p: Pair) => [p.fromKey, p.toKey].some((k) => k === pair.fromKey || k === pair.toKey)
   const siblings = PAIRS.filter(
     (p) => p.family === pair.family && p.category === pair.category && p.slug !== pair.slug && p.slug !== rev,
-  ).slice(0, 6)
-  const sym = pair.family === 'unit' ? unitSymbols(pair) : { from: '', to: '' }
+  )
+    .sort((a, b) => Number(shares(b)) - Number(shares(a)))
+    .slice(0, 6)
+  const sym = pair.family === 'unit' ? shownSymbols(pair) : { from: '', to: '' }
 
   const faq = [
     {
@@ -140,7 +160,7 @@ export default async function ConvertPage({ params }: Params) {
         <p className="lede">
           {pair.family === 'image'
             ? `Convert ${pair.fromLabel} images to ${pair.toLabel} in your browser — free, instant, and processed on your device.`
-            : `${exampleText(pair)} — convert any value instantly, on your device.`}
+            : `${exampleText(pair).replace(/\.$/, '')} — convert any value instantly, on your device.`}
         </p>
         <div className="tool-meta">
           <span className="pill accent">Runs on your device</span>

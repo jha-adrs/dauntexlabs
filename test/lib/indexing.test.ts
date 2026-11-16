@@ -51,6 +51,14 @@ describe('Number scale (lakh / crore) pages', () => {
   })
   it('are indexed', () => {
     expect(isIndexedPair(p('crores-to-millions'))).toBe(true)
+    expect(isIndexedPair(p('lakh-crores-to-trillions'))).toBe(true)
+    expect(isIndexedPair(p('arab-to-crores'))).toBe(true)
+  })
+  it('lists the new trillion / lakh crore / arab pages in the sitemap', () => {
+    const urls = sitemap().map((e) => e.url)
+    expect(urls).toContain('https://dauntexlabs.com/convert/lakh-crores-to-trillions/')
+    expect(urls).toContain('https://dauntexlabs.com/convert/billions-to-arab/')
+    expect(urls).not.toContain('https://dauntexlabs.com/convert/thousands-to-trillions/')
   })
 })
 

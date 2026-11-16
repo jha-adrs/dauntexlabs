@@ -14,9 +14,29 @@ describe('workedExamples', () => {
   })
 
   it('covers lakh/crore round values both ways', () => {
-    expect(sentences('crores-to-lakhs')).toContain('1.5 crore in lakh = 150 lakh')
-    expect(sentences('lakhs-to-crores')).toContain('50 lakh in crore = 0.5 crore')
-    expect(sentences('millions-to-crores')).toContain('1 million in crore = 0.1 crore')
+    expect(sentences('crores-to-lakhs')).toContain('2.5 crore in lakh = 250 lakh')
+    expect(sentences('lakhs-to-crores')).toContain('40 lakh in crore = 0.4 crore')
+    expect(sentences('millions-to-crores')).toContain('1.5 million in crore = 0.15 crore')
+  })
+
+  it('uses the GSC-observed values (quick win #4)', () => {
+    expect(workedExamples(p('crores-to-billions')).map((e) => e.in)).toEqual(['1', '2.5', '100', '250', '1000', '4000'])
+    expect(workedExamples(p('lakhs-to-crores')).map((e) => e.in)).toEqual(['1', '2.5', '10', '25', '40', '100'])
+    expect(workedExamples(p('millions-to-crores')).map((e) => e.in)).toEqual(['0.05', '0.5', '1.5', '10', '100', '3800'])
+    expect(workedExamples(p('billions-to-crores')).map((e) => e.in)).toEqual(['1', '1.49', '2', '2.5', '3.8', '7.5'])
+    expect(workedExamples(p('thousands-to-lakhs')).map((e) => e.in)).toEqual(['100', '1500', '5000', '10000', '50000'])
+    expect(sentences('crores-to-billions')).toContain('4000 crore in billion = 40 billion')
+    expect(sentences('crores-to-lakhs')).toContain('1000 crore in lakh = 100,000 lakh')
+  })
+
+  it('every new trillion / lakh crore / arab pair has 1-6 examples', () => {
+    const fresh = PAIRS.filter((x) => /trillion|lakh-crore|arab/.test(x.slug))
+    expect(fresh).toHaveLength(32)
+    for (const pair of fresh) {
+      const n = workedExamples(pair).length
+      expect(n, pair.slug).toBeGreaterThanOrEqual(1)
+      expect(n, pair.slug).toBeLessThanOrEqual(6)
+    }
   })
 
   it('answers "100 nautical miles in km" with the unit symbol on the result', () => {
@@ -47,7 +67,8 @@ describe('workedExamples', () => {
     expect(sentences('nautical-miles-to-millimeters')).toContain(
       '10 nautical miles in millimeters = 18,520,000 mm',
     )
-    expect(sentences('billions-to-thousands')).toContain('10 billion in thousand = 10,000,000 thousand')
+    expect(sentences('crores-to-thousands')).toContain('4000 crore in thousand = 40,000,000 thousand')
+    expect(sentences('lakhs-to-trillions')).toContain('1 lakh in trillion = 0.0000001 trillion')
   })
 
   it('pluralises unit symbols that are plain words', () => {

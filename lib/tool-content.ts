@@ -72,6 +72,7 @@ import sqlFormatter from './tool-content/sql-formatter'
 import textToCsv from './tool-content/text-to-csv'
 import timezoneConverter from './tool-content/timezone-converter'
 import unitConverter from './tool-content/unit-converter'
+import attendanceCalculator from './tool-content/attendance-calculator'
 
 export type { ToolContent } from './tool-content/types'
 
@@ -151,4 +152,5 @@ export const TOOL_CONTENT: Record<string, ToolContent> = {
   'text-to-csv': textToCsv,
   'timezone-converter': timezoneConverter,
   'unit-converter': unitConverter,
+  'attendance-calculator': attendanceCalculator,
 }

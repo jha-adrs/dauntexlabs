@@ -92,6 +92,27 @@ describe('WhatsappChatViewer', () => {
   it('shows a notice when nothing parses', () => {
     render(<WhatsappChatViewer />)
     paste('just some text')
-    expect(screen.getByText(/No WhatsApp messages found/i)).toBeInTheDocument()
+    expect(screen.getByText(/No WhatsApp messages found/i)).toHaveTextContent(/date and time format.*not recognised/i)
+  })
+
+  it('labels the sender filter and search box, shows a Type column and announces the count', () => {
+    render(<WhatsappChatViewer />)
+    paste(CHAT)
+    expect(screen.getByRole('combobox', { name: /sender/i })).toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: /search/i })).toBeInTheDocument()
+    expect(screen.getByRole('columnheader', { name: 'Type' })).toBeInTheDocument()
+    expect(screen.getByRole('cell', { name: 'media' })).toBeInTheDocument()
+    expect(screen.getByText(/4 messages/).closest('[aria-live]')).not.toBeNull()
+  })
+
+  it('shows 200 rows at a time with a "show more" button', () => {
+    render(<WhatsappChatViewer />)
+    paste(Array.from({ length: 250 }, (_, i) => `31/12/2023, 22:15 - Alice: m${i}`).join('\n'))
+    const rows = () => within(screen.getByRole('table')).getAllByRole('row')
+    expect(rows()).toHaveLength(201)
+    expect(screen.getByText(/showing 200 of 250/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /show 200 more/i }))
+    expect(rows()).toHaveLength(251)
+    expect(screen.queryByRole('button', { name: /show 200 more/i })).not.toBeInTheDocument()
   })
 })

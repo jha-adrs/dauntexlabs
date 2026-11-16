@@ -3,7 +3,7 @@ import type { ToolContent } from './types'
 const content: ToolContent = {
   intro: [
     'WhatsApp lets you export any chat as a plain .txt file, but reading that file is awkward: every message is one long line with the date, time and sender squeezed in front, and long messages wrap across several lines. This tool turns an exported chat into a table with separate date, time, sender and message columns. You can search it, filter it to one person, see how many messages each person sent, and download the result as a CSV file for Excel or Google Sheets, or as JSON.',
-    'It reads exports from Android and iPhone, in 12-hour and 24-hour time, with dates written with slashes or dots. Messages that run over several lines are kept together, photos and other attachments are marked as media, and lines such as "Messages and calls are end-to-end encrypted" are marked as system lines with no sender. Timestamps are kept exactly as your phone wrote them.',
+    'It reads exports from Android and iPhone, in 12-hour and 24-hour time, with dates written with slashes, dots or year first. Messages that run over several lines are kept together, and photos and other attachments are marked as media. Notices such as "Messages and calls are end-to-end encrypted" or a group being renamed are usually marked as system lines with no sender, although some iPhone group notices may appear under the group name instead. Timestamps are kept exactly as your phone wrote them.',
     'A private conversation is about as personal as a file gets, so the chat is designed to be processed in your browser, on your device, rather than on a server. This tool is independent and is not affiliated with WhatsApp or Meta.',
   ],
   steps: [

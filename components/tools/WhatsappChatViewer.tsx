@@ -1,11 +1,11 @@
 'use client'
 
 import { useMemo, useState, type CSSProperties } from 'react'
-import { DownloadButton, FileDrop, FilePreview, Notice, Panel, Segmented, Select, TextArea, TextInput, Toolbar } from '@/components/ui/kit'
+import { Button, downloadBlob, Field, FileDrop, FilePreview, Notice, Panel, Segmented, Select, TextArea, TextInput, Toolbar } from '@/components/ui/kit'
 import { chatToCsv, parseChat, type DateOrder } from '@/lib/whatsapp'
 
 const LARGE = 50 * 1024 * 1024
-const PREVIEW_ROWS = 200
+const PAGE = 200
 
 const ORDERS: { value: DateOrder; label: string }[] = [
   { value: 'dmy', label: 'Day-first' },
@@ -24,6 +24,7 @@ export default function WhatsappChatViewer() {
   const [order, setOrder] = useState<DateOrder | undefined>()
   const [sender, setSender] = useState('')
   const [query, setQuery] = useState('')
+  const [limit, setLimit] = useState(PAGE)
 
   const source = file ? file.text : pasted
   const result = useMemo(() => (source.trim() ? parseChat(source, order) : null), [source, order])
@@ -42,13 +43,11 @@ export default function WhatsappChatViewer() {
     )
   }, [messages, sender, query])
 
-  const csv = useMemo(() => (shown.length ? chatToCsv(shown) : ''), [shown])
-  const json = useMemo(() => (shown.length ? JSON.stringify(shown, null, 2) : ''), [shown])
-
   function reset() {
     setOrder(undefined)
     setSender('')
     setQuery('')
+    setLimit(PAGE)
   }
 
   function onFiles(files: File[]) {
@@ -67,6 +66,13 @@ export default function WhatsappChatViewer() {
   }
 
   const base = file ? file.name.replace(/\.txt$/i, '') || 'chat' : 'chat'
+
+  function downloadCsv() {
+    downloadBlob(new Blob(['\ufeff' + chatToCsv(shown)], { type: 'text/csv;charset=utf-8' }), `${base}.csv`)
+  }
+  function downloadJson() {
+    downloadBlob(new Blob([JSON.stringify(shown, null, 2)], { type: 'application/json' }), `${base}.json`)
+  }
 
   return (
     <>
@@ -97,7 +103,8 @@ export default function WhatsappChatViewer() {
       {readError && <Notice kind="error">{readError}</Notice>}
       {result && messages.length === 0 && (
         <Notice kind="error">
-          No WhatsApp messages found. Export the chat from WhatsApp (More → Export chat) and drop the .txt file here.
+          No WhatsApp messages found: the date and time format of these lines was not recognised. Use a chat exported from
+          WhatsApp (Export chat, without media), where each message starts with a date and time.
         </Notice>
       )}
 
@@ -114,30 +121,34 @@ export default function WhatsappChatViewer() {
             </>
           )}
           <Toolbar>
-            <Select
-              value={sender}
-              onChange={setSender}
-              options={[
-                { value: '', label: `All senders (${messages.length})` },
-                ...counts.map(([name, n]) => ({ value: name, label: `${name} (${n})` })),
-              ]}
-            />
-            <TextInput value={query} onChange={setQuery} placeholder="Search messages" />
+            <Field label="Sender">
+              <Select
+                value={sender}
+                onChange={(v) => { setSender(v); setLimit(PAGE) }}
+                options={[
+                  { value: '', label: `All senders (${messages.length})` },
+                  ...counts.map(([name, n]) => ({ value: name, label: `${name} (${n})` })),
+                ]}
+              />
+            </Field>
+            <Field label="Search">
+              <TextInput value={query} onChange={(v) => { setQuery(v); setLimit(PAGE) }} placeholder="Search messages" />
+            </Field>
           </Toolbar>
 
           <Panel
             title="Messages"
             actions={
               <>
-                <DownloadButton text={csv ? '﻿' + csv : ''} filename={`${base}.csv`} mime="text/csv;charset=utf-8" label="Download CSV" />
-                <DownloadButton text={json} filename={`${base}.json`} mime="application/json" label="Download JSON" />
+                <Button onClick={downloadCsv} disabled={!shown.length}>Download CSV</Button>
+                <Button onClick={downloadJson} disabled={!shown.length}>Download JSON</Button>
               </>
             }
           >
-            <p style={meta}>
+            <p style={meta} aria-live="polite">
               {messages.length} message{messages.length === 1 ? '' : 's'}
               {shown.length !== messages.length && ` · ${shown.length} match`}
-              {shown.length > PREVIEW_ROWS && ` · showing ${PREVIEW_ROWS} of ${shown.length} (downloads include all)`}
+              {shown.length > limit && ` · showing ${limit} of ${shown.length} (downloads include all)`}
             </p>
             {shown.length > 0 && (
               <div style={{ overflowX: 'auto' }}>
@@ -148,20 +159,27 @@ export default function WhatsappChatViewer() {
                       <th style={th}>Time</th>
                       <th style={th}>Sender</th>
                       <th style={th}>Message</th>
+                      <th style={th}>Type</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {shown.slice(0, PREVIEW_ROWS).map((m, i) => (
+                    {shown.slice(0, limit).map((m, i) => (
                       <tr key={i} style={{ borderBottom: '1px solid var(--line)', color: m.type === 'text' ? undefined : 'var(--mute)' }}>
                         <td style={nowrap}>{m.date}</td>
                         <td style={nowrap}>{m.time}</td>
                         <td style={{ ...td, whiteSpace: 'nowrap' }}>{m.sender}</td>
                         <td style={{ ...td, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{m.message}</td>
+                        <td style={td}>{m.type}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+            )}
+            {shown.length > limit && (
+              <p style={{ margin: '0.75rem 0 0' }}>
+                <Button onClick={() => setLimit(limit + PAGE)}>Show {PAGE} more</Button>
+              </p>
             )}
           </Panel>
         </>

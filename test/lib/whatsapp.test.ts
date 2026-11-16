@@ -3,8 +3,8 @@ import { parseChat, chatToCsv } from '@/lib/whatsapp'
 
 // Synthetic fixtures built from the line shapes documented by whatstk, wc-parser and
 // whatsapp-chat-parser. A real Android and iOS export still has to be run by hand before merge.
-const LRM = '‎'
-const NNBSP = ' '
+const LRM = '\u200e'
+const NNBSP = '\u202f'
 
 describe('parseChat — header shapes', () => {
   it('Android 12 h, month-first', () => {
@@ -38,6 +38,36 @@ describe('parseChat — header shapes', () => {
     expect(r.messages[0]).toMatchObject({ date: '2023-12-31', time: '22:15:00', sender: 'Bob', message: 'Hallo' })
   })
 
+  it.each([
+    '2023-12-31 22:15 - Bob: Hi',
+    '2023/12/31 22:15 - Bob: Hi',
+    '[2023-12-31, 22:15:32] Bob: Hi',
+  ])('year-first dates: %s', (line) => {
+    const r = parseChat(line)
+    expect(r.messages[0]).toMatchObject({ date: '2023-12-31', sender: 'Bob', message: 'Hi', type: 'text' })
+    expect(r.ambiguous).toBe(false)
+  })
+
+  it('year-first dates ignore a forced order', () => {
+    expect(parseChat('2023-03-04 10:00 - A: x', 'mdy').messages[0].date).toBe('2023-03-04')
+  })
+
+  it('dotted times', () => {
+    expect(parseChat('31/12/23, 22.15 - Bob: Ciao').messages[0]).toMatchObject({ time: '22:15:00', sender: 'Bob', message: 'Ciao' })
+  })
+
+  it.each([
+    '99/99/23, 10:15 - Alice: x',
+    '13/13/23, 10:15 - Alice: x',
+    '1/2/23, 13:00 PM - Alice: x',
+    '1/2/23, 10:60 - Alice: x',
+    '2023-13-01 10:00 - Alice: x',
+  ])('an out-of-range header is a continuation line: %s', (line) => {
+    const r = parseChat(`31/12/2023, 22:15 - Bob: first\n${line}`)
+    expect(r.messages).toHaveLength(1)
+    expect(r.messages[0].message).toBe(`first\n${line}`)
+  })
+
   it('12 PM stays noon', () => {
     expect(parseChat('1/2/23, 12:30 PM - A: x').messages[0].time).toBe('12:30:00')
   })
@@ -64,6 +94,18 @@ describe('parseChat — bodies', () => {
   it('a time inside a system line is not taken as a sender', () => {
     const r = parseChat('31/12/2023, 22:15 - Alice changed the meeting to 10:30 tomorrow')
     expect(r.messages[0]).toMatchObject({ type: 'system', sender: '' })
+  })
+
+  it('an Android group rename containing ": " is a system line', () => {
+    const r = parseChat('31/12/2023, 22:15 - Alice changed the group name from "Old" to "Trip: Goa 2024"')
+    expect(r.messages[0]).toMatchObject({ type: 'system', sender: '' })
+    expect(r.messages[0].message).toBe('Alice changed the group name from "Old" to "Trip: Goa 2024"')
+  })
+
+  it('an iOS notice starting with U+200E is a system line', () => {
+    const r = parseChat(`[31/12/23, 10:15:32 PM] ${LRM}Alice changed the subject to \u201cTrip: Goa\u201d`)
+    expect(r.messages[0]).toMatchObject({ type: 'system', sender: '' })
+    expect(r.messages[0].message).toBe('Alice changed the subject to \u201cTrip: Goa\u201d')
   })
 
   it.each([

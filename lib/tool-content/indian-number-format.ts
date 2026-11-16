@@ -26,6 +26,10 @@ const content: ToolContent = {
       a: 'Yes. One lakh crore is 10^12, which is one trillion (1,000 billion). So 50 lakh crore is 50 trillion, and 60,000 crore is 0.6 lakh crore or 0.6 trillion.',
     },
     {
+      q: 'Can you show some worked examples?',
+      a: '0.05 million = 50,000 (0.5 lakh). 0.01 crore = 1 lakh. 50,000 crore (50k crore) = 500 billion = 0.5 lakh crore. 5 crore = 50 million.',
+    },
+    {
       q: 'Where do the commas go in the Indian number system?',
       a: 'The last three digits form one group and every group to the left has two digits: 12,34,56,789. The international system groups every three digits: 123,456,789. Both are the same number.',
     },

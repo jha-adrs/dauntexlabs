@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { parseAmount, formatInternational, inScale, describeAmount } from '@/lib/indian-number'
+import { tools } from '@/lib/tools'
+import content from '@/lib/tool-content/indian-number-format'
 
 function ok(text: string) {
   const r = parseAmount(text)
@@ -51,6 +53,34 @@ describe('parseAmount', () => {
   })
 })
 
+describe('parseAmount — query-shaped input', () => {
+  const v = (t: string) => {
+    const r = parseAmount(t)
+    return r && r.ok ? r.value : undefined
+  }
+  it('strips currency, filler words, "in X" tails and trailing dots', () => {
+    const five = v('5 crore')
+    expect(five).toBe(5000000000n)
+    for (const t of ['5 crore in million', '5 crore views in million', '5 crore rupees', '₹5 crore', 'Rs 5 crore', 'rs. 5 crore', '5 crores.', '5 crore to billion', '5 crore into lakh', '5 crore inr'])
+      expect(v(t), t).toBe(five)
+    expect(v('2.5 Cr.')).toBe(v('2.5 crore'))
+    expect(v('2.5cr in million')).toBe(v('2.5 crore'))
+    expect(v('50k crore in billion')).toBe(v('50 thousand crore'))
+  })
+
+  it('rejects input longer than 60 characters', () => {
+    const r = parseAmount('1'.repeat(61))
+    expect(r && r.ok).toBe(false)
+  })
+
+  it('returns quickly on pathological input', () => {
+    const t0 = performance.now()
+    const r = parseAmount('9'.repeat(50000) + '!')
+    expect(performance.now() - t0).toBeLessThan(100)
+    expect(r && r.ok).toBe(false)
+  })
+})
+
 describe('formatInternational', () => {
   it('groups digits in threes', () => {
     expect(formatInternational('10000000')).toBe('10,000,000')
@@ -75,6 +105,7 @@ describe('describeAmount — spec acceptance', () => {
     expect(scale(d, 'crore')).toBe('1 crore')
     expect(scale(d, 'million')).toBe('10 million')
     expect(d.zeros).toBe(7)
+    expect(d.digits).toBe(8)
     expect(d.wordsIndian).toBe('One Crore')
     expect(d.wordsInternational).toBe('Ten Million')
   })
@@ -137,9 +168,38 @@ describe('describeAmount — spec acceptance', () => {
   it('spells 10^18 without losing precision', () => {
     const d = ok('1000000000000000000')
     expect(d.wordsInternational).toBe('One Quintillion')
-    expect(d.wordsIndian).toBe('Ten Thousand Crore Crore')
+    expect(d.wordsIndian).toBe('—')
     const e = ok('999999999999999999')
     expect(e.wordsInternational.startsWith('Nine Hundred Ninety-Nine Quadrillion')).toBe(true)
-    expect(e.wordsIndian.endsWith('Nine Hundred Ninety-Nine')).toBe(true)
+    expect(e.wordsIndian).toBe('—')
+    expect(ok('999999999999999').wordsIndian.endsWith('Nine Hundred Ninety-Nine')).toBe(true)
+  })
+})
+
+describe('describeAmount — display rules', () => {
+  it('hides scale rows below 0.001 of the unit', () => {
+    const d = ok('1.5 lakh')
+    expect(scale(d, 'lakh crore')).toBeUndefined()
+    expect(scale(d, 'trillion')).toBeUndefined()
+    expect(scale(d, 'billion')).toBeUndefined() // 0.00015
+    expect(scale(d, 'crore')).toBe('0.015 crore')
+    expect(scale(ok('50k crore'), 'lakh crore')).toBe('0.5 lakh crore')
+  })
+
+  it('leaves zeros/digits undefined when there is a fractional part', () => {
+    expect(ok('1.5').zeros).toBeUndefined()
+    expect(ok('1.5').digits).toBeUndefined()
+  })
+})
+
+describe('registry and content', () => {
+  it('blurb is at most 155 characters', () => {
+    const t = tools.find((x) => x.slug === 'indian-number-format')
+    expect(t).toBeDefined()
+    expect(t!.blurb.length).toBeLessThanOrEqual(155)
+  })
+  it('has a worked-examples FAQ', () => {
+    const a = content.faq.map((f) => f.a).join(' ')
+    for (const s of ['0.05 million', '0.01 crore', '500 billion', '50 million']) expect(a).toContain(s)
   })
 })

@@ -28,7 +28,28 @@ describe('IndianNumberFormat', () => {
   it('counts zeros', () => {
     render(<IndianNumberFormat />)
     type('10000000')
-    expect(screen.getByText('7')).toBeInTheDocument()
+    expect(screen.getByText('7 zeros · 8 digits')).toBeInTheDocument()
+  })
+
+  it('hides the zeros row for fractional values', () => {
+    render(<IndianNumberFormat />)
+    type('1.5')
+    expect(screen.queryByText(/zeros ·/)).toBeNull()
+  })
+
+  it('shows a dash for Indian words beyond 15 digits', () => {
+    render(<IndianNumberFormat />)
+    type('1000000000000000000')
+    expect(screen.getByText('—')).toBeInTheDocument()
+  })
+
+  it('announces results politely', () => {
+    const { container } = render(<IndianNumberFormat />)
+    type('abc')
+    expect(container.querySelector('[aria-live="polite"] .notice')).not.toBeNull()
+    type('5 crore in million')
+    expect(container.querySelector('[aria-live="polite"] table')).not.toBeNull()
+    expect(screen.getByText('50 million')).toBeInTheDocument()
   })
 
   it.each(['abc', '-5', '10000000000000000001'])('shows a notice, never NaN, for %s', (v) => {

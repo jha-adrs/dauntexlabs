@@ -20,7 +20,9 @@ export default function IndianNumberFormat() {
       ...d.internationalScale.map((s) => ({ label: `In ${s.unit}`, value: s.text, mono: true })),
       { label: 'Words (Indian)', value: d.wordsIndian, mono: false },
       { label: 'Words (international)', value: d.wordsInternational, mono: false },
-      { label: 'Number of zeros', value: String(d.zeros), mono: true },
+      ...(d.zeros === undefined
+        ? []
+        : [{ label: 'Zeros and digits', value: `${d.zeros} ${d.zeros === 1 ? 'zero' : 'zeros'} · ${d.digits} ${d.digits === 1 ? 'digit' : 'digits'}`, mono: false }]),
     ]
   }, [res])
 
@@ -33,6 +35,7 @@ export default function IndianNumberFormat() {
         <TextInput value={text} onChange={setText} placeholder="e.g. 2.5 crore" />
       </Field>
 
+      <div aria-live="polite">
       {res && !res.ok && <Notice kind="error">{res.error}</Notice>}
 
       {rows && (
@@ -47,13 +50,14 @@ export default function IndianNumberFormat() {
                   {r.value}
                 </td>
                 <td style={{ ...cell, textAlign: 'right', width: 1 }}>
-                  <CopyButton text={r.value} />
+                  <CopyButton text={r.value === '—' ? '' : r.value} />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
+      </div>
     </>
   )
 }

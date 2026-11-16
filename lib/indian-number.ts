@@ -19,20 +19,30 @@ const ALIASES: Record<string, number> = {
 }
 
 const MAX = 10n ** 20n // 10^18, in hundredths
+const MAX_LEN = 60
+const FILLER = new Set(['rupees', 'rs', 'inr', 'views'])
 const pow10 = (n: number) => 10n ** BigInt(n)
 
 /** Parse "2.5 crore", "50k crore", "1,00,000" … into exact hundredths. null for empty input. */
 export function parseAmount(text: string): ParseResult | null {
-  const s = text.trim().toLowerCase()
-  if (!s) return null
+  const raw = text.trim().toLowerCase()
+  if (!raw) return null
+  if (raw.length > MAX_LEN) return { ok: false, error: `Keep the input under ${MAX_LEN} characters, like 2.5 crore or 1,25,000.` }
+  // Query-shaped input: "₹5 crore views in million" → "5 crore views"; "2.5 Cr." → "2.5 cr".
+  const s = raw
+    .replace(/^(₹|rs\.?)\s*/, '')
+    .replace(/\s+(in|to|into)\b.*$/, '')
+    .replace(/\.$/, '')
+    .trim()
   if (s.startsWith('-')) return { ok: false, error: 'Negative numbers are not supported.' }
-  const m = /^([\d,]*\.?\d*)\s*([a-z\s]*)$/.exec(s)
+  const m = /^([\d,]*(?:\.\d*)?)([a-z\s]*)$/.exec(s)
   const num = m ? m[1].replace(/,/g, '') : ''
   if (!m || !/^(\d+\.?\d*|\.\d+)$/.test(num))
     return { ok: false, error: 'Enter a number or a phrase, like 2.5 crore, 50k crore or 1,25,000.' }
 
   let exp = 0
   for (const word of m[2].split(/\s+/).filter(Boolean)) {
+    if (FILLER.has(word)) continue
     const e = ALIASES[word]
     if (e === undefined)
       return { ok: false, error: `Unknown unit "${word}". Use thousand (k), lakh (lac), crore (cr), million (mn), billion (bn) or trillion (tn).` }
@@ -71,13 +81,8 @@ export function inScale(value: bigint, unit: ScaleUnit): string {
   return join(int, frac)
 }
 
-/** Indian words for a digit string, exact beyond 2^53 (recurses on the crore count like lib/rupees). */
-function indianWords(digits: string): string {
-  if (digits.length <= 15) return intWords(Number(digits), 'en')
-  const high = indianWords(digits.slice(0, -7)) + ' Crore'
-  const low = Number(digits.slice(-7))
-  return low ? high + ' ' + intWords(low, 'en') : high
-}
+/** Indian words; beyond 15 digits the recursive crore wording stops being readable, so show a dash. */
+const indianWords = (digits: string) => (digits.length > 15 ? '—' : intWords(Number(digits), 'en'))
 
 const INTL = ['', 'Thousand', 'Million', 'Billion', 'Trillion', 'Quadrillion', 'Quintillion']
 function internationalWords(digits: string): string {
@@ -105,23 +110,29 @@ export interface Described {
   internationalScale: { unit: ScaleUnit; text: string }[]
   wordsIndian: string
   wordsInternational: string
-  /** Zeros in the whole-number digits (0 when the value is below 1). */
-  zeros: number
+  /** Zeros and digit count of a whole number; undefined when the value has a fractional part. */
+  zeros?: number
+  digits?: number
 }
 
 export function describeAmount(value: bigint): Described {
   const { int, frac } = shiftDecimal(value, 2)
-  const scaled = (unit: ScaleUnit, group: (d: string) => string) => {
-    const s = shiftDecimal(value, EXP[unit] + 2)
-    return { unit, text: `${join(group(s.int), s.frac)} ${unit}` }
-  }
+  const scaled = (units: ScaleUnit[], group: (d: string) => string) =>
+    units.flatMap((unit) => {
+      const s = shiftDecimal(value, EXP[unit] + 2)
+      // Hide values below 0.001 of the unit (e.g. 1.5 lakh in trillion): noise, not information.
+      if (s.int === '0' && s.frac.startsWith('000')) return []
+      return [{ unit, text: `${join(group(s.int), s.frac)} ${unit}` }]
+    })
+  const whole = frac ? null : int.replace(/^0+(?=\d)/, '')
   return {
     indian: join(formatIndian(int), frac),
     international: join(formatInternational(int), frac),
-    indianScale: INDIAN_UNITS.map((u) => scaled(u, formatIndian)),
-    internationalScale: INTL_UNITS.map((u) => scaled(u, formatInternational)),
+    indianScale: scaled(INDIAN_UNITS, formatIndian),
+    internationalScale: scaled(INTL_UNITS, formatInternational),
     wordsIndian: words(int, frac, indianWords),
     wordsInternational: words(int, frac, internationalWords),
-    zeros: /^0*$/.test(int) ? 0 : [...int].filter((c) => c === '0').length,
+    zeros: whole === null ? undefined : whole === '0' ? 0 : [...whole].filter((c) => c === '0').length,
+    digits: whole === null ? undefined : whole.length,
   }
 }

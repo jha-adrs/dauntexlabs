@@ -943,7 +943,7 @@ export const tools: Tool[] = [
     slug: 'indian-number-format',
     name: 'Indian Number Format Converter',
     category: 'India',
-    blurb: 'Type a number or a phrase like 2.5 crore or 50k crore and see Indian and international commas, lakh/crore and million/billion values, words and the count of zeros.',
+    blurb: 'Convert 2.5 crore, 50k crore or 3.8 billion: Indian and international commas, lakh, crore, million and billion values, words and zeros.',
     keywords: ['indian number format', 'indian comma format', 'crore to million', 'lakh to million', 'crore in numbers', 'how many zeros in a crore', 'lakh crore to trillion', 'million to lakh', 'cr to bn'],
   },
   {

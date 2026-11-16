@@ -149,6 +149,7 @@ const REGISTRY: Record<string, ComponentType> = {
   'vcf-to-csv': dynamic(() => import('@/components/tools/VcfToCsv'), { ssr: false, loading }),
   'ics-viewer': dynamic(() => import('@/components/tools/IcsViewer'), { ssr: false, loading }),
   'amount-in-words-rupees': dynamic(() => import('@/components/tools/AmountInWordsRupees'), { ssr: false, loading }),
+  'indian-number-format': dynamic(() => import('@/components/tools/IndianNumberFormat'), { ssr: false, loading }),
   'pdf-metadata-remover': dynamic(() => import('@/components/tools/PdfMetadataRemover'), { ssr: false, loading }),
   'homoglyph-detector': dynamic(() => import('@/components/tools/HomoglyphDetector'), { ssr: false, loading }),
   'krutidev-to-unicode': dynamic(() => import('@/components/tools/KrutiDevToUnicode'), { ssr: false, loading }),

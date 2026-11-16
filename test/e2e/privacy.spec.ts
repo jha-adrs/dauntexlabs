@@ -174,6 +174,8 @@ for (const slug of [
   'pressure-altitude-calculator',
   'flight-time-fuel-calculator',
   'weight-and-balance-calculator',
+  // advisor next batch (2026-11-16)
+  'indian-number-format',
 ]) {
   test(`${slug}: typed input never leaves the page`, async ({ page }) => {
     const canary = canaryFor()

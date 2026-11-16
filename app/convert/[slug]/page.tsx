@@ -171,6 +171,12 @@ export default async function ConvertPage({ params }: Params) {
                 <h2>How it works</h2>
               </div>
               <p className="conv-formula">{formula(pair)}</p>
+              {pair.category === 'Number scale' && (
+                <p>
+                  Have a phrase like &ldquo;2.5 crore&rdquo; or &ldquo;50k crore&rdquo;? Try the{' '}
+                  <Link href="/tools/indian-number-format/">Indian Number Format Converter</Link>.
+                </p>
+              )}
             </section>
 
             <section className="block">
